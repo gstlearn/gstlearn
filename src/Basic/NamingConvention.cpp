@@ -166,7 +166,29 @@ namespace gstlrn
     // so we check that the UID is still valid
     if (!dbout->isUIDValid(iattout_start)) return;
 
-    auto nameloc = names;
+    VectorString nameloc;
+    nvar = _getNames(names, nvar, nameloc);
+
+    VectorString outnames;
+    _setNames(dbout, iattout_start, nameloc, nvar, qualifier, nitems, outnames);
+
+    if (flagSetLocator)
+      setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
+
+    if (Db::isOldStyle())
+    {
+      // In the case of Old_Style storage, the output variable in the multiversion case,
+      // must be replaced by a set of monoversion columns.
+      _setMultipleVariables(dbout, outnames);
+    }
+  }
+
+  Id NamingConvention::_getNames(
+    const VectorString& names,
+    Id nvar,
+    VectorString& nameloc)
+  {
+    nameloc = names;
     if (nameloc.empty())
     {
       // 'names' is not provided, 'nvar' prevails (if not defined, it is set to 1)
@@ -196,19 +218,7 @@ namespace gstlrn
         }
       }
     }
-
-    VectorString outnames;
-    _setNames(dbout, iattout_start, nameloc, nvar, qualifier, nitems, outnames);
-
-    if (flagSetLocator)
-      setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
-
-    if (Db::isOldStyle())
-    {
-      // In the case of Old_Style storage, the output variable in the multiversion case,
-      // must be replaced by a set of monoversion columns.
-      _setMultipleVariables(dbout, outnames);
-    }
+    return nvar;
   }
 
   void NamingConvention::_setMultipleVariables(
@@ -471,4 +481,47 @@ namespace gstlrn
     return name;
   }
 
+  /**
+   * @brief Operate the renaming of a single variable in a Db according to the naming convention.
+   *
+   * @param dbout Db file containing the variable to be renamed.
+   * @param colid Column descriptor of the variable to be renamed.
+   * @param radix Radix of the new Name
+   * @param name Suffix of the new Name (if not defined, the name is set to 'qualifier')
+   * @param flagSetRole When TRUE, set the locator (as defined in NamingConvetion class)
+   * @param roleIndex Index of the Role
+   */
+  void NamingConvention::setOneColumn(
+    Db* dbout,
+    const ColID& colid,
+    const String& radix,
+    const String& name,
+    bool flagSetRole,
+    Id roleIndex) const
+  {
+    auto iuid = dbout->getUID(colid);
+    setOutput({name}, 1, dbout, iuid, radix, 1, flagSetRole, roleIndex);
+  }
+
+  void NamingConvention::setMultiColumns(
+    Db* dbout,
+    const ColIDs& colids,
+    const String& radix,
+    const VectorString& names,
+    Id nitems,
+    bool flagSetRole,
+    Id roleIndex) const
+  {
+    auto number = static_cast<Id>(colids.size());
+    if (number <= 0) return;
+
+    if (nitems <= 0) nitems = 1;
+    auto nvar = number / nitems;
+
+    // For the time being, the variables are assumed to be allocated continuously.
+    // Then it suffices to consider the UID of the first variable to derive the whole set
+    // TODO: this should be improved to allow for non-continuous allocation of the variable
+    auto iuid0 = colids[0].getUID();
+    setOutput(names, nvar, dbout, iuid0, radix, nitems, flagSetRole, roleIndex);
+  }
 } // namespace gstlrn

@@ -764,9 +764,9 @@ namespace gstlrn
     }
 
     // Store the patch rank in the Data Base
-    Id iuid = _db->addColumnsByConstant(1, 1, ITEST, "Patch");
+    auto colid_iuid = _db->addOneColumn("Patch", ITEST);
     for (Id i = 0, n = static_cast<Id>(origRank.size()); i < n; i++)
-      _db->setValue(_db->fromUID(iuid), origs[i], ig[i]);
+      _db->setValue(colid_iuid, origs[i], ig[i]);
 
     // Calculate the global center of gravity
 

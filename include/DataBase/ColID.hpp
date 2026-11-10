@@ -26,7 +26,7 @@ namespace gstlrn
    * a variety of identification methods:
    * - by its column index
    * - by its name (unique in the Data Base) or
-   * - by its Role (name and rank)
+   * - by its Role (name and index)
    * (the Column identification also handles the version number)
    *
    * Obviously, at the end of the Column recognition, the returned value must be the index of the Column
@@ -51,6 +51,7 @@ namespace gstlrn
   class GSTLEARN_EXPORT ColID: public AStringable
   {
   public:
+    ColID();
     ColID(const std::string& name, Id version = 0);
     ColID(const std::string_view name, Id version = 0);
     ColID(Id icol, Id version = 0);
@@ -87,9 +88,26 @@ namespace gstlrn
 
     bool hasRoleDefined() const;
 
-    Id getUniqueIndex() const { return _uid; }
+    Id getUID() const { return _uid; }
 
-    void setUniqueIndex(Id uid) { _uid = uid; }
+    bool empty() const;
+
+    void free();
+
+    /**
+     * @brief Set the Version object
+     *
+     * @param version Version to be defined
+     *
+     * @remark: This method needs to be public: it is the only one.
+     * It is used in the code to set the version of a ColID when it is used in a loop
+     * over the number of simulations (or realizations) in the case of multi-realization
+     */
+    ColID& setVersion(Id version)
+    {
+      _version = version;
+      return *this;
+    }
 
     /**
      * Factory helpers mainly intended for language bindings (SWIG).
@@ -108,16 +126,19 @@ namespace gstlrn
 
     void _setRoleID(const RoleID& roleID) { _roleID = roleID; }
 
-    void _setVersion(Id version) { _version = version; }
+    void _setUID(Id uid) { _uid = uid; }
 
   private:
     Id _icol{-1};
     String _name{};
     RoleID _roleID{RoleID(ERole::UNDEFINED, 0)};
-    Id _version{0};
+    mutable Id _version{0};
     Id _uid{-1};
 
     friend class DbData;
+    friend class Db;
   };
+
+  using ColIDs = std::vector<ColID>;
 
 } // namespace gstlrn

@@ -40,8 +40,7 @@ namespace gstlrn
     Db* db,
     const RuleProp* ruleprop,
     Model* model = nullptr,
-    const NamingConvention& namconv =
-      NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")));
+    Id isimu = 0);
   Id _db_bounds(
     Db* db,
     const RuleProp* ruleprop,

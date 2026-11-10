@@ -68,6 +68,16 @@ endif()
 
 message(STATUS "BUILD_ASAN="  ${BUILD_ASAN})
 
+# Option DB_OPTIM
+option(DB_OPTIM "Build with loop/node pass counters enabled" OFF)
+mark_as_advanced(DB_OPTIM)
+
+if(DB_OPTIM)
+  add_compile_definitions(GSTLEARN_DB_OPTIM=1)
+endif()
+
+message(STATUS "DB_OPTIM=" ${DB_OPTIM})
+
 # Code coverage (GCC/Clang)
 option(BUILD_COVERAGE "Build with code coverage enabled" OFF)
 mark_as_advanced(BUILD_COVERAGE)

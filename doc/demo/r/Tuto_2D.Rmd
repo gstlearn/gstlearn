@@ -59,7 +59,7 @@ if (verbose)
 Accessing to the variable names
 
 ```{r}
-cat("List of all variable names =",mydb$getAllNames())
+cat("List of all variable names =", mydb$getAllNames(), "\n")
 ```
 
 Extracting the vector containing the Zn variable in order to perform a selection
@@ -67,7 +67,7 @@ Extracting the vector containing the Zn variable in order to perform a selection
 ```{r}
 tabZn = mydb$getColumn("Zn")
 selZn = as.numeric(tabZn < 20)
-mydb$addSelection(selZn,"sel")
+colid = mydb$addSelection("sel", selZn)
 mydb$setLocator('Pb',ELoc_Z())
 if (verbose)
     mydb$display()

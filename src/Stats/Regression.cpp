@@ -92,14 +92,14 @@ namespace gstlrn
     switch (mode)
     {
       case 0:
-        if (db1->getColIdx(db1->fromUID(icol0)) < 0)
+        if (db1->getColumnIndex(db1->fromUID(icol0)) < 0)
         {
           messerr("The regression requires a valid target variable");
           return false;
         }
         for (Id icol = 0; icol < ncol; icol++)
         {
-          if (db2->getColIdx(db2->fromUID(icols[icol])) < 0)
+          if (db2->getColumnIndex(db2->fromUID(icols[icol])) < 0)
           {
             messerr(
               "The regression requires a valid auxiliary variable (#%d)",

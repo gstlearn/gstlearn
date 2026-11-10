@@ -51,7 +51,7 @@ namespace gstlrn
       const String& namereft,
       const String& namerefb);
     bool checkValid();
-    Id kriging(bool verbose);
+    ColIDs kriging(bool verbose);
     Id vario(Vario* vario, bool verbose);
     Id calculatePrior();
 

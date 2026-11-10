@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   // Perform the convolution
   VectorDouble seismic(grid_seismic->getNSample());
   if (Aproj.mesh2point(data, seismic)) return 1;
-  grid_seismic->addColumns(seismic, "Seismic", ELoc::Z);
+  grid_seismic->addOneColumn("Seismic", 0., seismic, ERole::Z);
 
   // Save the final grid in a NF
   (void)grid_seismic->dumpToNF("Seismic.NF");
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   // Perform convolution back-transform
   VectorDouble data2(grid_data->getNSample());
   if (Aproj.point2mesh(seismic, data2)) return 1;
-  grid_data->addColumns(data2, "Data", ELoc::Z);
+  grid_data->addOneColumn("Data", 0., data2, ERole::Z);
 
   // Save the final grid in a NF
   (void)grid_data->dumpToNF("Point.NF");

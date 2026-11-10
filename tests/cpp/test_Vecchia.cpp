@@ -38,7 +38,7 @@ static Db* _createDb(Id nvar = 1, Id ndat = 5, Id seed = 4243)
     ndat, ndim, nvar, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
     VectorDouble(), seed);
   VectorDouble sel(ndat, 1.);
-  db->addSelection(sel, "sel");
+  (void)db->addSelection("sel", sel);
   return db;
 }
 
@@ -90,18 +90,18 @@ int main(int argc, char* argv[])
     auto dbfmt = DbStringFormat(
       FLAG_VARS | FLAG_ARRAY, VectorString(), VectorInt(), false);
     int indNa;
-    bool addSelection = false;
+    bool flagAddSelection = false;
 
     indNa = 3;
     Db* db1 = _createDb(1, 5, 3261);
     db1->setValue("z", indNa, TEST);
-    if (addSelection) db1->setValue("sel", indNa, 0.);
+    if (flagAddSelection) db1->setValue("sel", indNa, 0.);
     db1->display(&dbfmt);
 
     indNa = 2;
     Db* db2 = _createDb(1, 6, 4204);
     db2->setValue("z", indNa, TEST);
-    if (addSelection) db2->setValue("sel", indNa, 0.);
+    if (flagAddSelection) db2->setValue("sel", indNa, 0.);
     db2->display(&dbfmt);
 
     Model* model = _createModel(1);

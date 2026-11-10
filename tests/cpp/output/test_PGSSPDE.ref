@@ -86,7 +86,7 @@ Data Base Statistics
  Mean value          =       0.500
  Standard Deviation  =       0.292
  Variance            =       0.085
-4 - Name SimPGSSPDE
+4 - Name SimPGSSPDE.S1
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000
@@ -94,7 +94,7 @@ Data Base Statistics
  Mean value          =       2.192
  Standard Deviation  =       0.690
  Variance            =       0.476
-5 - Name SimPGSSPDE.1
+5 - Name SimPGSSPDE.S2
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000
@@ -102,7 +102,7 @@ Data Base Statistics
  Mean value          =       2.187
  Standard Deviation  =       0.727
  Variance            =       0.529
-6 - Name SimPGSSPDE.2
+6 - Name SimPGSSPDE.S3
  Nb of data          =       10201
  Nb of active values =       10201
  Minimum value       =       1.000

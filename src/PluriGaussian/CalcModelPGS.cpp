@@ -1069,8 +1069,9 @@ namespace gstlrn
    *****************************************************************************/
   Id CalcModelPGS::_varioPgsVariable(Id mode, Id flag_one, Id flag_prop)
   {
-    Id ifac, jfac, iptr, nloop;
+    Id ifac, jfac, nloop;
     double t1min, t1max, t2min, t2max;
+    ColIDs colids;
     static bool is_prop_defined;
 
     // Dispatch
@@ -1087,8 +1088,10 @@ namespace gstlrn
         is_prop_defined = false;
         if (flag_prop && _db->getNLoc(ELoc::P) != _nfacies)
         {
-          iptr = _db->addColumnsByConstant(_nfacies, 1, 0., String(), ELoc::P);
-          if (iptr < 0) return (1);
+          colids = _db->addMultiColumns(
+            VectorString(), 0., VectorDouble(), ERole::P, 1, false, false, 0, 0,
+            _nfacies);
+          if (colids.empty()) return 1;
           is_prop_defined = true;
         }
 
@@ -1096,21 +1099,27 @@ namespace gstlrn
 
         if (!_useDiscrete)
         {
-          iptr = _db->addColumnsByConstant(number, 1, 0., "Lower", ELoc::L);
-          if (iptr < 0) return (1);
+          colids = _db->addMultiColumns(
+            VectorString(), 0., VectorDouble(), ERole::L, 1, false, false, 0, 0,
+            number);
+          if (colids.empty()) return 1;
 
-          iptr = _db->addColumnsByConstant(number, 1, 0., "Upper", ELoc::U);
-          if (iptr < 0) return (1);
+          colids = _db->addMultiColumns(
+            VectorString(), 0., VectorDouble(), ERole::U, 1, false, false, 0, 0,
+            number);
+          if (colids.empty()) return 1;
         }
         else
         {
-          iptr =
-            _db->addColumnsByConstant(number, 1, 0., "Lower Rank", ELoc::RKLOW);
-          if (iptr < 0) return (1);
+          colids = _db->addMultiColumns(
+            VectorString(), 0., VectorDouble(), ERole::RKLOW, 1, false, false,
+            0, 0, number);
+          if (colids.empty()) return 1;
 
-          iptr =
-            _db->addColumnsByConstant(number, 1, 0., "Upper Rank", ELoc::RKUP);
-          if (iptr < 0) return (1);
+          colids = _db->addMultiColumns(
+            VectorString(), 0., VectorDouble(), ERole::RKUP, 1, false, false, 0,
+            0, number);
+          if (colids.empty()) return 1;
         }
         break;
 

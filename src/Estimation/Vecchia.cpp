@@ -314,7 +314,7 @@ namespace gstlrn
       // Update the Diagonal due to the presence of Variance of Measurement Error
       if (_dbout->hasLocator(ELoc::V) && icase1 == 1)
       {
-        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar1));
+        Id icolVerr = _dbout->getColumnIndex(RoleID(ERole::V, ivar1));
 
         double verr = 0.;
 
@@ -496,7 +496,7 @@ namespace gstlrn
     {
       if (_dbout->hasLocator(ELoc::V))
       {
-        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar));
+        Id icolVerr = _dbout->getColumnIndex(RoleID(ERole::V, ivar));
         if (icolVerr >= 0) var0 += _dbout->getValue(icolVerr, ipAbs);
       }
     }
@@ -813,7 +813,6 @@ namespace gstlrn
     const auto& DFull = V.getDFull();
     auto nd = V.getND();
     auto nt = V.getNT();
-    Id nvar = model->getNVar();
     VectorDouble D_dd(nd);
     VH::extractInPlace(DFull, D_dd, nt);
 
@@ -844,9 +843,10 @@ namespace gstlrn
     V.uncenterResultsInPlace(result);
 
     // Saving the results
-    Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
+    auto colids = dbout->addMultiColumns(
+      VectorString(), 0., result, ERole::UNDEFINED, 1, true);
     auto names = dbin->getNames(ERole::Z);
-    namconv.setOutput(names, nvar, dbout, iptr, "estim");
+    namconv.setMultiColumns(dbout, colids, "estim", names);
 
     return 0;
   }

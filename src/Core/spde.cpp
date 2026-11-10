@@ -136,9 +136,9 @@ namespace gstlrn
 
   typedef struct
   {
-    Id flag_ed;
-    Id iatt_fd;
-    Id iatt_fg;
+    bool flag_ed;
+    ColIDs colids_fd;
+    ColIDs colids_fg;
     double zmean;
     double zstdv;
     double zeps;
@@ -3305,18 +3305,18 @@ namespace gstlrn
    ** \return Error returned code
    **
    ** \param[in]  dbgrid      Grid structure
-   ** \param[in]  icol_pinch  Pointer to the pinchout variabe
+   ** \param[in]  colid_pinch  Pointer to the pinchout variabe
    **
    *****************************************************************************/
-  static Id st_m2d_check_pinchout(Db* dbgrid, Id icol_pinch)
+  static Id st_m2d_check_pinchout(Db* dbgrid, const ColID& colid_pinch)
   {
     if (dbgrid == nullptr) return 0;
-    if (icol_pinch < 0) return 0;
+    if (colid_pinch.empty()) return 0;
 
     // Initializations
 
     Id nech = dbgrid->getNSample();
-    VectorDouble tab = dbgrid->getColumn(dbgrid->fromUID(icol_pinch));
+    VectorDouble tab = dbgrid->getColumn(colid_pinch);
 
     // Check that values are within [0,1] interval
 
@@ -3523,15 +3523,8 @@ namespace gstlrn
   static double
     st_m2d_get_M(M2D_Environ* m2denv, Db* db, Id type, Id ilayer, Id iech)
   {
-    double value;
-    Id iatt;
-
-    if (type == 1)
-      iatt = m2denv->iatt_fd;
-    else
-      iatt = m2denv->iatt_fg;
-    value = db->getValue(db->fromUID(iatt + ilayer), iech);
-    return (value);
+    if (type == 1) return db->getValue(m2denv->colids_fd[ilayer], iech);
+    return db->getValue(m2denv->colids_fg[ilayer], iech);
   }
 
   /****************************************************************************/
@@ -3621,13 +3614,17 @@ namespace gstlrn
    **
    ** \param[in]  m2denv      M2D_Environ structure
    ** \param[in]  nlayer      Number of layers
-   ** \param[in]  icol_pinch  Pointer to the pinchout variabe
+   ** \param[in]  colid_pinch Pointer to the pinchout variable
    ** \param[in]  db          Db structure
-   ** \param[in]  iatt        Pointer to the drift vector
+   ** \param[in]  colids      Pointer to the drift vector
    **
    *****************************************************************************/
-  static void
-    st_m2d_set_M(M2D_Environ* m2denv, Id nlayer, Id icol_pinch, Db* db, Id iatt)
+  static void st_m2d_set_M(
+    M2D_Environ* m2denv,
+    Id nlayer,
+    const ColID& colid_pinch,
+    Db* db,
+    const ColIDs& colids)
   {
     double drift;
 
@@ -3638,14 +3635,14 @@ namespace gstlrn
         if (db->isActive(iech))
         {
           drift = st_m2d_get_drift(m2denv, db, ilayer, iech);
-          if (!FFFF(drift) && ilayer > 0 && icol_pinch >= 0)
-            drift *= db->getValue(db->fromUID(icol_pinch), iech);
+          if (!FFFF(drift) && ilayer > 0 && !colid_pinch.empty())
+            drift *= db->getValue(colid_pinch, iech);
         }
         else
         {
           drift = TEST;
         }
-        db->setValue(db->fromUID(iatt + ilayer), iech, drift);
+        db->setValue(colids[ilayer], iech, drift);
       }
     }
   }
@@ -3658,24 +3655,24 @@ namespace gstlrn
    **
    ** \param[in]  dbout       Db output structure
    ** \param[in]  dbc         Db constraints structure
-   ** \param[in]  icol_pinch  Pointer to the pinchout variabe
+   ** \param[in]  colid_pinch  Pointer to the pinchout variable
    **
    *****************************************************************************/
-  static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
+  static ColID
+    st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, const ColID& colid_pinch)
   {
     VectorInt iuids(1);
-    iuids[0] = icol_pinch;
 
     // Initializations
 
     Id nech = dbc->getNSample();
     if (dbout == nullptr) return 0;
-    if (icol_pinch < 0) return 0;
+    if (colid_pinch.empty()) return 0;
 
     // Add an attribute
 
-    Id iptr = dbc->addColumnsByConstant(1, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colid_iptr = dbc->addOneColumn(String(), TEST);
+    if (colid_iptr.empty()) return colid_iptr;
 
     // Core allocation
 
@@ -3685,17 +3682,17 @@ namespace gstlrn
 
     if (migrateByAttribute(dbout, dbc, iuids, 0, VectorDouble(), false, false))
     {
-      dbc->deleteColumn(dbc->fromUID(iptr));
+      dbc->deleteColumn(colid_iptr);
       return 1;
     }
 
     // Store the resulting array in the file
 
-    dbc->setColumn(dbc->fromUID(iptr), tab);
+    dbc->setColumn(colid_iptr, tab);
 
     // Set the error returned code
 
-    return (iptr);
+    return colid_iptr;
   }
 
   /****************************************************************************/
@@ -3708,7 +3705,7 @@ namespace gstlrn
    ** \param[in]  m2denv      M2D_Environ structure
    ** \param[in]  mode        1 adding; -1 deleting
    ** \param[in]  nlayer      Number of layers
-   ** \param[in]  icol_pinch  Pointer to the pinchout variabe
+   ** \param[in]  colid_pinch Pointer to the pinchout variable
    ** \param[in]  dbc         Db constraints structure
    ** \param[in]  dbout       Db output structure
    **
@@ -3717,17 +3714,15 @@ namespace gstlrn
     M2D_Environ* m2denv,
     Id mode,
     Id nlayer,
-    Id icol_pinch,
+    const ColID& colid_pinch,
     Db* dbc,
     Db* dbout)
   {
     double M, S;
-    Id iptr;
 
     /* Initializations */
 
     if (m2denv == nullptr) return (1);
-    iptr = -1;
 
     /* Dispatch */
 
@@ -3736,14 +3731,15 @@ namespace gstlrn
 
       /* Identify the drift at the constraining samples */
 
-      m2denv->iatt_fd = dbc->addColumnsByConstant(nlayer, 1, TEST);
-      if (m2denv->iatt_fd < 0) return (1);
+      m2denv->colids_fd = dbc->addEmptyColumns(VectorString(), TEST, 0, nlayer);
+      if (m2denv->colids_fd.empty()) return 1;
 
       /* If pinch-out is defined, interpolate it at well data */
 
-      iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, icol_pinch);
-      st_m2d_set_M(m2denv, nlayer, iptr, dbc, m2denv->iatt_fd);
-      if (iptr >= 0) dbc->deleteColumn(dbc->fromUID(iptr));
+      auto colid_iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, colid_pinch);
+      if (colid_iptr.empty()) return 1;
+      st_m2d_set_M(m2denv, nlayer, colid_iptr.getUID(), dbc, m2denv->colids_fd);
+      dbc->deleteColumn(colid_iptr);
 
       /* Check validity of drift at data points */
 
@@ -3760,22 +3756,21 @@ namespace gstlrn
 
       /* Identify the drift at the target grid nodes */
 
-      m2denv->iatt_fg = dbout->addColumnsByConstant(nlayer, 1, TEST);
-      if (m2denv->iatt_fg < 0) return (1);
-      st_m2d_set_M(m2denv, nlayer, icol_pinch, dbout, m2denv->iatt_fg);
+      m2denv->colids_fg =
+        dbout->addEmptyColumns(VectorString(), TEST, 0, nlayer);
+      if (m2denv->colids_fg.empty()) return 1;
+      st_m2d_set_M(m2denv, nlayer, colid_pinch, dbout, m2denv->colids_fg);
     }
     else
     {
 
       /* Deleting the drift at the constraining samples */
 
-      if (m2denv->iatt_fd >= 0)
-        dbc->deleteColumnsByUIDRange(m2denv->iatt_fd, nlayer);
+      if (!m2denv->colids_fd.empty()) dbc->deleteColumns(m2denv->colids_fd);
 
       /* Deleting the drift at the target grid */
 
-      if (m2denv->iatt_fg >= 0)
-        dbout->deleteColumnsByUIDRange(m2denv->iatt_fg, nlayer);
+      if (!m2denv->colids_fg.empty()) dbout->deleteColumns(m2denv->colids_fg);
     }
     return (0);
   }
@@ -4119,7 +4114,7 @@ namespace gstlrn
    ** \param[in]  nlayer      Number of layers
    ** \param[in]  verbose     Verbose flag
    **
-   ** \param[out] iatt_f      Pointer in dbin to the added variables ELoc::F
+   ** \param[out] colids_f    Pointer in dbin to the added variables ELoc::F
    **
    ** \remarks This function also add the attributes to 'dbin' per layer:
    ** \remarks - the external drift values (ELoc::F)
@@ -4131,7 +4126,7 @@ namespace gstlrn
     Db* dbout,
     Id nlayer,
     Id verbose,
-    Id* iatt_f)
+    ColIDs& colids_f)
   {
     Id nechin, error, nb;
     VectorDouble dval;
@@ -4143,7 +4138,7 @@ namespace gstlrn
 
     error = 1;
     nechin = dbin->getNSample();
-    (*iatt_f) = -1;
+    colids_f.clear();
 
     /* Core allocation */
 
@@ -4158,8 +4153,8 @@ namespace gstlrn
 
     if (m2denv->flag_ed)
     {
-      *iatt_f = dbin->addColumnsByConstant(nlayer, 1, TEST, String(), ELoc::F);
-      if (*iatt_f < 0) goto label_end;
+      colids_f = dbin->addEmptyColumns(VectorString(), TEST, 0, nlayer);
+      if (colids_f.empty()) goto label_end;
     }
 
     /* Loop on the layers */
@@ -5309,8 +5304,8 @@ namespace gstlrn
 
       m2denv = new M2D_Environ;
       m2denv->flag_ed = flag_ed;
-      m2denv->iatt_fd = -1;
-      m2denv->iatt_fg = -1;
+      m2denv->colids_fd.clear();
+      m2denv->colids_fg.clear();
       m2denv->zmean = 0.;
       m2denv->zstdv = 1.;
       m2denv->zeps = 0.;
@@ -5473,7 +5468,7 @@ namespace gstlrn
    ** \param[in]  niter       Number of iterations
    ** \param[in]  seed        Seed for random number generator
    ** \param[in]  nbsimu      Number of simulaations
-   ** \param[in]  icol_pinch  Address of the variable containing the pinchout
+   ** \param[in]  colid_pinch  Address of the variable containing the pinchout
    ** \param[in]  flag_drift  1 to return the drift only
    **                         0 the simulations
    ** \param[in]  flag_ce     1 if the conditional expectation
@@ -5502,14 +5497,13 @@ namespace gstlrn
     Id niter,
     Id seed,
     Id nbsimu,
-    Id icol_pinch,
+    const ColID& colid_pinch,
     Id flag_drift,
     Id flag_ce,
     Id flag_cstd,
     Id verbose)
   {
-    Id error, iatt_f, iatt_out, nvertex, nech, ngrid, ndim, number_hard, nfois;
-    Id iptr_ce, iptr_cstd, ecr;
+    Id error, nvertex, nech, ngrid, ndim, number_hard, nfois, ecr;
     double nugget, ysigma, vartot;
     VectorDouble gwork;
     VectorDouble ydat;
@@ -5522,6 +5516,10 @@ namespace gstlrn
     VectorDouble vwork;
     VectorDouble rhs;
     VectorDouble zkrig;
+    ColIDs colids_ce;
+    ColIDs colids_cstd;
+    ColIDs colids_out;
+    ColIDs colids_f;
 
     MatrixSparse* Bproj = nullptr;
     Db* dbc;
@@ -5532,7 +5530,6 @@ namespace gstlrn
     /* Initializations */
 
     error = 1;
-    iatt_f = iatt_out = -1;
     dbc = nullptr;
     Qc = nullptr;
     m2denv = nullptr;
@@ -5598,7 +5595,7 @@ namespace gstlrn
       }
       flag_drift = 1;
     }
-    if (st_m2d_check_pinchout(dbout, icol_pinch)) goto label_end;
+    if (st_m2d_check_pinchout(dbout, colid_pinch)) goto label_end;
 
     law_set_random_seed(seed);
     ngrid = dbout->getNSample();
@@ -5613,8 +5610,9 @@ namespace gstlrn
     /* Preparing the variables in 'dbout' */
 
     nfois = (flag_drift) ? 1 : nbsimu;
-    iatt_out = dbout->addColumnsByConstant(nlayer * nfois, 1, TEST);
-    if (iatt_out < 0) goto label_end;
+    colids_out =
+      dbout->addEmptyColumns(VectorString(), TEST, 0, nlayer * nfois);
+    if (colids_out.empty()) goto label_end;
 
     /* Core allocation */
 
@@ -5628,7 +5626,7 @@ namespace gstlrn
 
     if (verbose)
       message("\n==> Migrating Drift Information from Grid to Wells\n");
-    if (st_m2d_drift_manage(m2denv, dbin, dbout, nlayer, verbose, &iatt_f))
+    if (st_m2d_drift_manage(m2denv, dbin, dbout, nlayer, verbose, colids_f))
       goto label_end;
     st_print_db_constraints(
       "List of Initial Constraining Data", dbin, VectorDouble(), nlayer,
@@ -5683,9 +5681,9 @@ namespace gstlrn
       {
         auto start = gwork.begin() + ilayer * ngrid;
         VectorDouble gworkLocal(start, start + ngrid);
-        dbout->setColumn(dbout->fromUID(iatt_out + ilayer), gworkLocal);
         (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-        dbout->setName(dbout->fromUID(iatt_out + ilayer), string_encode);
+        dbout->setColumn(colids_out[ilayer], gworkLocal);
+        dbout->setName(colids_out[ilayer], string_encode);
       }
       error = 0;
       goto label_end;
@@ -5699,7 +5697,7 @@ namespace gstlrn
     /* Drift (corrected by pinch-out) is stored in 'dbc' and 'dbout' */
 
     if (verbose) message("\n==> Transforming Drift information as Thickness\n");
-    if (st_m2d_drift_inc_manage(m2denv, 1, nlayer, icol_pinch, dbc, dbout))
+    if (st_m2d_drift_inc_manage(m2denv, 1, nlayer, colid_pinch, dbc, dbout))
       goto label_end;
 
     /* Prepare all material */
@@ -5841,8 +5839,7 @@ namespace gstlrn
         {
           auto start = gwork.begin() + ilayer * ngrid;
           VectorDouble gworkLocal(start, start + ngrid);
-          dbout->setColumn(
-            dbout->fromUID(iatt_out + isimu * nlayer + ilayer), gworkLocal);
+          dbout->setColumn(colids_out[isimu * nlayer + ilayer], gworkLocal);
         }
       }
 
@@ -5855,7 +5852,7 @@ namespace gstlrn
         {
           (void)gslSPrintfCat(
             string_encode, "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
-          dbout->setName(dbout->fromUID(iatt_out + ecr), string_encode);
+          dbout->setName(colids_out[ecr], string_encode);
           ecr++;
         }
       }
@@ -5866,40 +5863,39 @@ namespace gstlrn
       {
         // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-        dbout->setLocatorsByUIDRange(
-          nbsimu * nlayer, iatt_out, ELoc::GAUSFAC, 0);
+        dbout->setLocators(colids_out, ELoc::GAUSFAC);
 
         if (db_simulations_to_ce(
-              dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce, &iptr_cstd))
+              dbout, ELoc::GAUSFAC, nbsimu, nlayer, colids_ce, colids_cstd))
           goto label_end;
 
         // We release the attributes dedicated to simulations on Dbout
 
         if (!flag_ce)
         {
-          dbout->deleteColumnsByUIDRange(iptr_ce, nlayer);
-          iptr_ce = -1;
+          dbout->deleteColumns(colids_ce);
+          colids_ce.clear();
         }
         if (!flag_cstd)
         {
-          dbout->deleteColumnsByUIDRange(iptr_cstd, nlayer);
-          iptr_cstd = -1;
+          dbout->deleteColumns(colids_cstd);
+          colids_cstd.clear();
         }
         dbout->deleteColumns(ERole::GAUSFAC);
 
         // Renaming the resulting variables
 
-        if (iptr_ce >= 0)
+        if (!colids_ce.empty())
           for (Id ilayer = 0; ilayer < nlayer; ilayer++)
           {
             (void)gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
-            dbout->setName(dbout->fromUID(iptr_ce + ilayer), string_encode);
+            dbout->setName(colids_ce[ilayer], string_encode);
           }
-        if (iptr_cstd >= 0)
+        if (!colids_cstd.empty())
           for (Id ilayer = 0; ilayer < nlayer; ilayer++)
           {
             (void)gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
-            dbout->setName(dbout->fromUID(iptr_cstd + ilayer), string_encode);
+            dbout->setName(colids_cstd[ilayer], string_encode);
           }
       }
     }
@@ -5910,13 +5906,12 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    (void)st_m2d_drift_inc_manage(m2denv, -1, nlayer, icol_pinch, dbc, dbout);
+    (void)st_m2d_drift_inc_manage(m2denv, -1, nlayer, colid_pinch, dbc, dbout);
     st_m2denv_manage(-1, flag_ed, 0., m2denv);
     st_qchol_manage(-1, Qc);
     delete Bproj;
-    if (iatt_f >= 0) dbin->deleteColumnsByUIDRange(iatt_f, nlayer);
-    if (error && iatt_out >= 0)
-      dbout->deleteColumnsByUIDRange(iatt_out, nlayer);
+    if (!colids_f.empty()) dbin->deleteColumns(colids_f);
+    if (error && !colids_out.empty()) dbout->deleteColumns(colids_out);
     return (error);
   }
 

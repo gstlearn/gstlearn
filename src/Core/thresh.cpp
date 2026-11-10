@@ -50,6 +50,7 @@ namespace gstlrn
   {
     Id iptr, error, nbsimu, igrf, ngrf;
     PropDef propdef;
+    ColIDs colids;
 
     /* Initializations */
 
@@ -80,9 +81,9 @@ namespace gstlrn
     /**********************/
 
     /* Storage of the simulations in the output file */
-    iptr = db->addColumnsByConstant(nbsimu, 1, 0.);
-    if (iptr < 0) goto label_end;
-    db->setLocatorsByUIDRange(nbsimu, iptr, ELoc::FACIES, 0);
+    colids = db->addEmptyColumns(VectorString(), 0., 0, nbsimu);
+    if (colids.empty()) goto label_end;
+    db->setLocatorsByUIDRange(nbsimu, colids[0].getUID(), ELoc::FACIES, 0);
 
     /* Identify the Non conditional simulations at target points */
     for (igrf = 0; igrf < 2; igrf++)
@@ -127,16 +128,13 @@ namespace gstlrn
    ** \param[in]  db        Output Db structure
    ** \param[in]  ruleprop  RuleProp structure
    ** \param[in]  model     First Model structure (only for SHIFT)
-   ** \param[in]  namconv   Naming convention
+   ** \param[in]  isimu     Index of the simulation
    **
-   ** \remark The input variable must be locatorized as Z or ELoc::SIMU
+   ** \remark The input variable must be locatorized as SIMU
+   ** \remark The output variable will be stored in variable locatorized as FACIES
    **
    *****************************************************************************/
-  Id _db_rule(
-    Db* db,
-    const RuleProp* ruleprop,
-    Model* model,
-    const NamingConvention& namconv)
+  Id _db_rule(Db* db, const RuleProp* ruleprop, Model* model, Id isimu)
   {
     if (db == nullptr)
     {
@@ -159,12 +157,10 @@ namespace gstlrn
     const Db* dbprop = ruleprop->getDbprop();
 
     Id error = 1;
-    Id iptr = -1;
     PropDef propdef;
     Id ngrf = rule->getNGRF();
     VectorBool flagUsed = rule->whichGRFUsed();
     Id nfacies = rule->getNFacies();
-    bool flagReturn = false;
 
     /* Preliminary checks */
 
@@ -174,8 +170,7 @@ namespace gstlrn
     {
       messerr("The Rule specifies the use of %d underlying GRF(s)", ngrf);
       messerr(
-        "The input 'db' should have one variable per GRF with locator 'SIMU' "
-        "or 'Z'");
+        "The input 'db' should have one variable per GRF with locator 'SIMU' ");
       goto label_end;
     }
 
@@ -185,34 +180,10 @@ namespace gstlrn
     if (rule->particularities(db, dbprop, model, 1, flag_stat)) goto label_end;
     propdef.defineRuleMethod(EProcessOper::COPY);
 
-    /**********************/
-    /* Add the attributes */
-    /**********************/
-
-    /* Storage of the simulations in the output file */
-    iptr = db->addColumnsByConstant(1, 1, 0., "Facies", ELoc::FACIES);
-    if (iptr < 0) goto label_end;
-
-    /* Identify the Non conditional simulations at target points */
-
-    if (db->getNLoc(ELoc::SIMU) != ngrf)
-    {
-      db->switchLocator(ELoc::Z, ELoc::SIMU);
-      flagReturn = true;
-    }
-
     /* Translate Gaussian into Facies */
 
-    if (rule->gaus2facResult(propdef, db, flagUsed, 0, 0)) goto label_end;
+    if (rule->gaus2facResult(propdef, db, flagUsed, 0, isimu)) goto label_end;
 
-    // Returning to the initial locators (if the initial variable
-    // had a ELoc::Z locator which has been temporarily modified into ELoc::SIMU)
-
-    if (flagReturn) db->switchLocator(ELoc::SIMU, ELoc::Z);
-
-    // Naming convention
-
-    namconv.setOutput(VectorString(), 1, db, iptr);
     error = 0;
 
   label_end:
@@ -244,8 +215,6 @@ namespace gstlrn
     bool flag_stat,
     Id nfacies)
   {
-    Id iptrl, iptru;
-
     /* Input Db */
 
     if (db == nullptr)
@@ -287,12 +256,16 @@ namespace gstlrn
     /**********************/
 
     /* Lower bound at input data points */
-    iptrl = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::L);
-    if (iptrl < 0) return 1;
+    auto colidsl = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::L, 1, false, false, 0, 0,
+      ngrf);
+    if (colidsl.empty()) return 1;
 
     /* Upper bound at input data points */
-    iptru = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::U);
-    if (iptru < 0) return 1;
+    auto colidsu = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::U, 1, false, false, 0, 0,
+      ngrf);
+    if (colidsu.empty()) return 1;
 
     /* Calculate the thresholds and store them in the Db file */
 
@@ -346,8 +319,8 @@ namespace gstlrn
     const Db* dbprop = ruleprop->getDbprop();
 
     Id error = 1;
-    Id iptrl, iptru;
     PropDef propdef;
+    ColIDs colidsl, colidsu;
 
     VectorBool flagUsed = rule->whichGRFUsed();
     Id nfacies = rule->getNFacies();
@@ -380,12 +353,16 @@ namespace gstlrn
     /**********************/
 
     /* Lower bound at input data points */
-    iptrl = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::L);
-    if (iptrl < 0) goto label_end;
+    colidsl = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::L, 1, false, false, 0, 0,
+      ngrf);
+    if (colidsl.empty()) goto label_end;
 
     /* Upper bound at input data points */
-    iptru = db->addColumnsByConstant(ngrf, 1, 0., String(), ELoc::U);
-    if (iptru < 0) goto label_end;
+    colidsu = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::U, 1, false, false, 0, 0,
+      ngrf);
+    if (colidsu.empty()) goto label_end;
 
     /* Calculate the thresholds and store them in the Db file */
 
@@ -398,9 +375,9 @@ namespace gstlrn
     // Naming convention
 
     nc.setLocatorOutType(ELoc::L);
-    nc.setOutput(VectorString(), ngrf, db, iptrl, "Lower", ngrf);
+    nc.setOutput(VectorString(), ngrf, db, colidsl[0].getUID(), "Lower", ngrf);
     nc.setLocatorOutType(ELoc::U);
-    nc.setOutput(VectorString(), ngrf, db, iptru, "Upper", ngrf);
+    nc.setOutput(VectorString(), ngrf, db, colidsu[0].getUID(), "Upper", ngrf);
     error = 0;
 
   label_end:
@@ -455,28 +432,26 @@ namespace gstlrn
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
-    Id rank, iptr;
     double t1min, t1max, t2min, t2max;
 
     /* Initializations */
 
     Id error = 1;
-    Id ngrf = 0;
-    Id nfacies = 0;
     PropDef propdef;
+    ColIDs colids;
 
     /**********************/
     /* Preliminary checks */
     /**********************/
 
-    ngrf = rule->getNGRF();
+    Id ngrf = rule->getNGRF();
     if (rule->checkModel(model)) return 1;
 
     /*******************/
     /* Core allocation */
     /*******************/
 
-    nfacies = rule->getNFacies();
+    Id nfacies = rule->getNFacies();
     if (propdef.define(
           true, flag_stat, {ngrf, 0}, {nfacies, 0}, db, dbprop, propcst))
       goto label_end;
@@ -487,54 +462,44 @@ namespace gstlrn
     /* Add the attributes */
     /**********************/
 
-    iptr = db->addColumnsByConstant(2 * ngrf * nfacies, 1, 0.);
-    if (iptr < 0) goto label_end;
+    colids = db->addEmptyColumns(VectorString(), 0., 0, 2 * ngrf * nfacies);
+    if (colids.empty()) goto label_end;
 
     /* Calculate the thresholds and store them in the Db file */
 
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      rank = 0;
-      for (Id ifac = 0; ifac < nfacies; ifac++)
+      for (Id ifac = 0, rank = 0; ifac < nfacies; ifac++)
       {
         if (propdef.ruleThreshDefine(
               db, rule, ifac + 1, iech, 0, 0, &t1min, &t1max, &t2min, &t2max))
           goto label_end;
-        db->setValue(db->fromUID(iptr + rank), iech, t1min);
-        rank++;
-        db->setValue(db->fromUID(iptr + rank), iech, t1max);
-        rank++;
+        db->setValue(colids[rank++], iech, t1min);
+        db->setValue(colids[rank++], iech, t1max);
         if (ngrf == 1) continue;
-        db->setValue(db->fromUID(iptr + rank), iech, t2min);
-        rank++;
-        db->setValue(db->fromUID(iptr + rank), iech, t2max);
-        rank++;
+        db->setValue(colids[rank++], iech, t2min);
+        db->setValue(colids[rank++], iech, t2max);
       }
     }
 
     // Naming convention
 
-    rank = 0;
-    for (Id ifac = 0; ifac < nfacies; ifac++)
+    for (Id ifac = 0, rank = 0; ifac < nfacies; ifac++)
     {
-      namconv.setOutput(
-        VectorString(), 0, db, iptr + rank,
+      namconv.setOneColumn(
+        db, colids[rank++], "",
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Low"));
-      rank++;
-      namconv.setOutput(
-        VectorString(), 0, db, iptr + rank,
+      namconv.setOneColumn(
+        db, colids[rank++], "",
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y1-Up"));
-      rank++;
       if (ngrf == 1) continue;
-      namconv.setOutput(
-        VectorString(), 0, db, iptr + rank,
+      namconv.setOneColumn(
+        db, colids[rank++], "",
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Low"));
-      rank++;
-      namconv.setOutput(
-        VectorString(), 0, db, iptr + rank,
+      namconv.setOneColumn(
+        db, colids[rank++], "",
         concatenateStrings("Thresh-F", toStr(ifac + 1), "-Y2-Up"));
-      rank++;
     }
     error = 0;
 

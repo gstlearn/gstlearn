@@ -20,6 +20,7 @@
 #include "gstlearn_export.hpp"
 
 #include <functional>
+#include <map>
 #include <optional>
 #include <type_traits>
 
@@ -128,7 +129,7 @@ namespace gstlrn
     bool hasValidVersion(ColID&& colid) const;
     String getName(ColID&& colid, bool withVersion = false) const;
     VectorString getNames() const;
-    Id getICol(ColID&& colid) const;
+    Id getColumnIndex(ColID&& colid) const;
     Id getUniqueIndex(ColID&& colid) const;
     RoleID getRoleID(ColID&& colid) const;
     const ERole& getRole(ColID&& colid) const;
@@ -137,9 +138,9 @@ namespace gstlrn
     void removeAllRoles();
     ColID fromUID(Id iuid, Id version = 0) const;
     MultID fromUIDs(const VectorInt& iuids) const;
-    std::vector<ColID> getColIDs(const String& name) const;
-    std::vector<ColID> getColIDs(const VectorString& name) const;
-    std::vector<ColID> getColIDs(const ERole& role) const;
+    ColIDs getColIDs(const String& name) const;
+    ColIDs getColIDs(const VectorString& name) const;
+    ColIDs getColIDs(const ERole& role) const;
 
     Id getNColumns() const { return static_cast<Id>(_cols.size()); }
 
@@ -156,14 +157,12 @@ namespace gstlrn
     void deleteSample(Id idel);
     void deleteVersion(ColID&& colid, Id version);
 
-    Id getColMatchUniqueIndex(Id uniqueIndex) const;
-
     Id getUniqueIndexCounter() const { return _uniqueIndexCounter; }
 
     String summaryRoles(void) const;
 
-    bool isValidColumn(Id icol) const;
-    std::vector<ColID> getColumnIndices(const MultID& multid) const;
+    bool isValidColumn(Id columnIndex) const;
+    ColIDs getColumnIndices(const MultID& multid) const;
 
   private:
     std::optional<std::reference_wrapper<DbCol>> _identifyColumn(ColID&& colid);
@@ -185,24 +184,34 @@ namespace gstlrn
     bool _checkNSample(const VectorType& array, Id nversion) const;
 
     void _updateName(String& name) const;
-    void _updateRoleIDAddition(Id icol0, RoleID& roleID);
+    void _updateRoleIDAddition(Id columnIndex0, RoleID& roleID);
     void _updateRoleIDDeletion(RoleID& roleID);
+    void _rebuildRoleMap();
+    void _rebuildUIDMap();
 
     Id _searchColumnByUID(Id iuid) const;
 
     static bool _checkForbidNA(const VectorCategory& tab);
     static void _checkNVersion(Id& nversion);
     static void _unknownName(const String& name);
-    static void _unknownRoleID(const RoleID& roleID);
-    static void _unknownICol(Id icol, Id ncol);
-    static void _invalidUID(Id uidCol, Id uidRef);
+    static void _unknownRoleID(const ColID& colID);
+    static void _unknownColumnIndex(Id columnIndex, Id ncol);
+
+    ColID _makeColIDFromIndex(Id icol) const;
+
+    bool _checkVersion(const ColID& colid, Id columnIndex0) const;
+    Id _checkUID(const ColID& colid, Id columnIndex0) const;
+    Id _searchByRole(const RoleID& roleid, bool verbose) const;
+    Id _searchByName(const String& name, bool verbose) const;
+    Id _searchByUID(Id uniqueIndex) const;
 
   private:
     // Private section of DbData
     std::vector<DbCol> _cols;
     std::vector<RoleID> _roleIDs;
+    std::map<RoleID, Id> _roleToColMap;
+    std::map<Id, Id> _uidToColMap;
     Id _uniqueIndexCounter = 0;
-    mutable Id _lastColumnIndex = 0; // Optimize the search by UID
   };
 
   /***************************************************************************/
@@ -313,11 +322,11 @@ namespace gstlrn
       {
         Id nversions = _db.getNVersions(ColID(_colid));
         VectorType result(nversions);
+        ColID colid(_colid);
         for (Id v = 0; v < nversions; ++v)
         {
-          ColID copy = _colid;
-          copy._setVersion(v);
-          auto val = _db.getValue<double>(std::move(copy), _targetIdx);
+          auto val =
+            _db.getValue<double>(std::move(colid.setVersion(v)), _targetIdx);
           result[v] = val ? *val : getNA<double>();
         }
         return result;
@@ -326,18 +335,21 @@ namespace gstlrn
       Id nversions = _db.getNVersions(ColID(_colid));
       Id nsamples = _db.getNSamples();
       VectorType result(nsamples * nversions);
+
       Id offset = 0;
+      const double naVal = getNA<double>();
+      ColID colIDref(_colid);
+
       for (Id v = 0; v < nversions; ++v)
       {
-        ColID colIDref = _colid;
-        colIDref._setVersion(v);
+        colIDref.setVersion(v);
         for (Id i = 0; i < nsamples; ++i)
         {
-          ColID colIDsample = colIDref;
-          auto val = _db.getValue<double>(std::move(colIDsample), i);
-          result[offset++] = val ? *val : getNA<double>();
+          auto val = _db.getValue<double>(ColID(colIDref), i);
+          result[offset++] = val ? *val : naVal;
         }
       }
+
       return result;
     }
 
@@ -375,34 +387,32 @@ namespace gstlrn
       if (_mode == SliceMode::ALL_SAMPLES_SINGLE_VERSION)
       {
         Id nsamples = _db.getNSamples();
+        ColID colIDtarget = ColID(_colid).setVersion(_targetIdx);
         for (Id i = 0; i < nsamples; ++i)
         {
-          ColID copy = _colid;
-          copy._setVersion(_targetIdx);
-          _db.setValue<T>(std::move(copy), i, value);
+          _db.setValue<T>(ColID(colIDtarget), i, value);
         }
       }
       else if (_mode == SliceMode::SINGLE_SAMPLE_ALL_VERSIONS)
       {
         Id nversions = _db.getNVersions(ColID(_colid));
+        ColID colid(_colid);
         for (Id v = 0; v < nversions; ++v)
         {
-          ColID copy = _colid;
-          copy._setVersion(v);
-          _db.setValue<T>(std::move(copy), _targetIdx, value);
+          _db.setValue<T>(std::move(colid.setVersion(v)), _targetIdx, value);
         }
       }
       else // FULL_MATRIX
       {
-        Id nsamples = _db.getNSamples();
         Id nversions = _db.getNVersions(ColID(_colid));
+        Id nsamples = _db.getNSamples();
+        ColID colIDver(_colid);
         for (Id v = 0; v < nversions; ++v)
         {
+          colIDver.setVersion(v);
           for (Id i = 0; i < nsamples; ++i)
           {
-            ColID copy = _colid;
-            copy._setVersion(v);
-            _db.setValue<T>(std::move(copy), i, value);
+            _db.setValue<T>(ColID(colIDver), i, value);
           }
         }
       }
@@ -424,11 +434,10 @@ namespace gstlrn
       else if (_mode == SliceMode::SINGLE_SAMPLE_ALL_VERSIONS)
       {
         Id nversions = _db.getNVersions(ColID(_colid));
-        for (Id v = 0; v < nversions && v < static_cast<Id>(values.size()); ++v)
+        const Id n = std::min(nversions, static_cast<Id>(values.size()));
+        for (Id v = 0; v < n; ++v)
         {
-          ColID copy = _colid;
-          copy._setVersion(v);
-          _db.setValue(std::move(copy), _targetIdx, values[v]);
+          _db.setValue(ColID(_colid).setVersion(v), _targetIdx, values[v]);
         }
       }
       else // FULL_MATRIX
@@ -484,29 +493,23 @@ namespace gstlrn
     ValueProxy operator()(Id isample)
     {
       ColID copy = _colid;
-      copy._setVersion(0);
+      copy.setVersion(0);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample) const
     {
-      ColID copy = _colid;
-      copy._setVersion(0);
-      return ValueProxy(_db, copy, isample);
+      return ValueProxy(_db, ColID(_colid).setVersion(0), isample);
     }
 
     ValueProxy operator()(Id isample, Id version)
     {
-      ColID copy = _colid;
-      copy._setVersion(version);
-      return ValueProxy(_db, copy, isample);
+      return ValueProxy(_db, ColID(_colid).setVersion(version), isample);
     }
 
     ValueProxy operator()(Id isample, Id version) const
     {
-      ColID copy = _colid;
-      copy._setVersion(version);
-      return ValueProxy(_db, copy, isample);
+      return ValueProxy(_db, ColID(_colid).setVersion(version), isample);
     }
 
     // ------------------------------------------------------------------------
@@ -516,8 +519,8 @@ namespace gstlrn
     SliceProxy operator()(AllType /*all*/, Id version)
     {
       return SliceProxy(
-        _db, _colid, SliceProxy::SliceMode::ALL_SAMPLES_SINGLE_VERSION,
-        version);
+        _db, ColID(_colid).setVersion(version),
+        SliceProxy::SliceMode::ALL_SAMPLES_SINGLE_VERSION, version);
     }
 
     SliceProxy operator()(AllType /*all*/, Id version) const
@@ -582,11 +585,10 @@ namespace gstlrn
       Id nversions = _db.getNVersions(ColID(_colid));
       for (Id v = 0; v < nversions; ++v)
       {
+        ColID colIDver = ColID(_colid).setVersion(v);
         for (Id i = 0; i < nsamples; ++i)
         {
-          ColID copy = _colid;
-          copy._setVersion(v);
-          _db.setValue<T>(std::move(copy), i, value);
+          _db.setValue<T>(ColID(colIDver), i, value);
         }
       }
       return *this;
@@ -674,6 +676,9 @@ namespace gstlrn
 
     // Increment the unique index counter for each new column added
     _uniqueIndexCounter++;
+
+    _rebuildRoleMap();
+    _rebuildUIDMap();
   }
 
   template<typename VectorType>
@@ -713,6 +718,9 @@ namespace gstlrn
 
     // Increment the unique index counter for each new column added
     _uniqueIndexCounter++;
+
+    _rebuildRoleMap();
+    _rebuildUIDMap();
   }
 
 #ifndef SWIG

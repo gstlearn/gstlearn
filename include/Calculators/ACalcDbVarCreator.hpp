@@ -58,13 +58,13 @@ namespace gstlrn
       const ELoc& locatorInType,
       const String& qualifier,
       Id count);
-    void _storeInVariableList(Id status, const VectorInt& iuids);
+    void _storeInVariableList(Id status, const ColIDs& colids);
     void _cleanVariableDb(Id status);
 
   private:
     Db* _db;
     NamingConvention _namconv;
-    VectorInt _listVariablePermDb;
-    VectorInt _listVariableTempDb;
+    ColIDs _listVariablePermDb;
+    ColIDs _listVariableTempDb;
   };
 } // namespace gstlrn

@@ -216,18 +216,17 @@ namespace gstlrn
     return sstr.str();
   }
 
-  Id PCA::_createVariables(Db* db)
+  ColIDs PCA::_createVariables(Db* db)
   {
-    Id iptr = -1;
     auto nvarZ = _countNVarZ(db);
-    for (Id ivar = 0; ivar < nvarZ; ivar++)
-    {
-      auto nversion = db->getNVersions(RoleID(ERole::Z, ivar));
-      auto iptrLoc = db->addColumnsByConstant(1, nversion, TEST);
-      if (iptrLoc < 0) return -1;
-      if (iptr < 0) iptr = iptrLoc;
-    }
-    return iptr;
+    if (nvarZ <= 0) return ColIDs();
+
+    // The number of 'versions' is derived from the first variable
+    auto nversion = db->getNVersions(RoleID(ERole::Z, 0));
+
+    return db->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::UNDEFINED, nversion, false,
+      false, 0, 0, nvarZ);
   }
 
   Id PCA::dbZ2F(Db* db, bool verbose, const NamingConvention& namconv)
@@ -249,8 +248,8 @@ namespace gstlrn
 
     /* Allocate new variables */
 
-    Id iptr = _createVariables(db);
-    if (iptr < 0) return 1;
+    auto colids = _createVariables(db);
+    if (colids.empty()) return 1;
 
     // Optional title
 
@@ -259,22 +258,18 @@ namespace gstlrn
     /* Rotate the factors into data in the PCA system */
 
     VectorBool isoFlag = _getVectorIsotopic(db);
-    _pcaZ2F(iptr, db, isoFlag, _mean, _sigma);
+    _pcaZ2F(colids, db, isoFlag, _mean, _sigma);
 
     /* Optional printout */
     if (verbose)
     {
-      VectorInt cols(nvar);
-      for (Id ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-      VectorString names = db->getNames(db->fromUIDs(cols));
+      VectorString names = db->getNames(colids);
       dbStatisticsPrint(
         db, names, {}, true, true, "Statistics on Factors", "Factor");
     }
 
-    /* Set the error return code */
-
     VectorString names = _getNames(db);
-    namconv.setOutput(names, 0, db, iptr);
+    namconv.setMultiColumns(db, colids, "", names);
     return 0;
   }
 
@@ -297,8 +292,8 @@ namespace gstlrn
 
     /* Allocate new variables */
 
-    Id iptr = _createVariables(db);
-    if (iptr < 0) return 1;
+    auto colids = _createVariables(db);
+    if (colids.empty()) return 1;
 
     // Optional title
 
@@ -307,23 +302,19 @@ namespace gstlrn
     /* Rotate the factors into data in the PCA system */
 
     VectorBool isoFlag = _getVectorIsotopic(db);
-    _pcaF2Z(iptr, db, isoFlag, _mean, _sigma);
+    _pcaF2Z(colids, db, isoFlag, _mean, _sigma);
 
     /* Optional printout */
 
     if (verbose)
     {
-      VectorInt cols(nvar);
-      for (Id ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-      VectorString names = db->getNames(db->fromUIDs(cols));
+      VectorString names = db->getNames(colids);
       dbStatisticsPrint(
         db, names, {}, true, true, "Statistics on Variables", "Variable");
     }
 
-    /* Set the error return code */
-
     VectorString names = _getNames(db);
-    namconv.setOutput(names, 0, db, iptr);
+    namconv.setMultiColumns(db, colids, "", names);
     return 0;
   }
 
@@ -509,7 +500,7 @@ namespace gstlrn
   /*!
    **  Procedure for transforming the variables into factors using PCA
    **
-   ** \param[in]  iptr         Pointer for storing the result in db
+   ** \param[in]  colids       Output column descriptor
    ** \param[in]  db           Db descriptor
    ** \param[in]  isoFlag      Vector of active samples
    ** \param[in]  mean         Array containing the mean
@@ -517,7 +508,7 @@ namespace gstlrn
    **
    *****************************************************************************/
   void PCA::_pcaZ2F(
-    Id iptr,
+    ColIDs& colids,
     Db* db,
     const VectorBool& isoFlag,
     const VectorDouble& mean,
@@ -542,7 +533,7 @@ namespace gstlrn
         auto nversion = db->getNVersions(RoleID(ERole::Z, ifac));
         for (Id version = 0; version < nversion; version++, ecr++)
         {
-          db->setValue(db->fromUID(iptr + ifac, version), iech, data2[ecr]);
+          db->setValue(colids[ifac].setVersion(version), iech, data2[ecr]);
         }
       }
     }
@@ -552,7 +543,7 @@ namespace gstlrn
   /*!
    **  Procedure for transforming the factors into variables using PCA
    **
-   ** \param[in]  iptr         Pointer to the storage
+   ** \param[in]  colids       Output column descriptor
    ** \param[in]  db           Db descriptor
    ** \param[in]  isoFlag      Vector of active samples
    ** \param[in]  mean         Array containing the mean
@@ -560,7 +551,7 @@ namespace gstlrn
    **
    *****************************************************************************/
   void PCA::_pcaF2Z(
-    Id iptr,
+    ColIDs& colids,
     Db* db,
     const VectorBool& isoFlag,
     const VectorDouble& mean,
@@ -586,7 +577,7 @@ namespace gstlrn
         auto nversion = db->getNVersions(RoleID(ERole::Z, ivar));
         for (Id version = 0; version < nversion; version++, ecr++)
         {
-          db->setValue(db->fromUID(iptr + ivar, version), iech, data2[ecr]);
+          db->setValue(colids[ivar].setVersion(version), iech, data2[ecr]);
         }
       }
     }

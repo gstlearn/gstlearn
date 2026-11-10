@@ -72,4 +72,12 @@ namespace gstlrn
     friend class DbData;
   };
 
+  // Strict weak ordering required for std::map<RoleID, Id> lookup
+  inline bool operator<(const RoleID& lhs, const RoleID& rhs)
+  {
+    if (lhs.getRole().getValue() != rhs.getRole().getValue())
+      return lhs.getRole().getValue() < rhs.getRole().getValue();
+    return lhs.getIndex() < rhs.getIndex();
+  }
+
 } // namespace gstlrn

@@ -345,56 +345,69 @@ namespace gstlrn
     /* Storage of the proportions */
     if (_flagProp)
     {
-      _iptrRP =
-        getDbout()->addColumnsByConstant(_nfactot, 1, 0., String(), ELoc::P);
-      if (_iptrRP < 0) return false;
+      auto colids_RP = getDbout()->addMultiColumns(
+        VectorString(), 0., VectorDouble(), ERole::P, 1, false, false, 0, 0,
+        _nfactot);
+      if (colids_RP.empty()) return false;
+      _iptrRP = colids_RP[0].getUID();
     }
 
     /* Storage of the facies simulations in the output file */
-    _iptrRF = getDbout()->addColumnsByConstant(
-      _numberPGS, getNbSimu(), 0., String(), ELoc::FACIES);
-    if (_iptrRF < 0) return false;
+    auto colids_RF = getDbout()->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::FACIES, getNbSimu(), false,
+      false, 0, 0, _numberPGS);
+    if (colids_RF.empty()) return false;
+    _iptrRF = colids_RF[0].getUID();
 
     /* Storage of the facies simulations in the input file */
     if (_flagCond)
     {
-      _iptrDF = getDbin()->addColumnsByConstant(
-        _numberPGS, getNbSimu(), 0., String(), ELoc::FACIES);
-      if (_iptrDF < 0) return false;
+      auto colids_DF = getDbin()->addMultiColumns(
+        VectorString(), 0., VectorDouble(), ERole::FACIES, getNbSimu(), false,
+        false, 0, 0, _numberPGS);
+      if (colids_DF.empty()) return false;
+      _iptrDF = colids_DF[0].getUID();
     }
 
     /* Gaussian transform of the facies input data */
     if (_flagCond)
     {
-      auto iptr = getDbin()->addColumnsByConstant(
-        _ngrftot, getNbSimu(), 0., String(), ELoc::GAUSFAC);
-      if (iptr < 0) return false;
+      auto colids = getDbin()->addMultiColumns(
+        VectorString(), 0., VectorDouble(), ERole::GAUSFAC, getNbSimu(), false,
+        false, 0, 0, _ngrftot);
+      if (colids.empty()) return false;
     }
 
     /* Non-conditional gaussian simulations at data points */
     if (_flagCond)
     {
-      _iptrDN = getDbin()->addColumnsByConstant(
-        _ngrftot, getNbSimu(), 0., String(), ELoc::SIMU);
-      if (_iptrDN < 0) return false;
+      auto colids_DN = getDbin()->addMultiColumns(
+        VectorString(), 0., VectorDouble(), ERole::SIMU, getNbSimu(), false,
+        false, 0, 0, _ngrftot);
+      if (colids_DN.empty()) return false;
+      _iptrDN = colids_DN[0].getUID();
     }
 
     /* Non-conditional gaussian simulations at target points */
-    _iptrRN = getDbout()->addColumnsByConstant(
-      _ngrftot, getNbSimu(), 0., String(), ELoc::SIMU);
-    if (_iptrRN < 0) return false;
+    auto colids_RN = getDbout()->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::SIMU, getNbSimu(), false,
+      false, 0, 0, _ngrftot);
+    if (colids_RN.empty()) return false;
+    _iptrRN = colids_RN[0].getUID();
 
     if (_flagCond)
     {
       /* Lower bound at input data points */
-      auto iptrl =
-        getDbin()->addColumnsByConstant(_ngrftot, 1, 0., String(), ELoc::L);
-      if (iptrl < 0) return false;
+      auto colids_L = getDbin()->addMultiColumns(
+        VectorString(), 0., VectorDouble(), ERole::L, 1, false, false, 0, 0,
+        _ngrftot);
+      if (colids_L.empty()) return false;
 
       /* Upper bound at input data points */
-      auto iptru =
-        getDbin()->addColumnsByConstant(_ngrftot, 1, 0., String(), ELoc::U);
-      if (iptru < 0) return false;
+      auto colids_U = getDbin()->addMultiColumns(
+        VectorString(), 0., VectorDouble(), ERole::U, 1, false, false, 0, 0,
+        _ngrftot);
+      if (colids_U.empty()) return false;
     }
     return true;
   }

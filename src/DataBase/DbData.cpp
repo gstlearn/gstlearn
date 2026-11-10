@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "DataBase/DbData.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "DataBase/DbOptim.hpp"
 #include "DataBase/MultID.hpp"
 #include <boost/math/special_functions/detail/fp_traits.hpp>
 
@@ -76,6 +77,9 @@ namespace gstlrn
       _roleIDs.emplace_back(ERole::fromValue(roleValue), rank);
     }
 
+    _rebuildRoleMap();
+    _rebuildUIDMap();
+
     return true;
   }
 #endif
@@ -102,12 +106,17 @@ namespace gstlrn
 
     // Update the RoleID list after deletion
     _updateRoleIDDeletion(roleID);
+
+    _rebuildRoleMap();
+    _rebuildUIDMap();
   }
 
   void DbData::deleteAllColumns()
   {
     this->_cols.clear();
     this->_roleIDs.clear();
+    _rebuildRoleMap();
+    _rebuildUIDMap();
   }
 
   /**
@@ -190,7 +199,7 @@ namespace gstlrn
    * @param colid Column Identifier
    * @return Id
    */
-  Id DbData::getICol(ColID&& colid) const
+  Id DbData::getColumnIndex(ColID&& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
     return icol ? *icol : -1;
@@ -217,43 +226,31 @@ namespace gstlrn
   ColID DbData::getColID(const ColID& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
-    if (!icol || !isValidColumn(*icol)) return ColID(-1);
+    if (!icol || !isValidColumn(*icol)) return ColID();
 
     ColID colIDout(*icol);
     colIDout._setName(_cols[*icol].getName());
     colIDout._setRoleID(_roleIDs[*icol]);
+    colIDout.setVersion(colid.getVersion());
+    colIDout._setUID(_cols[*icol].getUniqueIndex());
     return colIDout;
   }
 
   Id DbData::_searchColumnByUID(Id iuid) const
   {
-    const auto ncol = getNColumns();
-
-    const Id startColumn = (iuid < ncol) ? iuid : 0;
-
-    for (Id icol = 0; icol < ncol; ++icol)
-    {
-      const Id jcol = (icol + startColumn) % ncol;
-
-      if (_cols[jcol].getUniqueIndex() == iuid)
-      {
-        return jcol;
-      }
-    }
+    auto it = _uidToColMap.find(iuid);
+    if (it != _uidToColMap.end()) return it->second;
     return -1;
   }
 
   ColID DbData::fromUID(Id iuid, Id version) const
   {
     const auto ncol = getNColumns();
-    if (ncol <= 0 || iuid < 0) return ColID(-1);
+    if (ncol <= 0 || iuid < 0) return ColID();
 
     Id jcol = _searchColumnByUID(iuid);
-    if (jcol >= 0)
-    {
-      return ColID(jcol, version);
-    }
-    return ColID(-1);
+    if (jcol >= 0) return ColID(jcol, version);
+    return ColID();
   }
 
   MultID DbData::fromUIDs(const VectorInt& iuids) const
@@ -276,6 +273,8 @@ namespace gstlrn
     auto roleIDLocal = roleID;
     _updateRoleIDAddition(*icol, roleIDLocal);
     _roleIDs[*icol] = roleIDLocal;
+
+    _rebuildRoleMap();
   }
 
   void DbData::deleteVersion(ColID&& colid, Id version)
@@ -301,59 +300,59 @@ namespace gstlrn
    * @brief Return a set of Column Identifiers starting from a Column Name
    *
    * @param name Column Name (with regexp facility)
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const String& name) const
+  ColIDs DbData::getColIDs(const String& name) const
   {
     // Looking for matching names
     VectorString matchNames = expandList(getNames(), name);
 
     // Loop to create the list of Column Identifiers
-    std::vector<ColID> colIDs;
+    ColIDs colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
-      if (colID.getICol() >= 0) colIDs.push_back(colID);
+      if (colID.getICol() >= 0) colids.push_back(colID);
     }
-    return colIDs;
+    return colids;
   }
 
   /**
    * @brief Return a set of Column Identifiers starting from a set of Column Names
    *
    * @param names Column Names (with regexp facility)
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const VectorString& names) const
+  ColIDs DbData::getColIDs(const VectorString& names) const
   {
     VectorString matchNames = expandList(getNames(), names);
-    std::vector<ColID> colIDs;
+    ColIDs colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
-      if (colID.getICol() >= 0) colIDs.push_back(colID);
+      if (colID.getICol() >= 0) colids.push_back(colID);
     }
-    return colIDs;
+    return colids;
   }
 
   /**
    * @brief Returns a set of Column Identifiers matching a given Role
    *
    * @param role Target Role to be searched
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const ERole& role) const
+  ColIDs DbData::getColIDs(const ERole& role) const
   {
-    std::vector<ColID> colIDs;
+    ColIDs colids;
     for (const auto& id: this->_roleIDs)
     {
       if (id.getRole().isEqual(role))
       {
         const auto colID = getColID(ColID(id));
-        if (colID.getICol() >= 0) colIDs.push_back(colID);
+        if (colID.getICol() >= 0) colids.push_back(colID);
       }
     }
-    return colIDs;
+    return colids;
   }
 
   Id DbData::getNSamples() const
@@ -367,6 +366,8 @@ namespace gstlrn
     const auto icol = _getColumnIndex(colid);
     if (!icol) return;
     _roleIDs[*icol].removeRole();
+
+    _rebuildRoleMap();
   }
 
   void DbData::removeAllRoles()
@@ -375,6 +376,7 @@ namespace gstlrn
     {
       roleID.removeRole();
     }
+    _rebuildRoleMap();
   }
 
   Id DbData::getNVersions(ColID&& colid) const
@@ -411,13 +413,15 @@ namespace gstlrn
    */
   void DbData::clearRole(const ERole& role)
   {
-    std::vector<ColID> colIDs = getColIDs(role);
-    for (const auto& colID: colIDs) _roleIDs[colID.getICol()].removeRole();
+    ColIDs colids = getColIDs(role);
+    for (const auto& colID: colids) _roleIDs[colID.getICol()].removeRole();
+    _rebuildRoleMap();
   }
 
   void DbData::clearAllRoles()
   {
     for (auto& roleID: _roleIDs) roleID.removeRole();
+    _rebuildRoleMap();
   }
 
   /**
@@ -467,7 +471,7 @@ namespace gstlrn
   /**
    * @brief Check the addition of a new column with the roleID provided as argument
    *
-   * @param icol0 Index of the column to be added (<0 for a non existing column)
+   * @param columnIndex0 Index of the column to be added (<0 for a non existing column)
    * @param roleID RoleID of the new column to be added (possibly modified)
    *
    * @remark
@@ -480,20 +484,22 @@ namespace gstlrn
    * A safety patch:
    * - If a Column has several versions, the Role cannot be accepted (except for SIMU)
    */
-  void DbData::_updateRoleIDAddition(Id icol0, RoleID& roleID)
+  void DbData::_updateRoleIDAddition(Id columnIndex0, RoleID& roleID)
   {
     auto ncol = getNColumns();
-    auto wasDefined = icol0 >= 0 && _roleIDs[icol0].isDefined();
+    auto wasDefined = columnIndex0 >= 0 && _roleIDs[columnIndex0].isDefined();
     const auto newRole = roleID.getRole();
     const auto newIndex = roleID.getIndex();
 
     // Check that the new Role can be accepted
-    if (icol0 >= 0
-        && !roleID.checkRoleVsMultipleVersions(getNVersions(icol0), false))
+    if (columnIndex0 >= 0
+        && !roleID.checkRoleVsMultipleVersions(
+          getNVersions(columnIndex0), false))
       return;
 
     // Check if the target Column does not already have the same roleID (ERole and Index)
-    if (icol0 >= 0 && roleID.isEqual(_roleIDs[icol0], true)) return;
+    if (columnIndex0 >= 0 && roleID.isEqual(_roleIDs[columnIndex0], true))
+      return;
 
     // The ERole of the new Column is defined.
     if (roleID.isDefined())
@@ -503,7 +509,7 @@ namespace gstlrn
       // Look for a Column with the same roleID (same ERole and same Index)
       for (Id icol = 0; icol < ncol; icol++)
       {
-        if (icol == icol0) continue;
+        if (icol == columnIndex0) continue;
 
         // Look for a column (different from the new one) with the same RoleID
         if (roleID.isEqual(_roleIDs[icol], true))
@@ -531,10 +537,10 @@ namespace gstlrn
         // Look for all Columns with same ERole (but possibly different Rank)
         for (Id icol = 0; icol < ncol; icol++)
         {
-          if (icol == icol0) continue;
-          if (!_roleIDs[icol0].isEqual(_roleIDs[icol], false)) continue;
+          if (icol == columnIndex0) continue;
+          if (!_roleIDs[columnIndex0].isEqual(_roleIDs[icol], false)) continue;
 
-          auto oldIndex = _roleIDs[icol0].getIndex();
+          auto oldIndex = _roleIDs[columnIndex0].getIndex();
           auto curIndex = _roleIDs[icol].getIndex();
           if (curIndex > oldIndex)
           {
@@ -544,6 +550,8 @@ namespace gstlrn
         }
       }
     }
+
+    _rebuildRoleMap();
   }
 
   void DbData::_updateRoleIDDeletion(RoleID& roleID)
@@ -560,6 +568,41 @@ namespace gstlrn
         // Decrease the rank of the old one by 1
         id._setIndex(id.getIndex() - 1);
       }
+    }
+
+    _rebuildRoleMap();
+  }
+
+  /**
+   * @brief Rebuild the _roleToColMap by scanning all columns and keeping the first match per RoleID
+   */
+  void DbData::_rebuildRoleMap()
+  {
+    if constexpr (areCountersActive)
+      DbOptim::incrementCounter("DbData::rebuildRoleMap");
+
+    _roleToColMap.clear();
+    const auto ncol = getNColumns();
+    for (Id jcol = 0; jcol < ncol; ++jcol)
+    {
+      // Keep the first column index jcol found for each RoleID
+      _roleToColMap.emplace(_roleIDs[jcol], jcol);
+    }
+  }
+
+  /**
+   * @brief Rebuild the _uidToColMap by mapping each column's unique index (UID) to its column index
+   */
+  void DbData::_rebuildUIDMap()
+  {
+    if constexpr (areCountersActive)
+      DbOptim::incrementCounter("DbData::rebuildUIDMap");
+
+    _uidToColMap.clear();
+    const Id ncol = getNColumns();
+    for (Id icol = 0; icol < ncol; ++icol)
+    {
+      _uidToColMap.emplace(_cols[icol].getUniqueIndex(), icol);
     }
   }
 
@@ -613,26 +656,6 @@ namespace gstlrn
     }
   }
 
-  Id DbData::getColMatchUniqueIndex(Id uniqueIndex) const
-  {
-    const Id ncol = getNColumns();
-    if (ncol <= 0) return -1;
-
-    if (_lastColumnIndex >= ncol) _lastColumnIndex = 0;
-
-    for (Id icol = 0; icol < ncol; icol++)
-    {
-      const Id jcol = (icol + _lastColumnIndex) % ncol;
-
-      if (_cols[jcol].getUniqueIndex() == uniqueIndex)
-      {
-        _lastColumnIndex = jcol; // Save this for the next search
-        return jcol;
-      }
-    }
-    return -1;
-  }
-
   void DbData::_checkNVersion(Id& nversion)
   {
     if (nversion <= 0)
@@ -645,9 +668,9 @@ namespace gstlrn
     }
   }
 
-  bool DbData::isValidColumn(Id icol) const
+  bool DbData::isValidColumn(Id columnIndex) const
   {
-    return (icol >= 0 && icol < getNColumns());
+    return (columnIndex >= 0 && columnIndex < getNColumns());
   }
 
   String DbData::summaryRoles(void) const
@@ -659,12 +682,12 @@ namespace gstlrn
     {
       const auto& role = *it;
 
-      auto colIDs = getColIDs(role);
-      if (!colIDs.empty())
+      auto colids = getColIDs(role);
+      if (!colids.empty())
       {
         sstr << "Role: " << role.getKey() << " (" << getNRoles(role) << ")";
         sstr << " - Columns = ";
-        for (const auto& colID: colIDs) sstr << colID.getICol() << " ";
+        for (const auto& colID: colids) sstr << colID.getICol() << " ";
         sstr << std::endl;
       }
       it.toNext();
@@ -674,28 +697,18 @@ namespace gstlrn
 
   void DbData::_unknownName(const String& name)
   {
-    messerr("Column '%s' does not exist.", name.c_str());
+    messerr("Column Name '%s' does not exist.", name.c_str());
   }
 
-  void DbData::_unknownRoleID(const RoleID& roleID)
-  {
-    messerr("Role '%s' does not exist.", roleID.getName().c_str());
-  }
-
-  void DbData::_unknownICol(Id icol, Id ncol)
-  {
-    messerr("Column index (%d) is out of range.", icol);
-    messerr("It should be between 0 and %d", ncol - 1);
-  }
-
-  void DbData::_invalidUID(Id uidCol, Id uidRef)
+  void DbData::_unknownRoleID(const ColID& colID)
   {
     messerr(
-      "Column Identifier has a Unique Index (%d) that does not match "
-      "the "
-      "targeted Column (%d).",
-      uidCol, uidRef);
-    messerr("The 'UID' information prevails");
+      "Column Role '%s' does not exist.", colID.getRoleID().getName().c_str());
+  }
+
+  void DbData::_unknownColumnIndex(Id columnIndex, Id ncol)
+  {
+    (void)checkArg("Column Index", columnIndex, ncol - 1);
   }
 
   /************************************************************************/
@@ -735,6 +748,106 @@ namespace gstlrn
   }
 
   /**
+   * @brief The Column 'icol0' has been identified.
+   * Check if its UID contents is valid and consistent with the one provided in 'colid' (if any).
+   * If the match is not correct, launch a search by UID to find the correct Column.
+   *
+   * @param colid Column Identifier
+   * @param columnIndex0 Index of the Column initially identified
+   * @return Resulting rank of the column identified
+   */
+  Id DbData::_checkUID(const ColID& colid, Id columnIndex0) const
+  {
+    auto uidCol = colid.getUID();
+    auto ncol = getNColumns();
+    bool validColIndex = (columnIndex0 >= 0 && columnIndex0 < ncol);
+
+    // No UID information provided in ColID. Simply check against the number of columns in the DataBase.
+    if (uidCol < 0)
+    {
+      if (validColIndex) return columnIndex0;
+      _unknownColumnIndex(columnIndex0, ncol);
+      return -1;
+    }
+
+    if (validColIndex)
+    {
+      // Read the UID information from ColID
+      auto uidRef = _cols[columnIndex0].getUniqueIndex();
+      if (uidRef == uidCol) return columnIndex0;
+
+      // In case of mismatch the Column is searched by UID instead of RoleID
+      if constexpr (areCountersActive)
+        DbOptim::incrementCounter("DbData::updateByUID");
+    }
+
+    columnIndex0 = _searchByUID(uidCol);
+    return columnIndex0;
+  }
+
+  bool DbData::_checkVersion(const ColID& colid, Id columnIndex0) const
+  {
+    auto version = colid.getVersion();
+    if (version > 0)
+    {
+      auto nversion = _cols[columnIndex0].getNVersions();
+      if (!_cols[columnIndex0].checkVersion(version, nversion))
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Id DbData::_searchByRole(const RoleID& roleid, bool verbose) const
+  {
+    if constexpr (areCountersActive)
+      DbOptim::incrementCounter("DbData::searchByRole");
+
+    auto it = _roleToColMap.find(roleid);
+    if (it != _roleToColMap.end()) return it->second;
+
+    if (verbose) _unknownRoleID(roleid);
+
+    return -1;
+  }
+
+  Id DbData::_searchByName(const String& name, bool verbose) const
+  {
+    if constexpr (areCountersActive)
+      DbOptim::incrementCounter("DbData::searchByName");
+
+    auto ncol = getNColumns();
+    for (Id jcol = 0; jcol < ncol; ++jcol)
+    {
+      if (matchRegexp(_cols[jcol].getName(), name)) return jcol;
+    }
+    if (verbose) _unknownName(name);
+
+    return -1;
+  }
+
+  Id DbData::_searchByUID(Id uniqueIndex) const
+  {
+    if constexpr (areCountersActive)
+      DbOptim::incrementCounter("DbData::searchByUID");
+
+    auto it = _uidToColMap.find(uniqueIndex);
+    if (it != _uidToColMap.end()) return it->second;
+
+    return -1;
+  }
+
+  // Build a ColID from a valid column index using existing DbData members
+  ColID DbData::_makeColIDFromIndex(Id icol) const
+  {
+    ColID colid(icol);
+    colid._setName(_cols[icol].getName());
+    colid._setRoleID(_roleIDs[icol]);
+    return colid;
+  }
+
+  /**
    * @brief Returns the Column index corresponding to the given Column Identifier (ColID)
    *
    * @param colid Column Identifier
@@ -750,61 +863,26 @@ namespace gstlrn
     DbData::_getColumnIndex(const ColID& colid, bool verbose) const
   {
     Id icol0 = -1;
-    auto ncol = getNColumns();
 
     // 1. Identification by Index
     auto icol = colid.getICol();
     if (icol >= 0)
     {
-      if (icol < ncol)
-      {
-        icol0 = icol;
-      }
-      else
-      {
-        if (verbose) _unknownICol(icol, ncol);
-        return std::nullopt;
-      }
+      icol0 = icol;
     }
+
     // 2. Identification By Name (with regexp matching)
     else if (!colid.getName().empty())
     {
-      const String& localName = colid.getName();
-      bool found = false;
-      for (Id jcol = 0; jcol < ncol; ++jcol)
-      {
-        if (matchRegexp(_cols[jcol].getName(), localName))
-        {
-          icol0 = jcol;
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        if (verbose) _unknownName(localName);
-        return std::nullopt;
-      }
+      icol0 = _searchByName(colid.getName(), verbose);
+      if (icol0 < 0) return std::nullopt;
     }
+
     // 3. Identification by Role
     else if (colid.getRole().isDifferent(ERole::UNDEFINED))
     {
-      const RoleID& roleID = colid.getRoleID();
-      bool found = false;
-      for (Id jcol = 0; jcol < ncol; ++jcol)
-      {
-        if (_roleIDs[jcol].isEqual(roleID, true))
-        {
-          icol0 = jcol;
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        if (verbose) _unknownRoleID(roleID);
-        return std::nullopt;
-      }
+      icol0 = _searchByRole(colid.getRoleID(), verbose);
+      if (icol0 < 0) return std::nullopt;
     }
 
     // 4. No valid identifier provided
@@ -819,28 +897,12 @@ namespace gstlrn
       return std::nullopt;
     }
 
-    // Check the Unique Identifier (UID)
-    auto uidCol = colid.getUniqueIndex();
-    if (uidCol >= 0)
-    {
-      auto uidRef = _cols[icol0].getUniqueIndex();
-      if (uidRef != uidCol)
-      {
-        if (verbose) _invalidUID(uidCol, uidRef);
-        icol0 = getColMatchUniqueIndex(uidCol);
-      }
-    }
+    // Check if the UID information (if any) is consistent with the found Column
+    icol0 = _checkUID(colid, icol0);
+    if (icol0 < 0) return std::nullopt;
 
     // Check the version number
-    auto version = colid.getVersion();
-    if (version > 0)
-    {
-      auto nversion = _cols[icol0].getNVersions();
-      if (!_cols[icol0].checkVersion(version, nversion))
-      {
-        return std::nullopt;
-      }
-    }
+    if (!_checkVersion(colid, icol0)) return std::nullopt;
 
     return icol0;
   }
@@ -860,82 +922,78 @@ namespace gstlrn
    * (as long as duplicate column references are suppressed).
    * - the invalid column references are ignored
    */
-  std::vector<ColID> DbData::getColumnIndices(const MultID& multid) const
+  ColIDs DbData::getColumnIndices(const MultID& multid) const
   {
+    // 1. Direct ColIDs provided
+    const ColIDs& directColIDs = multid.getColIDs();
+    if (!directColIDs.empty())
+    {
+      return directColIDs;
+    }
+
     auto ncols = getNColumns();
-    VectorInt found;
-    std::unordered_set<Id> seen;
+    ColIDs colids;
+    if (ncols <= 0) return colids;
 
     // Local utility to add an index if it is valid and not already present (preserves order)
+    std::unordered_set<Id> seen;
     auto add_unique = [&](Id icol)
     {
-      if (icol >= 0 && icol < ncols)
+      if (icol >= 0 && icol < ncols && seen.insert(icol).second)
       {
-        if (seen.insert(icol).second)
-        {
-          found.push_back(icol);
-        }
+        colids.push_back(_makeColIDFromIndex(icol));
       }
     };
 
-    // Try to identify the Column indices
+    // 2. Selection by column index list (icols)
     const VectorInt& icols = multid.getICols();
     if (!icols.empty())
     {
-      for (const auto& icol: icols)
+      colids.reserve(icols.size());
+      seen.reserve(icols.size());
+      for (Id icol: icols)
       {
         add_unique(icol);
       }
+      return colids;
     }
 
-    // Try to identify by Column Names
+    // 3. Selection by names (with expansion)
     const VectorString& names = multid.getNames();
     if (!names.empty())
     {
-      VectorString matchNames = expandList(getNames(), names);
+      if constexpr (areCountersActive)
+        DbOptim::incrementCounter("DbData::getColumnIndices::byName");
+
+      const VectorString matchNames = expandList(getNames(), names);
+      colids.reserve(matchNames.size());
+      seen.reserve(matchNames.size());
       for (const auto& matchName: matchNames)
       {
-        auto icolOpt = _getColumnIndex(matchName, false);
-        if (icolOpt)
+        const Id icol = _searchByName(matchName, false);
+        if (isValidColumn(icol))
         {
-          add_unique(*icolOpt);
+          add_unique(icol);
         }
       }
+      return colids;
     }
 
-    // Try to identify by Column Roles
-    // Important remark. Columns must be added:
-    // - if they belong to the Targeted Role
-    // - by their increasing 'index'
-    if (multid.getRole().isDifferent(ERole::UNDEFINED))
+    // 4. Selection by role (all indices for this role, sorted by ascending index via _roleToColMap)
+    const ERole& role = multid.getRole();
+    if (role.isDifferent(ERole::UNDEFINED))
     {
-      // Information stored in std::map is automatically sorted by increasing key
-      std::map<Id, Id> sortedRoleCols;
+      if constexpr (areCountersActive)
+        DbOptim::incrementCounter("DbData::getColumnIndices::byRole");
 
-      for (Id icol = 0; icol < ncols; ++icol)
+      // _roleToColMap is ordered by RoleID (so by ascending index for a given ERole)
+      auto it = _roleToColMap.lower_bound(RoleID(role, 0));
+      while (it != _roleToColMap.end() && it->first.getRole().isEqual(role))
       {
-        if (_roleIDs[icol].getRole().isEqual(multid.getRole()))
-        {
-          Id roleIndex = _roleIDs[icol].getIndex();
-          sortedRoleCols[roleIndex] = icol;
-        }
+        add_unique(it->second);
+        ++it;
       }
-      // Loop on the map to store the columns
-      for (const auto& pair: sortedRoleCols)
-      {
-        add_unique(pair.second);
-      }
-    }
-
-    // Create the list of ColIDs corresponding to the found columns
-    std::vector<ColID> colids;
-    colids.reserve(found.size());
-    for (Id icol: found)
-    {
-      ColID colid(icol);
-      colid._setName(_cols[icol].getName());
-      colid._setRoleID(_roleIDs[icol]);
-      colids.push_back(colid);
+      return colids;
     }
 
     return colids;

@@ -46,8 +46,9 @@ namespace gstlrn
     _index.resize(_nvar);
 
     // Column index for selection (if 'useSel' and if present)
-    _iptrSel =
-      (_useSel && _db->hasLocator(ELoc::SEL)) ? _db->getColIdx(ERole::SEL) : -1;
+    _iptrSel = (_useSel && _db->hasLocator(ELoc::SEL))
+               ? _db->getColumnIndex(ERole::SEL)
+               : -1;
 
     // Column indices for variables (if 'useZ' and if present)
     _iptrZ = VectorInt();
@@ -55,7 +56,7 @@ namespace gstlrn
     {
       _iptrZ.resize(_nvar);
       for (Id ivar = 0; ivar < _nvar; ivar++)
-        _iptrZ[ivar] = _db->getColIdx(RoleID(ERole::Z, ivar));
+        _iptrZ[ivar] = _db->getColumnIndex(RoleID(ERole::Z, ivar));
     }
 
     // Column indices for variance of measurement error (if 'useVerr' and if present)
@@ -64,7 +65,7 @@ namespace gstlrn
     {
       _iptrVerr.resize(_nvar);
       for (Id ivar = 0; ivar < _nvar; ivar++)
-        _iptrVerr[ivar] = _db->getColIdx(RoleID(ERole::V, ivar));
+        _iptrVerr[ivar] = _db->getColumnIndex(RoleID(ERole::V, ivar));
     }
 
     // Column indices for external drifts (if 'useExtD' and if present)
@@ -75,7 +76,7 @@ namespace gstlrn
       _nExtD = _db->getNLoc(ELoc::F);
       _iptrExtD.resize(_nExtD);
       for (Id iext = 0; iext < _nExtD; iext++)
-        _iptrExtD[iext] = _db->getColIdx(RoleID(ERole::F, iext));
+        _iptrExtD[iext] = _db->getColumnIndex(RoleID(ERole::F, iext));
     }
     _initElligible();
   }

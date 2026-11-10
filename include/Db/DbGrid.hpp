@@ -457,7 +457,7 @@ namespace gstlrn
       const String& nameTop,
       const String& nameBot,
       const VectorInt& dimExclude = VectorInt()) const;
-    Id setSelectionFromVariableExtend(
+    void setSelectionFromVariableExtend(
       const String& nameTop,
       const String& nameBot);
     void clean3DFromSurfaces(
@@ -483,7 +483,7 @@ namespace gstlrn
       double range = 1.,
       const NamingConvention& namconv = NamingConvention("Smooth"));
 
-    Id addSelectionFromDbByMorpho(
+    Id buildSelectionByMorpho(
       Db* db,
       Id nmin = 0,
       Id radius = 0,

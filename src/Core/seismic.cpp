@@ -1529,9 +1529,7 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_z2t_convert(DbGrid* db_z, Id iatt_v, DbGrid* db_t)
   {
-    DbGrid* db_v;
-    double z0, z1, t0, t1, dz, dt;
-    Id nz, nt, ndim, natt, iatt_t, iatt_z, error;
+    Id iatt_z;
     VectorDouble zt;
     VectorDouble tz;
     VectorDouble az;
@@ -1540,23 +1538,23 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db_z, db_t)) return (1);
-    error = 1;
-    db_v = db_z;
-    ndim = db_z->getNDim();
-    natt = db_z->getNLoc(ELoc::Z);
-    nz = db_z->getNX(ndim - 1);
-    nt = db_t->getNX(ndim - 1);
-    z0 = db_z->getX0(ndim - 1);
-    t0 = db_t->getX0(ndim - 1);
-    dz = db_z->getDX(ndim - 1);
-    dt = db_t->getDX(ndim - 1);
-    t1 = t0 + (nt - 1) * dt;
-    z1 = z0 + (nz - 1) * dz;
+    Id error = 1;
+    DbGrid* db_v = db_z;
+    Id ndim = db_z->getNDim();
+    Id natt = db_z->getNLoc(ELoc::Z);
+    Id nz = db_z->getNX(ndim - 1);
+    Id nt = db_t->getNX(ndim - 1);
+    double z0 = db_z->getX0(ndim - 1);
+    double t0 = db_t->getX0(ndim - 1);
+    double dz = db_z->getDX(ndim - 1);
+    double dt = db_t->getDX(ndim - 1);
+    double t1 = t0 + (nt - 1) * dt;
+    double z1 = z0 + (nz - 1) * dz;
 
     /* Create the output variables */
 
-    iatt_t = db_t->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_t < 0) goto label_end;
+    auto colids_t = db_t->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_t.empty()) goto label_end;
     iatt_z = db_z->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
@@ -1569,8 +1567,8 @@ namespace gstlrn
     /* Perform the conversion from Depth to Time */
 
     st_seismic_z2t_convert(
-      db_z, iatt_z, nz, z0, z1, dz, db_t, iatt_t, nt, t0, t1, dt, db_v, iatt_v,
-      natt, tz.data(), zt.data(), at.data(), az.data());
+      db_z, iatt_z, nz, z0, z1, dz, db_t, colids_t[0].getUID(), nt, t0, t1, dt,
+      db_v, iatt_v, natt, tz.data(), zt.data(), at.data(), az.data());
 
     /* Set the error return code */
 
@@ -1597,9 +1595,7 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_t2z_convert(DbGrid* db_t, Id iatt_v, DbGrid* db_z)
   {
-    DbGrid* db_v;
-    double z0, z1, t0, t1, dz, dt;
-    Id nz, nt, ndim, natt, iatt_z, iatt_t, error;
+    Id iatt_t;
     VectorDouble zt;
     VectorDouble tz;
     VectorDouble az;
@@ -1608,23 +1604,23 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db_z, db_t)) return (1);
-    error = 1;
-    db_v = db_t;
-    ndim = db_t->getNDim();
-    natt = db_t->getNLoc(ELoc::Z);
-    nz = db_z->getNX(ndim - 1);
-    nt = db_t->getNX(ndim - 1);
-    z0 = db_z->getX0(ndim - 1);
-    t0 = db_t->getX0(ndim - 1);
-    dz = db_z->getDX(ndim - 1);
-    dt = db_t->getDX(ndim - 1);
-    t1 = t0 + (nt - 1) * dt;
-    z1 = z0 + (nz - 1) * dz;
+    Id error = 1;
+    DbGrid* db_v = db_t;
+    Id natt = db_t->getNLoc(ELoc::Z);
+    Id ndim = db_t->getNDim();
+    Id nz = db_z->getNX(ndim - 1);
+    Id nt = db_t->getNX(ndim - 1);
+    double z0 = db_z->getX0(ndim - 1);
+    double t0 = db_t->getX0(ndim - 1);
+    double dz = db_z->getDX(ndim - 1);
+    double dt = db_t->getDX(ndim - 1);
+    double t1 = t0 + (nt - 1) * dt;
+    double z1 = z0 + (nz - 1) * dz;
 
     /* Create the output variables */
 
-    iatt_z = db_z->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_z < 0) goto label_end;
+    auto colids_z = db_t->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_z.empty()) goto label_end;
     iatt_t = db_t->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
@@ -1637,8 +1633,8 @@ namespace gstlrn
     /* Perform the conversion from Time to Depth */
 
     st_seismic_t2z_convert(
-      db_t, iatt_t, nt, t0, t1, dt, db_z, iatt_z, nz, z0, z1, dz, db_v, iatt_v,
-      natt, tz.data(), zt.data(), at.data(), az.data());
+      db_t, iatt_t, nt, t0, t1, dt, db_z, colids_z[0].getUID(), nz, z0, z1, dz,
+      db_v, iatt_v, natt, tz.data(), zt.data(), at.data(), az.data());
 
     /* Set the error return code */
 
@@ -1663,25 +1659,27 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_operate(DbGrid* db, Id oper)
   {
-    Id ndim, natt, nt, iatt_in, iatt_out;
-    double dt;
+    Id iatt_in;
 
     /* Initializations */
 
     if (st_match(db, nullptr)) return (1);
-    ndim = db->getNDim();
-    natt = db->getNLoc(ELoc::Z);
-    nt = db->getNX(ndim - 1);
-    dt = db->getDX(ndim - 1);
+    Id ndim = db->getNDim();
+    Id natt = db->getNLoc(ELoc::Z);
+    Id nt = db->getNX(ndim - 1);
+    double dt = db->getDX(ndim - 1);
 
     /* Create the output variables */
 
     iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_out < 0) return (1);
+    auto colids_out = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::UNDEFINED, 1, false, false, 0,
+      0, natt);
+    if (colids_out.empty()) return 1;
 
-    if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt))
+    if (st_seismic_operate(
+          db, oper, natt, nt, iatt_in, colids_out[0].getUID(), dt))
       return (1);
 
     return (0);
@@ -1819,8 +1817,7 @@ namespace gstlrn
     double val_after,
     VectorDouble& wavelet)
   {
-    Id ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
-    double dz;
+    Id iatt, itrace, iz, iatt_in, size, shift;
     VectorDouble tab0;
     VectorDouble tab1;
     VectorDouble tab2;
@@ -1828,11 +1825,12 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db, nullptr)) return (1);
-    ndim = db->getNDim();
-    natt = db->getNLoc(ELoc::Z);
-    nz = db->getNX(ndim - 1);
-    dz = db->getDX(ndim - 1);
-    error = 0;
+    Id ndim = db->getNDim();
+    Id natt = db->getNLoc(ELoc::Z);
+    Id nz = db->getNX(ndim - 1);
+    double dz = db->getDX(ndim - 1);
+    Id error = 0;
+    ColIDs colids_out;
 
     /* Generation of the wavelet */
 
@@ -1850,8 +1848,8 @@ namespace gstlrn
     error = 1;
     iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_out < 0) return (1);
+    colids_out = db->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_out.empty()) return 1;
 
     /* Core allocation */
 
@@ -1904,7 +1902,7 @@ namespace gstlrn
 
         for (iz = 0; iz < nz; iz++)
           TR_OUT(
-            db, iatt_out, iatt, itrace, iz,
+            db, colids_out[0].getUID(), iatt, itrace, iz,
             (FFFF(TR_IN(db, iatt_in, iatt, itrace, iz))) ? TEST
                                                          : tab2[iz + shift]);
       }
@@ -1974,8 +1972,7 @@ namespace gstlrn
    **  Add the sample to the neighborhood
    **
    ** \param[in]  db         Grid Db structure
-   ** \param[in]  iatt_z1    Address of the first data attribute
-   ** \param[in]  iatt_z2    Address of the second data attribute
+   ** \param[in]  colids      Address of the data attributes
    ** \param[in]  flag_test  Flag to check if the sample must be added
    ** \li                    0 : only if at least one variable is defined
    ** \li                    1 : only if the first variable is defined
@@ -1987,8 +1984,7 @@ namespace gstlrn
    *****************************************************************************/
   static void st_sample_add(
     DbGrid* db,
-    Id iatt_z1,
-    Id iatt_z2,
+    const ColIDs& colids,
     Id flag_test,
     Id ix,
     Id iz,
@@ -2012,9 +2008,9 @@ namespace gstlrn
 
     /* Read the new values */
 
-    v1 = db->getValue(db->fromUID(iatt_z1), iech);
+    v1 = db->getValue(colids[0], iech);
     if (flag_test == 1 && FFFF(v1)) return;
-    v2 = db->getValue(db->fromUID(iatt_z2), iech);
+    v2 = db->getValue(colids[1], iech);
     if (flag_test == 2 && FFFF(v2)) return;
     if (flag_test == 0 && FFFF(v1) && FFFF(v2)) return;
 
@@ -2260,8 +2256,7 @@ namespace gstlrn
    **
    ** \param[in]  db        Grid Db structure
    ** \param[in]  flag_exc  1 if the target sample must be excluded
-   ** \param[in]  iatt_z1   Address of the first data attribute
-   ** \param[in]  iatt_z2   Address of the second data attribute
+   ** \param[in]  colids    Address of the data attributes
    ** \param[in]  ix0       Rank of the target trace
    ** \param[in]  iz0       Rank of the target sample within the target trace
    ** \param[in]  nbench    Vertical Radius of the neighborhood (center excluded)
@@ -2275,8 +2270,7 @@ namespace gstlrn
   static Id st_estimate_neigh_create(
     DbGrid* db,
     Id flag_exc,
-    Id iatt_z1,
-    Id iatt_z2,
+    const ColIDs& colids,
     Id ix0,
     Id iz0,
     Id nbench,
@@ -2301,7 +2295,7 @@ namespace gstlrn
       {
         jz = iz + iz0;
         if (jz < 0 || jz >= NZ) continue;
-        st_sample_add(db, iatt_z1, iatt_z2, 1, ix, jz, ngh);
+        st_sample_add(db, colids, 1, ix, jz, ngh);
       }
     }
 
@@ -2311,7 +2305,7 @@ namespace gstlrn
     {
       jz = iz + iz0;
       if (jz < 0 || jz >= NZ) continue;
-      st_sample_add(db, iatt_z1, iatt_z2, 0, ix0, jz, ngh);
+      st_sample_add(db, colids, 0, ix0, jz, ngh);
     }
 
     /* Load the information from the closest traces (for V2) */
@@ -2332,7 +2326,7 @@ namespace gstlrn
       {
         jz = iz + iz0;
         if (jz < 0 || jz >= NZ) continue;
-        st_sample_add(db, iatt_z1, iatt_z2, 0, ix, jz, ngh);
+        st_sample_add(db, colids, 0, ix, jz, ngh);
       }
     }
 
@@ -2354,7 +2348,7 @@ namespace gstlrn
       {
         jz = iz + iz0;
         if (jz < 0 || jz >= NZ) continue;
-        st_sample_add(db, iatt_z1, iatt_z2, 0, ix, jz, ngh);
+        st_sample_add(db, colids, 0, ix, jz, ngh);
       }
     }
 
@@ -2751,8 +2745,8 @@ namespace gstlrn
   ** \param[in]  wgt       Array containing the Kriging weights
   ** \param[in]  rhs       Array containing the R.H.S. member
   ** \param[in]  var0      Array containing the C00 terms
-  ** \param[in]  iatt_est  Array of pointers to the kriged result
-  ** \param[in]  iatt_std  Array of pointers to the variance of estimation
+  ** \param[in]  colid_est  Array of pointers to the kriged result
+  ** \param[in]  colid_std  Array of pointers to the variance of estimation
   **
   *****************************************************************************/
   static void st_estimate_result(
@@ -2765,8 +2759,8 @@ namespace gstlrn
     const MatrixDense& wgt,
     const MatrixDense& rhs,
     const VectorDouble& var0,
-    Id* iatt_est,
-    Id* iatt_std)
+    const ColIDs& colid_est,
+    const ColIDs& colid_std)
   {
     Id i, ivar, jvar, nech, lec;
     double result, value, stdev;
@@ -2792,7 +2786,7 @@ namespace gstlrn
           value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
           result += wgt.getValue(lec++, ivar) * value;
         }
-      db->setValue(db->fromUID(iatt_est[ivar]), IECH_OUT, result);
+      db->setValue(colid_est[ivar], IECH_OUT, result);
 
       /* Variance of estimation */
 
@@ -2803,7 +2797,7 @@ namespace gstlrn
         for (i = 0; i < nred; i++)
           stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
         stdev = (stdev > 0) ? sqrt(stdev) : 0.;
-        db->setValue(db->fromUID(iatt_std[ivar]), IECH_OUT, stdev);
+        db->setValue(colid_std[ivar], IECH_OUT, stdev);
       }
 
       if (OptDbg::query(EDbg::RESULTS))
@@ -2830,7 +2824,7 @@ namespace gstlrn
   ** \param[in]  wgt       Array containing the Kriging weights
   ** \param[in]  rhs       Array containing the R.H.S. member
   ** \param[in]  c00       Array containing the C00 terms
-  ** \param[in]  iatt_sim  Array of pointers to the simulated results
+  ** \param[in]  colids_sim Array of pointers to the simulated results
   **
   *****************************************************************************/
   static void st_simulate_result(
@@ -2845,7 +2839,7 @@ namespace gstlrn
     const MatrixDense& wgt,
     const MatrixDense& rhs,
     const MatrixSquare& c00,
-    Id* iatt_sim)
+    ColIDs& colids_sim)
   {
     Id i, ivar, jvar, nech, lec, isimu, iech;
     double result[2], value, sigma0, sigma1, sigma2, z1, z2, l0, lb[4];
@@ -2868,6 +2862,7 @@ namespace gstlrn
 
     /* Loop on the simulations */
 
+    ColID colid;
     for (isimu = 0; isimu < nbsimu; isimu++)
     {
 
@@ -2881,14 +2876,17 @@ namespace gstlrn
         result[ivar] = 0.;
         lec = 0;
         for (jvar = 0; jvar < NVAR; jvar++)
+        {
+          colids_sim[jvar].setVersion(isimu);
           for (i = 0; i < nech; i++)
           {
             if (!flag[jvar * nech + i]) continue;
             iech =
               st_absolute_index(db, ix0 + ngh->ix_ngh[i], iz0 + ngh->iz_ngh[i]);
-            value = db->getValue(db->fromUID(iatt_sim[jvar] + isimu), iech);
+            value = db->getValue(colids_sim[jvar], iech);
             result[ivar] += wgt.getValue(lec++, ivar) * value;
           }
+        }
       }
 
       /* Link the two variables */
@@ -2896,9 +2894,9 @@ namespace gstlrn
       sigma1 = c00.getValue(0, 0) - LB(0, 0);
       sigma2 = c00.getValue(1, 1) - LB(1, 1);
 
-      z2 = db->getValue(db->fromUID(iatt_sim[1] + isimu), IECH_OUT);
+      z2 = db->getValue(colids_sim[1].setVersion(isimu), IECH_OUT);
       if (FFFF(z2)) z2 = result[1] + sqrt(MAX(0, sigma2)) * law_gaussian();
-      z1 = db->getValue(db->fromUID(iatt_sim[0] + isimu), IECH_OUT);
+      z1 = db->getValue(colids_sim[0].setVersion(isimu), IECH_OUT);
       if (FFFF(z1) && sigma2 > 0)
       {
         l0 = (c00.getValue(0, 1) - LB(0, 1)) / sigma2;
@@ -2913,8 +2911,8 @@ namespace gstlrn
 
       for (ivar = 0; ivar < NVAR; ivar++)
       {
-        db->setValue(
-          db->fromUID(iatt_sim[ivar] + isimu), IECH_OUT, result[ivar]);
+        colid = colids_sim[ivar].setVersion(isimu);
+        db->setValue(colid, IECH_OUT, result[ivar]);
 
         if (OptDbg::query(EDbg::RESULTS))
         {
@@ -2990,8 +2988,8 @@ namespace gstlrn
     Id flag_sort,
     Id flag_stat)
   {
-    Id npres[2], iatt_est[2], iatt_std[2];
-    Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
+    Id npres[2];
+    Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq;
     Id nb_total, nb_process, nb_calcul;
     ST_Seismic_Neigh *ngh_cur, *ngh_old;
     MatrixSquare lhs;
@@ -3001,6 +2999,9 @@ namespace gstlrn
     VectorInt flag;
     VectorInt rank;
     VectorVectorInt presence(2);
+    ColIDs colid_est(2, ColID());
+    ColIDs colid_std(2, ColID());
+    ColIDs colids(2);
 
     /* Initializations */
 
@@ -3008,10 +3009,9 @@ namespace gstlrn
     nvois = nred = nb_total = nb_process = nb_calcul = 0;
     nfeq = (flag_ks) ? 0 : 1;
     ngh_cur = ngh_old = nullptr;
+
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = -1;
-      iatt_std[i] = -1;
       presence[i].clear();
       npres[i] = 0;
     }
@@ -3031,8 +3031,8 @@ namespace gstlrn
     DX = db->getDX(0);
     DZ = db->getDX(2);
     NVAR = db->getNLoc(ELoc::Z);
-    iatt_z1 = db->getUID(RoleID(ERole::Z, 0));
-    iatt_z2 = db->getUID(RoleID(ERole::Z, 1));
+    colids[0] = ColID(ERole::Z, 0);
+    colids[1] = ColID(ERole::Z, 1);
 
     if (NX <= 1 || NY != 1 || NZ <= 1)
     {
@@ -3080,14 +3080,14 @@ namespace gstlrn
 
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = db->addColumnsByConstant(1, 1, TEST);
-      if (iatt_est[i] < 0) goto label_end;
+      colid_est[i] = db->addOneColumn("Estimate", TEST);
+      if (colid_est[i].empty()) goto label_end;
     }
     if (flag_std)
       for (i = 0; i < 2; i++)
       {
-        iatt_std[i] = db->addColumnsByConstant(1, 1, TEST);
-        if (iatt_std[i] < 0) goto label_end;
+        colid_std[i] = db->addOneColumn("Standard Deviation", TEST);
+        if (colid_std[i].empty()) goto label_end;
       }
 
     /* Calculate the constant terms for the variances */
@@ -3113,8 +3113,8 @@ namespace gstlrn
         /* Look for the neighborhood */
 
         if (st_estimate_neigh_create(
-              db, 0, iatt_z1, iatt_z2, ix0, iz0, nbench, nv2max, npres,
-              presence, ngh_cur))
+              db, 0, colids, ix0, iz0, nbench, nv2max, npres, presence,
+              ngh_cur))
           continue;
 
         /* Check if the neighborhood is unchanged */
@@ -3144,8 +3144,8 @@ namespace gstlrn
         /* Perform the estimation */
 
         st_estimate_result(
-          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, iatt_est,
-          iatt_std);
+          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, colid_est,
+          colid_std);
 
         /* Save the neighborhood */
 
@@ -3170,8 +3170,8 @@ namespace gstlrn
     for (i = 0; i < 2; i++)
     {
       presence[i].clear();
-      if (error && iatt_est[i] >= 0) db->deleteColumn(db->fromUID(iatt_est[i]));
-      if (error && iatt_std[i] >= 0) db->deleteColumn(db->fromUID(iatt_std[i]));
+      if (error && !colid_est[i].empty()) db->deleteColumn(colid_est[i]);
+      if (error && !colid_std[i].empty()) db->deleteColumn(colid_std[i]);
     }
     (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
     st_estimate_neigh_management(-1, nvois, ngh_cur);
@@ -3186,33 +3186,31 @@ namespace gstlrn
    **
    ** \param[in]  db       Grid Db structure
    ** \param[in]  nbsimu   Number of simulations
-   ** \param[in]  iatt     Address of the first item for each variable
+   ** \param[in]  colids_sim  Column IDs of the simulation columns
    **
    *****************************************************************************/
-  static void st_copy_attribute(Db* db, Id nbsimu, Id* iatt)
+  static void st_copy_attribute(Db* db, Id nbsimu, ColIDs& colids_sim)
   {
-    Id ivar, isimu, iech, nech;
-    double value;
-
     /* Initializations */
 
-    nech = db->getNSample();
+    Id nech = db->getNSample();
 
     /* Loop on the variables */
 
-    for (ivar = 0; ivar < NVAR; ivar++)
+    for (Id ivar = 0; ivar < NVAR; ivar++)
     {
+      const RoleID roleid(ERole::Z, ivar);
 
       /* Loop on the samples */
 
-      for (iech = 0; iech < nech; iech++)
+      for (Id iech = 0; iech < nech; iech++)
       {
-        value = db->getValue(RoleID(ERole::Z, ivar), iech);
+        double value = db->getValue(roleid, iech);
 
         /* Loop on the simulations */
 
-        for (isimu = 0; isimu < nbsimu; isimu++)
-          db->setValue(db->fromUID(iatt[ivar] + isimu), iech, value);
+        for (Id isimu = 0; isimu < nbsimu; isimu++)
+          db->setValue(colids_sim[isimu].setVersion(isimu), iech, value);
       }
     }
   }
@@ -3248,8 +3246,8 @@ namespace gstlrn
     Id flag_sort,
     Id flag_stat)
   {
-    Id npres[2], iatt_sim[2];
-    Id i, isimu, ix0, iz0, nvois, size, error, nred, nfeq, jx0;
+    Id npres[2];
+    Id i, ix0, iz0, nvois, size, error, nred, nfeq, jx0;
     Id nb_total, nb_process, nb_calcul;
     ST_Seismic_Neigh *ngh_cur, *ngh_old;
     MatrixSquare lhs;
@@ -3259,6 +3257,7 @@ namespace gstlrn
     VectorInt flag;
     VectorInt rank;
     VectorVectorInt presence(2);
+    ColIDs colids_sim;
 
     /* Initializations */
 
@@ -3268,7 +3267,6 @@ namespace gstlrn
     ngh_cur = ngh_old = nullptr;
     for (i = 0; i < 2; i++)
     {
-      iatt_sim[i] = -1;
       npres[i] = 0;
       presence[i].clear();
     }
@@ -3332,15 +3330,12 @@ namespace gstlrn
 
     /* Add the resulting variables */
 
-    for (i = 0; i < NVAR; i++)
-    {
-      iatt_sim[i] = db->addColumnsByConstant(nbsimu, 1, TEST);
-      if (iatt_sim[i] < 0) goto label_end;
-    }
+    colids_sim = db->addEmptyColumns(VectorString(), TEST, 0, NVAR, nbsimu);
+    if (colids_sim.empty()) goto label_end;
 
     /* Copy the known values in the simulation arrays */
 
-    st_copy_attribute(db, nbsimu, iatt_sim);
+    st_copy_attribute(db, nbsimu, colids_sim);
 
     /* Calculate the constant terms for the variances */
 
@@ -3365,8 +3360,8 @@ namespace gstlrn
         /* Look for the neighborhood */
 
         if (st_estimate_neigh_create(
-              db, 1, iatt_sim[0], iatt_sim[1], ix0, iz0, nbench, nv2max, npres,
-              presence, ngh_cur))
+              db, 1, colids_sim, ix0, iz0, nbench, nv2max, npres, presence,
+              ngh_cur))
           continue;
 
         /* Check if the neighborhood is unchanged */
@@ -3397,7 +3392,7 @@ namespace gstlrn
 
         st_simulate_result(
           db, ix0, iz0, ngh_cur, nbsimu, nfeq, nred, flag, wgt, rhs, c00,
-          iatt_sim);
+          colids_sim);
 
         /* Save the neighborhood */
 
@@ -3423,9 +3418,7 @@ namespace gstlrn
     for (i = 0; i < 2; i++)
     {
       presence[i].clear();
-      if (error)
-        for (isimu = 0; isimu < nbsimu; isimu++)
-          db->deleteColumn(db->fromUID(iatt_sim[i] + isimu));
+      if (error) db->deleteColumn(colids_sim[i]);
     }
     st_estimate_neigh_management(-1, nvois, ngh_cur);
     st_estimate_neigh_management(-1, nvois, ngh_old);

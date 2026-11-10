@@ -122,14 +122,14 @@ int main(int argc, char* argv[])
   Id nfac = static_cast<Id>(props.size());
   VectorString names = generateMultipleNames("Props", nfac);
   for (Id ifac = 0; ifac < nfac; ifac++)
-    dbprop->addColumnsByConstant(1, 1, props[ifac], names[ifac]);
-  dbprop->setLocators(names, ELoc::P, 0);
+    dbprop->addOneColumn(
+      names[ifac], props[ifac], VectorDouble(), ERole::P, ifac);
 
   // Prepare the input data set
   Db* dat =
     Db::createFromBox(ndata, grid->getCoorMinimum(), grid->getCoorMaximum());
   VectorDouble z = VH::simulateGaussian(ndata);
-  dat->addColumns(z, "Data", ELoc::Z);
+  dat->addOneColumn("Data", 0., z, ERole::Z);
   dat->display();
 
   // Creating the covariances involved in the Model(s) of the Underlying GRF(s)
@@ -195,9 +195,7 @@ int main(int argc, char* argv[])
     _thirdTest(cov1, cov2, models, rule);
     ruleprop.resetFromRule(&rule, props);
     ruleprop.display();
-
     (void)simPGSSPDE(dat, grid, models[0], ruleprop, nbsimu);
-
     _clearModels(models);
   }
 

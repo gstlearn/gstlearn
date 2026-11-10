@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorHelper.hpp"
 #include "Calculators/ACalculator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
@@ -193,42 +192,21 @@ namespace gstlrn
    * Store the IUID of the new variable in the relevant internal list
    * @param whichDb 1 for variable in 'dbin'; 2 for variable in 'dbout'
    * @param status  1 for variables to be stored; 2 for Temporary variable
-   * @param iuids   Vector of UIDs of the new variable
+   * @param colids   Vector of Column descriptors of the new variable
    */
   void ACalcDbToDb::_storeInVariableList(
     Id whichDb,
     Id status,
-    const VectorInt& iuids)
+    const ColIDs& colids)
   {
-    Id number = static_cast<Id>(iuids.size());
-    if (number <= 0) return;
+    if (colids.empty()) return;
 
-    if (whichDb == 1)
-    {
-      if (status == 1)
-      {
-        for (Id i = 0; i < number; i++)
-          _listVariablePermDbIn.push_back(iuids[i]);
-      }
-      else
-      {
-        for (Id i = 0; i < number; i++)
-          _listVariableTempDbIn.push_back(iuids[i]);
-      }
-    }
-    else
-    {
-      if (status == 1)
-      {
-        for (Id i = 0; i < number; i++)
-          _listVariablePermDbOut.push_back(iuids[i]);
-      }
-      else
-      {
-        for (Id i = 0; i < number; i++)
-          _listVariableTempDbOut.push_back(iuids[i]);
-      }
-    }
+    auto& target =
+      (whichDb == 1)
+        ? ((status == 1) ? _listVariablePermDbIn : _listVariableTempDbIn)
+        : ((status == 1) ? _listVariablePermDbOut : _listVariableTempDbOut);
+
+    target.insert(target.end(), colids.begin(), colids.end());
   }
 
   Id ACalcDbToDb::_addVariableDb(
@@ -240,15 +218,16 @@ namespace gstlrn
     Id nversion,
     double valinit)
   {
+    DECLARE_UNUSED(locatorIndex);
     Db* db = _whichDb(whichDb);
     if (db == nullptr) return -1;
 
-    Id iuid = db->addColumnsByConstant(
-      number, nversion, valinit, String(), locatorType, locatorIndex);
-    if (iuid < 0) return -1;
-    VectorInt iuids = VH::sequence(number, iuid);
-    _storeInVariableList(whichDb, status, iuids);
-    return iuid;
+    auto colids = db->addMultiColumns(
+      VectorString(), valinit, VectorDouble(), toERole(locatorType), nversion,
+      false, false, 0, 0, number);
+    if (colids.empty()) return -1;
+    _storeInVariableList(whichDb, status, colids);
+    return colids[0].getUID();
   }
 
   /**
@@ -286,47 +265,25 @@ namespace gstlrn
 
   void ACalcDbToDb::_cleanVariableDb(Id status)
   {
-    // Dispatch
+    auto cleanList = [](auto* db, auto& list)
+    {
+      if (db == nullptr) return;
+      if (list.empty()) return;
+      // Deletion of the variables by reverse order to avoid any problem with the shifting of the columns
+      for (auto colid = list.rbegin(); colid != list.rend(); ++colid)
+        db->deleteColumn(*colid);
+      list.clear();
+    };
 
     if (status == 1)
     {
-      // In 'dbin'
-      if (!_listVariablePermDbIn.empty())
-      {
-        for (Id i = 0; i < static_cast<Id>(_listVariablePermDbIn.size()); i++)
-          _dbin->deleteColumn(_dbin->fromUID(_listVariablePermDbIn[i]));
-      }
-      _listVariablePermDbIn.clear();
-
-      // In 'dbout'
-      if (!_listVariablePermDbOut.empty())
-      {
-        for (Id i = 0; i < static_cast<Id>(_listVariablePermDbOut.size()); i++)
-        {
-          _dbout->deleteColumn(_dbout->fromUID(_listVariablePermDbOut[i]));
-        }
-      }
-      _listVariablePermDbOut.clear();
+      cleanList(_dbin, _listVariablePermDbIn);
+      cleanList(_dbout, _listVariablePermDbOut);
     }
     else
     {
-      // In 'dbin'
-      auto n_in = static_cast<Id>(_listVariableTempDbIn.size());
-      if (n_in > 0)
-      {
-        for (Id i = 0; i < n_in; i++)
-          _dbin->deleteColumn(_dbin->fromUID(_listVariableTempDbIn[i]));
-        _listVariableTempDbIn.clear();
-      }
-
-      // In 'dbout'
-      auto n_out = static_cast<Id>(_listVariableTempDbOut.size());
-      if (n_out > 0)
-      {
-        for (Id i = 0; i < n_out; i++)
-          _dbout->deleteColumn(_dbout->fromUID(_listVariableTempDbOut[i]));
-        _listVariableTempDbOut.clear();
-      }
+      cleanList(_dbin, _listVariableTempDbIn);
+      cleanList(_dbout, _listVariableTempDbOut);
     }
   }
 

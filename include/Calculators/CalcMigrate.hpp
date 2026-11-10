@@ -58,9 +58,8 @@ namespace gstlrn
     static Id _migrate(
       Db* db1,
       Db* db2,
-      Id iatt1,
-      Id iatt2,
-      Id version,
+      const ColID& colid_iatt1,
+      const ColID& colid_iatt2,
       Id distType,
       const VectorDouble& dmax,
       bool flag_fill,
@@ -69,55 +68,49 @@ namespace gstlrn
     static Id _migratePointToGrid(
       Db* db_point,
       DbGrid* db_grid,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _expandPointToPointBall(
       Db* db1,
       Db* db2,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _migrateGridToGrid(
       DbGrid* db_gridin,
       DbGrid* db_gridout,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _expandPointToPoint(
       Db* db1,
       Db* db2,
-      Id iatt,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _expandGridToGrid(
       DbGrid* db_gridin,
       DbGrid* db_gridout,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _interpolateGridToPoint(
       DbGrid* db_grid,
       Db* db_point,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _migrateGridToPoint(
       DbGrid* db_grid,
       Db* db_point,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
@@ -213,13 +206,12 @@ namespace gstlrn
   GSTLEARN_EXPORT Id expandPointToGrid(
     Db* db_point,
     DbGrid* db_grid,
-    Id iatt,
-    Id version,
-    Id iatt_time,
-    Id iatt_angle,
-    Id iatt_scaleu,
-    Id iatt_scalev,
-    Id iatt_scalew,
+    const ColID& colid_iatt,
+    const ColID& colid_time,
+    const ColID& colid_angle,
+    const ColID& colid_scaleu,
+    const ColID& colid_scalev,
+    const ColID& colid_scalew,
     Id flag_index,
     Id distType,
     const VectorDouble& dmax,
@@ -229,12 +221,12 @@ namespace gstlrn
     DbGrid* dbgrid,
     Id option,
     Id flag_size,
-    Id iatt_time,
-    Id iatt_size,
-    Id iatt_angle,
-    Id iatt_scaleu,
-    Id iatt_scalev,
-    Id iatt_scalew);
+    const ColID& colid_time,
+    const ColID& colid_size,
+    const ColID& colid_angle,
+    const ColID& colid_scaleu,
+    const ColID& colid_scalev,
+    const ColID& colid_scalew);
   GSTLEARN_EXPORT Id migrateGridToCoor(
     const DbGrid* db_grid,
     Id iatt,

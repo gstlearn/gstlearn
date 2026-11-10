@@ -86,7 +86,7 @@ namespace gstlrn
       Id count,
       bool flagSetLocator = true,
       Id locatorShift = 0);
-    void _storeInVariableList(Id whichDb, Id status, const VectorInt& iuids);
+    void _storeInVariableList(Id whichDb, Id status, const ColIDs& colids);
     Id _expandInformation(Id mode, const ELoc& locatorType) const;
     void _cleanVariableDb(Id status);
     Db* _whichDb(Id whichDb);
@@ -101,10 +101,10 @@ namespace gstlrn
     Db* _dbin;
     Db* _dbout;
     NamingConvention _namconv;
-    VectorInt _listVariablePermDbIn;
-    VectorInt _listVariablePermDbOut;
-    VectorInt _listVariableTempDbIn;
-    VectorInt _listVariableTempDbOut;
+    ColIDs _listVariablePermDbIn;
+    ColIDs _listVariablePermDbOut;
+    ColIDs _listVariableTempDbIn;
+    ColIDs _listVariableTempDbOut;
     Id _ndim;
     Id _nvar;
   };

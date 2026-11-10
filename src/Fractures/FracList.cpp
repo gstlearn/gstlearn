@@ -1217,7 +1217,7 @@ namespace gstlrn
 
     // Allocate the new variable
 
-    Id iptr = dbgrid->addColumnsByConstant(1, 1, perm_mat);
+    auto colid_iptr = dbgrid->addOneColumn(String(), perm_mat);
 
     // Plunge the environment
 
@@ -1226,7 +1226,8 @@ namespace gstlrn
       for (Id ilayer = 0; ilayer < _nlayers; ilayer++)
       {
         double cote = _getMemLayer(ilayer);
-        _plungeSegment(dbgrid, iptr, delta, perm_bench, 0., cote, xmax, cote);
+        _plungeSegment(
+          dbgrid, colid_iptr.getUID(), delta, perm_bench, 0., cote, xmax, cote);
       }
     }
 
@@ -1254,12 +1255,12 @@ namespace gstlrn
       {
         Id jp = ip + 1;
         _plungeSegment(
-          dbgrid, iptr, delta, permval, desc.getXXF(ip), desc.getYYF(ip),
-          desc.getXXF(jp), desc.getYYF(jp));
+          dbgrid, colid_iptr.getUID(), delta, permval, desc.getXXF(ip),
+          desc.getYYF(ip), desc.getXXF(jp), desc.getYYF(jp));
       }
     }
 
-    namconv.setOutput(VectorString(), 1, dbgrid, iptr);
+    namconv.setOneColumn(dbgrid, colid_iptr);
     return 0;
   }
 
@@ -1574,8 +1575,8 @@ namespace gstlrn
     bool verbose)
   {
     VectorDouble traj;
-    Id iptr_perm = -1;
-    Id iptr_fluid = -1;
+    ColID colid_perm(-1);
+    ColID colid_fluid(-1);
 
     /* Preliminary checks */
 
@@ -1601,13 +1602,13 @@ namespace gstlrn
 
     /* Allocate the new variable */
 
-    iptr_perm = dbgrid->addColumnsByConstant(1, 1, 0);
-    if (!isNA(col_perm)) dbgrid->copyByUID(col_perm, iptr_perm);
+    colid_perm = dbgrid->addOneColumn("perm");
+    if (!isNA(col_perm)) dbgrid->copyByUID(col_perm, colid_perm.getUID());
 
     if (flag_fluid)
     {
-      iptr_fluid = dbgrid->addColumnsByConstant(1, 1, 0.);
-      if (!isNA(col_fluid)) dbgrid->copyByUID(col_fluid, iptr_fluid);
+      colid_fluid = dbgrid->addOneColumn("fluid");
+      if (!isNA(col_fluid)) dbgrid->copyByUID(col_fluid, colid_fluid.getUID());
     }
 
     /* Verbose option */
@@ -1624,7 +1625,8 @@ namespace gstlrn
         double y1 = WELLOUT(iw, 1);
         double x2 = WELLOUT(iw + 1, 0);
         double y2 = WELLOUT(iw + 1, 1);
-        _plungeSegment(dbgrid, iptr_fluid, delta, val_fluid, x1, y1, x2, y2);
+        _plungeSegment(
+          dbgrid, colid_fluid.getUID(), delta, val_fluid, x1, y1, x2, y2);
       }
     }
 
@@ -1665,8 +1667,8 @@ namespace gstlrn
 
       for (Id i = 0; i < npoint - 1; i++)
         _plungeSegment(
-          dbgrid, iptr_perm, delta, perm2, desc.getXXF(i), desc.getYYF(i),
-          desc.getXXF(i + 1), desc.getYYF(i + 1));
+          dbgrid, colid_perm.getUID(), delta, perm2, desc.getXXF(i),
+          desc.getYYF(i), desc.getXXF(i + 1), desc.getYYF(i + 1));
 
       /* Allocate the trajectory */
 
@@ -1678,7 +1680,7 @@ namespace gstlrn
       for (Id i = ip; i >= 0; i--)
         _trajAdd(traj, desc.getXXF(ip), desc.getYYF(ip));
       _plungeSegmentGradual(
-        dbgrid, iptr_perm, delta, traj, perm1, perm2, range);
+        dbgrid, colid_perm.getUID(), delta, traj, perm1, perm2, range);
 
       /* Trajectory downwards */
 
@@ -1686,7 +1688,7 @@ namespace gstlrn
       for (Id i = ip; i < npoint; i++)
         _trajAdd(traj, desc.getXXF(ip), desc.getYYF(ip));
       _plungeSegmentGradual(
-        dbgrid, iptr_perm, delta, traj, perm1, perm2, range);
+        dbgrid, colid_perm.getUID(), delta, traj, perm1, perm2, range);
     }
     return 0;
   }
