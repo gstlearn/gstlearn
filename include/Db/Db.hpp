@@ -357,6 +357,12 @@ namespace gstlrn
       Id locatorIndex = 0,
       Id seed = 1352,
       Id nechInit = 0);
+    ColID addOneColumn(
+      const String& name = "New",
+      double valinit = 0.,
+      const ERole& roleType = ERole::fromKey("UNDEFINED"),
+      Id roleIndex = 0,
+      Id nechInit = 0);
 
     Id addSelection(
       const VectorDouble& tab = VectorDouble(),

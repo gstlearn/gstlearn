@@ -263,7 +263,7 @@ namespace gstlrn
    */
   bool Db::isUIDValid(Id iuid) const
   {
-    Id icol = _data.getColMatchUniqueIndex(iuid);
+    Id icol = _data.searchByUID(iuid);
     return icol >= 0;
   }
 
@@ -1118,6 +1118,54 @@ namespace gstlrn
 
     for (Id i = 0; i < number; i++)
       setLocator(fromUID(iuid + i), locatorType, locatorIndex + i);
+  }
+
+  /**
+   * Create a new variable in a Db and initialize its contents to a constant value
+   * @param name     Name of the new variable
+   * @param valinit  Value to be used for variable initialization
+   * @param roleType Generic Role assigned to new variables
+   * @param roleIndex Role index (starting from 0)
+   * @param nechInit Number of samples (used only if the Db is initially empty)
+   * @return The corresponding ColID
+   *
+   * @remark If 'name' is not provided, the default name is set to "tempVar"
+   * @remark unless a 'role' is defined (then the default name is constructed from this role)
+   */
+  ColID Db::addOneColumn(
+    const String& name,
+    double valinit,
+    const ERole& roleType,
+    Id roleIndex,
+    Id nechInit)
+  {
+    // Check the number of samples (set using 'nechInit' for an empty Db)
+    auto nech = getNSamples();
+    if (nech <= 0)
+    {
+      nech = nechInit;
+      _setNSamples(nech);
+    }
+
+    // Set the name
+    String varName = name;
+    if (varName.empty())
+    {
+      varName = "tempVar";
+      if (roleType != ELoc::UNDEFINED)
+        varName = getLocatorName(toELoc(roleType), roleIndex);
+    }
+
+    // Check the Role (if defined)
+    auto roleid = RoleID(roleType, roleIndex);
+
+    // Add the Column to the Db
+    _data.addColumnEmpty<VectorDouble>(varName, nech, 1, roleid, valinit);
+
+    // Construct the returned ColID
+    auto colid = ColID(_data.getNColumns() - 1);
+    colid._setUID(_data.getUniqueIndexCounter() - 1);
+    return colid;
   }
 
   /**

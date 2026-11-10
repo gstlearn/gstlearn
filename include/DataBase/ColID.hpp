@@ -26,7 +26,7 @@ namespace gstlrn
    * a variety of identification methods:
    * - by its column index
    * - by its name (unique in the Data Base) or
-   * - by its Role (name and rank)
+   * - by its Role (name and index)
    * (the Column identification also handles the version number)
    *
    * Obviously, at the end of the Column recognition, the returned value must be the index of the Column
@@ -110,6 +110,8 @@ namespace gstlrn
 
     void _setVersion(Id version) { _version = version; }
 
+    void _setUID(Id uid) { _uid = uid; }
+
   private:
     Id _icol{-1};
     String _name{};
@@ -118,6 +120,7 @@ namespace gstlrn
     Id _uid{-1};
 
     friend class DbData;
+    friend class Db;
   };
 
 } // namespace gstlrn

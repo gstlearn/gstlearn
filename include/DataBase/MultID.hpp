@@ -23,7 +23,7 @@ namespace gstlrn
    * @brief This class describes a set of Columns in a DbData. They can be described by:
    * - their column index
    * - their name (unique in the Data Base)
-   * - their Role (name and rank)
+   * - their Role (name and index)
    * Note that the Column Name(s) can take the regexp syntax into account,
    * allowing to select a set of Columns by their name(s) adding the '*' special symbol.
    *

@@ -156,7 +156,7 @@ namespace gstlrn
     void deleteSample(Id idel);
     void deleteVersion(ColID&& colid, Id version);
 
-    Id getColMatchUniqueIndex(Id uniqueIndex) const;
+    Id searchByUID(Id uniqueIndex) const;
 
     Id getUniqueIndexCounter() const { return _uniqueIndexCounter; }
 
@@ -193,9 +193,14 @@ namespace gstlrn
     static bool _checkForbidNA(const VectorCategory& tab);
     static void _checkNVersion(Id& nversion);
     static void _unknownName(const String& name);
-    static void _unknownRoleID(const RoleID& roleID);
+    static void _unknownRoleID(const ColID& colID);
     static void _unknownICol(Id icol, Id ncol);
     static void _invalidUID(Id uidCol, Id uidRef);
+
+    bool _checkVersion(const ColID& colid, Id icol0) const;
+    Id _checkUID(const ColID& colid, Id icol0, bool verbose) const;
+    Id _searchByRole(const ColID& colid, bool verbose) const;
+    Id _searchByName(const ColID& colid, bool verbose) const;
 
   private:
     // Private section of DbData

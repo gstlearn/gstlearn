@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "DataBase/ColID.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -107,6 +108,14 @@ namespace gstlrn
       bool flagSetLocator = true,
       Id locatorShift = 0) const;
 
+    void setOneColumn(
+      Db* dbout,
+      const ColID& colid,
+      const String& radix,
+      const String& name = String(),
+      bool flagSetRole = true,
+      Id roleIndex = 0) const;
+
     void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
 
     void setLocators(
@@ -130,6 +139,9 @@ namespace gstlrn
     static bool isOldStyle();
 
   private:
+    static Id
+      _getNames(const VectorString& names, Id nvar, VectorString& nameloc);
+
     void _setNames(
       Db* dbout,
       Id iattout_start,

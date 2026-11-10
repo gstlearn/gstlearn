@@ -613,7 +613,7 @@ namespace gstlrn
     }
   }
 
-  Id DbData::getColMatchUniqueIndex(Id uniqueIndex) const
+  Id DbData::searchByUID(Id uniqueIndex) const
   {
     const Id ncol = getNColumns();
     if (ncol <= 0) return -1;
@@ -674,26 +674,25 @@ namespace gstlrn
 
   void DbData::_unknownName(const String& name)
   {
-    messerr("Column '%s' does not exist.", name.c_str());
+    messerr("Column Name '%s' does not exist.", name.c_str());
   }
 
-  void DbData::_unknownRoleID(const RoleID& roleID)
+  void DbData::_unknownRoleID(const ColID& colID)
   {
-    messerr("Role '%s' does not exist.", roleID.getName().c_str());
+    messerr(
+      "Column Role '%s' does not exist.", colID.getRoleID().getName().c_str());
   }
 
   void DbData::_unknownICol(Id icol, Id ncol)
   {
-    messerr("Column index (%d) is out of range.", icol);
-    messerr("It should be between 0 and %d", ncol - 1);
+    (void)checkArg("Column Index", icol, ncol - 1);
   }
 
   void DbData::_invalidUID(Id uidCol, Id uidRef)
   {
     messerr(
       "Column Identifier has a Unique Index (%d) that does not match "
-      "the "
-      "targeted Column (%d).",
+      "the targeted Column (%d).",
       uidCol, uidRef);
     messerr("The 'UID' information prevails");
   }
@@ -750,61 +749,27 @@ namespace gstlrn
     DbData::_getColumnIndex(const ColID& colid, bool verbose) const
   {
     Id icol0 = -1;
-    auto ncol = getNColumns();
 
     // 1. Identification by Index
     auto icol = colid.getICol();
     if (icol >= 0)
     {
-      if (icol < ncol)
-      {
-        icol0 = icol;
-      }
-      else
-      {
-        if (verbose) _unknownICol(icol, ncol);
-        return std::nullopt;
-      }
+      icol0 = icol;
     }
+
     // 2. Identification By Name (with regexp matching)
     else if (!colid.getName().empty())
     {
-      const String& localName = colid.getName();
-      bool found = false;
-      for (Id jcol = 0; jcol < ncol; ++jcol)
-      {
-        if (matchRegexp(_cols[jcol].getName(), localName))
-        {
-          icol0 = jcol;
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        if (verbose) _unknownName(localName);
-        return std::nullopt;
-      }
+      icol0 = _searchByName(colid, verbose);
+      if (icol0 < 0) return std::nullopt;
     }
+
     // 3. Identification by Role
     else if (colid.getRole().isDifferent(ERole::UNDEFINED))
     {
-      const RoleID& roleID = colid.getRoleID();
-      bool found = false;
-      for (Id jcol = 0; jcol < ncol; ++jcol)
-      {
-        if (_roleIDs[jcol].isEqual(roleID, true))
-        {
-          icol0 = jcol;
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        if (verbose) _unknownRoleID(roleID);
-        return std::nullopt;
-      }
+      // Look for a Column with the matching RoleID
+      icol0 = _searchByRole(colid, verbose);
+      if (icol0 < 0) return std::nullopt;
     }
 
     // 4. No valid identifier provided
@@ -820,29 +785,94 @@ namespace gstlrn
     }
 
     // Check the Unique Identifier (UID)
-    auto uidCol = colid.getUniqueIndex();
-    if (uidCol >= 0)
-    {
-      auto uidRef = _cols[icol0].getUniqueIndex();
-      if (uidRef != uidCol)
-      {
-        if (verbose) _invalidUID(uidCol, uidRef);
-        icol0 = getColMatchUniqueIndex(uidCol);
-      }
-    }
+
+    // Check if the UID information (if any) is consistent with the found Column
+    icol0 = _checkUID(colid, icol0, verbose);
+    if (icol0 < 0) return std::nullopt;
 
     // Check the version number
+    if (!_checkVersion(colid, icol0)) return std::nullopt;
+
+    return icol0;
+  }
+
+  /**
+   * @brief The Column 'icol0' has been identified.
+   * Check if its UID contents is valid and consistent with the one provided in 'colid' (if any).
+   * If the match is not correct, launch a search by UID to find the correct Column.
+   *
+   * @param colid Column Identifier
+   * @param icol0 Index of the Column initially identified
+   * @param verbose Whether to print error messages if the UID does not match (default = true)
+   * @return Resulting rank of the column identified
+   */
+  Id DbData::_checkUID(const ColID& colid, Id icol0, bool verbose) const
+  {
+    auto uidCol = colid.getUniqueIndex();
+    auto ncol = getNColumns();
+    bool validColIndex = (icol0 >= 0 && icol0 < ncol);
+
+    // No UID information provided in ColID. Simply check against the number of columns in the DataBase.
+    if (uidCol < 0)
+    {
+      if (validColIndex) return icol0;
+      _unknownICol(icol0, ncol);
+      return -1;
+    }
+
+    if (validColIndex)
+    {
+      // Read the UID information from ColID
+      auto uidRef = _cols[icol0].getUniqueIndex();
+      if (uidRef == uidCol) return true;
+
+      // If they match, everything is fine.
+      if (uidRef == uidCol) return true;
+
+      // In case of mismatch the Column is searched by UID instead of RoleID
+      if (verbose) _invalidUID(uidCol, uidRef);
+    }
+
+    icol0 = searchByUID(uidCol);
+    return icol0;
+  }
+
+  bool DbData::_checkVersion(const ColID& colid, Id icol0) const
+  {
     auto version = colid.getVersion();
     if (version > 0)
     {
       auto nversion = _cols[icol0].getNVersions();
       if (!_cols[icol0].checkVersion(version, nversion))
       {
-        return std::nullopt;
+        return false;
       }
     }
+    return true;
+  }
 
-    return icol0;
+  Id DbData::_searchByRole(const ColID& colid, bool verbose) const
+  {
+    auto ncol = getNColumns();
+    const RoleID& roleID = colid.getRoleID();
+    for (Id jcol = 0; jcol < ncol; ++jcol)
+    {
+      if (_roleIDs[jcol].isEqual(roleID, true)) return jcol;
+    }
+    if (verbose) _unknownRoleID(roleID);
+    return -1;
+  }
+
+  Id DbData::_searchByName(const ColID& colid, bool verbose) const
+  {
+    auto ncol = getNColumns();
+    const String& localName = colid.getName();
+    for (Id jcol = 0; jcol < ncol; ++jcol)
+    {
+      if (matchRegexp(_cols[jcol].getName(), localName)) return jcol;
+    }
+    if (verbose) _unknownName(localName);
+    return -1;
   }
 
   /**

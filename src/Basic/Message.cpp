@@ -98,7 +98,8 @@ namespace gstlrn
       if (current < 0 || current >= nmax)
       {
         messerr(
-          "Error in %s. The index (%d) should be non-negative and lower than "
+          "Error in %s. The index (%d) should be non-negative and strictly "
+          "lower than "
           "%d",
           title, current, nmax);
         return false;

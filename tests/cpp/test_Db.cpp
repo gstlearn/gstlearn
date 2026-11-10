@@ -204,5 +204,45 @@ int main(int argc, char* argv[])
     db->getStatsByCategoryAsTable("z", "code").display();
   }
 
+  ///////////////////////////////////////////////
+  // Testing the managment of Db through ColID //
+  ///////////////////////////////////////////////
+  if (mode == 0 || mode == 6)
+  {
+    mestitle(0, "Testing the managment of Db through ColID");
+    auto namconv = NamingConvention("NamConv");
+
+    auto ndat = 6;
+    auto* db = Db::createFillRandom(ndat, 2, 1, 1);
+    auto colid = db->addOneColumn("toto", 3.);
+    // Next display gives the status right after the creation
+    db->display();
+    // Clearly the column named "toto" is located in position 5 (0-based)
+    auto icol = db->getColIdx("toto");
+    message("Variable 'toto' is located in Column %d (0-based)\n", icol);
+    // We now delete the column named 'f'
+    db->deleteColumn("f");
+    // This changes the column order as shown below
+    db->display();
+
+    // Modification of the contents of Column 'toto' in the Data Base
+    db->setValue(colid, 2, -200.); // using ColID directly
+    db->setValue("toto", 3, -300.); // By name
+
+    // Let us check the result
+    db->getContentsAsTable().display();
+
+    // Checking messages in case of wrong usages
+    messerr("--> Error must be issued: unknown sample index");
+    db->setValue(colid, ndat, -5.);
+    messerr("--> Error must be issued: unknown column name");
+    db->setValue("titi", 0, -6);
+    messerr("--> Error must be issued: unknown column index");
+    db->setValue(100, 0, -7.);
+
+    namconv.setOneColumn(db, colid, String());
+    db->display();
+  }
+
   return 0;
 }
