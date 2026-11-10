@@ -1100,11 +1100,6 @@ namespace gstlrn
    *****************************************************************************/
   Id db_merge(Db* db, Id ncol, const Id* cols)
   {
-    Id iptr, iech, icol;
-    double value = TEST;
-
-    /* Preliminary check */
-
     if (ncol < 1)
     {
       messerr("This procedure requires at least one variable to be merged");
@@ -1113,16 +1108,18 @@ namespace gstlrn
 
     /* Add the new variable */
 
-    iptr = db->addColumnsByConstant(1, 1, TEST);
+    auto colid_iptr = db->addOneColumn("Merge", TEST);
+    if (colid_iptr.empty()) return (1);
 
     /* Loop on the samples */
 
-    for (iech = 0; iech < db->getNSample(); iech++)
+    double value = TEST;
+    for (Id iech = 0; iech < db->getNSample(); iech++)
     {
 
       /* Loop on the other variables until a defined value is found */
 
-      for (icol = 0; icol < ncol; icol++)
+      for (Id icol = 0; icol < ncol; icol++)
       {
         value = db->getValue(db->fromUID(cols[icol]), iech);
         if (!FFFF(value)) break;
@@ -1130,7 +1127,7 @@ namespace gstlrn
 
       /* Save the current value */
 
-      db->setValue(db->fromUID(iptr), iech, value);
+      db->setValue(colid_iptr, iech, value);
     }
 
     return (0);
@@ -1691,26 +1688,25 @@ namespace gstlrn
     double vmin,
     double vmax)
   {
-    DbGrid* ss_grid;
-    Id error, ndim, nech, flag_refuse, isel, icopy, iech;
+    Id flag_refuse, iech;
     Id mini, maxi, ecart, size;
     double value, retval;
-    VectorInt nx;
-    VectorDouble x0;
 
     // Initializations */
 
-    error = 1;
-    ss_grid = nullptr;
+    Id error = 1;
+    DbGrid* ss_grid = nullptr;
 
     // Core allocation
 
-    nech = db_grid->getNSample();
-    ndim = db_grid->getNDim();
+    Id nech = db_grid->getNSample();
+    Id ndim = db_grid->getNDim();
     VectorInt indcur(ndim);
     VectorInt indmin(ndim, nech);
     VectorInt indmax(ndim, -1);
     VectorDouble coor(ndim, 0.);
+    VectorInt nx;
+    VectorDouble x0;
 
     // Loop on the input grid
 
@@ -1786,7 +1782,7 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      isel = ss_grid->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+      auto colid_isel = ss_grid->addOneColumn("Selection", 0., ERole::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);
@@ -1794,7 +1790,7 @@ namespace gstlrn
         iech = db_grid->indiceToRank(indcur);
         value = db_grid->getValue(db_grid->fromUID(iptr), iech);
         retval = (value >= vmin && value < vmax);
-        ss_grid->setValue(ss_grid->fromUID(isel), i, retval);
+        ss_grid->setValue(colid_isel, i, retval);
       }
     }
 
@@ -1802,7 +1798,7 @@ namespace gstlrn
 
     if (flag_copy)
     {
-      icopy = ss_grid->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+      auto colid_icopy = ss_grid->addOneColumn("Copy", 0., ERole::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);
@@ -1816,7 +1812,7 @@ namespace gstlrn
           value = db_grid->getValue(db_grid->fromUID(iptr), iech);
           if (value < vmin || value >= vmax) retval = 0.;
         }
-        ss_grid->setValue(ss_grid->fromUID(icopy), i, retval);
+        ss_grid->setValue(colid_icopy, i, retval);
       }
     }
 

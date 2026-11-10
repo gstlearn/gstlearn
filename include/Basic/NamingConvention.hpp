@@ -111,7 +111,7 @@ namespace gstlrn
     void setOneColumn(
       Db* dbout,
       const ColID& colid,
-      const String& radix,
+      const String& radix = "",
       const String& name = String(),
       bool flagSetRole = true,
       Id roleIndex = 0) const;

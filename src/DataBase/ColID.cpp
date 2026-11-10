@@ -105,4 +105,11 @@ namespace gstlrn
     return sstr.str();
   }
 
+  bool ColID::empty() const
+  {
+    return (
+      _icol < 0 && _name.empty() && _roleID.getRole().isEqual(ERole::UNDEFINED)
+      && _uid < 0);
+  }
+
 } // namespace gstlrn

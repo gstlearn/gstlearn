@@ -784,8 +784,6 @@ namespace gstlrn
       return std::nullopt;
     }
 
-    // Check the Unique Identifier (UID)
-
     // Check if the UID information (if any) is consistent with the found Column
     icol0 = _checkUID(colid, icol0, verbose);
     if (icol0 < 0) return std::nullopt;
@@ -824,10 +822,7 @@ namespace gstlrn
     {
       // Read the UID information from ColID
       auto uidRef = _cols[icol0].getUniqueIndex();
-      if (uidRef == uidCol) return true;
-
-      // If they match, everything is fine.
-      if (uidRef == uidCol) return true;
+      if (uidRef == uidCol) return icol0;
 
       // In case of mismatch the Column is searched by UID instead of RoleID
       if (verbose) _invalidUID(uidCol, uidRef);

@@ -91,6 +91,8 @@ namespace gstlrn
 
     void setUniqueIndex(Id uid) { _uid = uid; }
 
+    bool empty() const;
+
     /**
      * Factory helpers mainly intended for language bindings (SWIG).
      */

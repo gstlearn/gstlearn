@@ -766,10 +766,10 @@ namespace gstlrn
 
     /* Add variables for storage */
 
-    Id iptr_sV = db->addColumnsByConstant(1, 1, TEST);
-    if (iptr_sV < 0) return 1;
-    Id iptr_yV = db->addColumnsByConstant(1, 1, TEST);
-    if (iptr_yV < 0) return 1;
+    ColID colid_sV = db->addOneColumn("sV", TEST);
+    if (colid_sV.empty()) return 1;
+    ColID colid_yV = db->addOneColumn("yV", TEST);
+    if (colid_yV.empty()) return 1;
 
     // Calculate the change of support coefficient
 
@@ -806,9 +806,8 @@ namespace gstlrn
       double zvstar = db->getValue(db->fromUID(col_est), iech);
       double varv = db->getValue(db->fromUID(col_var), iech);
       if (anamPointToBlock(anam, 0, varv, TEST, TEST)) continue;
-      db->setValue(db->fromUID(iptr_sV), iech, anam->getRCoef());
-      db->setValue(
-        db->fromUID(iptr_yV), iech, anam->rawToTransformValue(zvstar));
+      db->setValue(colid_sV, iech, anam->getRCoef());
+      db->setValue(colid_yV, iech, anam->rawToTransformValue(zvstar));
 
       if (varv < vv_min) vv_min = varv;
       if (varv > vv_max) vv_max = varv;
@@ -821,8 +820,8 @@ namespace gstlrn
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double sv = db->getValue(db->fromUID(iptr_sV), iech);
-      double yv = db->getValue(db->fromUID(iptr_yV), iech);
+      double sv = db->getValue(colid_sV, iech);
+      double yv = db->getValue(colid_yV, iech);
 
       /* Loop on the cutoffs */
 
@@ -852,8 +851,8 @@ namespace gstlrn
       selectivity->storeInDb(db, iech, iptr0, TEST, TEST);
     }
 
-    if (iptr_sV >= 0) db->deleteColumn(db->fromUID(iptr_sV));
-    if (iptr_yV >= 0) db->deleteColumn(db->fromUID(iptr_yV));
+    db->deleteColumn(colid_sV);
+    db->deleteColumn(colid_yV);
     return 0;
   }
 

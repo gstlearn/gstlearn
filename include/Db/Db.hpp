@@ -358,7 +358,7 @@ namespace gstlrn
       Id seed = 1352,
       Id nechInit = 0);
     ColID addOneColumn(
-      const String& name = "New",
+      const String& name = String(),
       double valinit = 0.,
       const ERole& roleType = ERole::fromKey("UNDEFINED"),
       Id roleIndex = 0,

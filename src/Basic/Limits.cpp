@@ -364,8 +364,8 @@ namespace gstlrn
 
     /* Create the variable */
 
-    Id iptr = db->addColumnsByConstant(1, 1, TEST);
-    if (iptr < 0) return (1);
+    auto colid_iptr = db->addOneColumn(String(), TEST);
+    if (colid_iptr.empty()) return 1;
 
     /* Loop on the samples */
 
@@ -399,11 +399,10 @@ namespace gstlrn
 
       /* Set the returning value */
 
-      db->setValue(db->fromUID(iptr), iech, static_cast<double>(ival));
+      db->setValue(colid_iptr, iech, static_cast<double>(ival));
     }
 
-    VectorString names = db->getNames(db->fromUIDs({iatt}));
-    namconv.setOutput(names, 0, db, iptr);
+    namconv.setOneColumn(db, colid_iptr, "", db->getName(db->fromUID(iatt)));
 
     return (0);
   }
@@ -488,37 +487,39 @@ namespace gstlrn
 
     /* Create the variables */
 
+    ColID colid_below(-1);
+    ColID colid_above(-1);
+    ColID colid_mean(-1);
     Id iptr_indic = -1;
-    Id iptr_below = -1;
-    Id iptr_above = -1;
-    Id iptr_mean = -1;
     if (flag_indic)
     {
       if (flagBelow)
       {
-        iptr_below = db->addColumnsByConstant(1, 1, 0.);
-        if (iptr_below < 0) return 1;
+        colid_below = db->addOneColumn("Below");
+        if (colid_below.empty()) return 1;
       }
       iptr_indic = db->addColumnsByConstant(nclass, 1, 0.);
       if (iptr_indic < 0) return 1;
       if (flagAbove)
       {
-        iptr_above = db->addColumnsByConstant(1, 1, 0.);
-        if (iptr_above < 0) return 1;
+        colid_above = db->addOneColumn("Above");
+        if (colid_above.empty()) return 1;
       }
     }
     else
     {
-      iptr_mean = db->addColumnsByConstant(1, 1, TEST);
-      if (iptr_mean < 0) return 1;
+      colid_mean = db->addOneColumn("Mean", TEST);
+      if (colid_mean.empty()) return 1;
     }
 
     /* Loop on the samples */
 
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    auto colid_in = db->fromUID(iatt);
+    auto nech = db->getNSample();
+    for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getValue(db->fromUID(iatt), iech);
+      double value = db->getValue(colid_in, iech);
       if (FFFF(value)) continue;
 
       /* Loop on the limit classes */
@@ -560,12 +561,10 @@ namespace gstlrn
       if (flag_indic)
       {
         if (flagBelow)
-          db->setValue(
-            db->fromUID(iptr_below), iech, static_cast<double>(value < zmini));
+          db->setValue(colid_below, iech, static_cast<double>(value < zmini));
 
         if (flagAbove)
-          db->setValue(
-            db->fromUID(iptr_above), iech, static_cast<double>(value > zmaxi));
+          db->setValue(colid_above, iech, static_cast<double>(value > zmaxi));
       }
 
       /* Update the statistics for classes below and above */
@@ -591,7 +590,9 @@ namespace gstlrn
         iclass = found;
       }
       if (!flag_indic)
-        db->setValue(db->fromUID(iptr_mean), iech, static_cast<double>(iclass));
+      {
+        db->setValue(colid_mean, iech, static_cast<double>(iclass));
+      }
     }
 
     /* Calculate the statistics */
@@ -612,18 +613,18 @@ namespace gstlrn
 
     if (!flag_indic)
     {
-      for (Id iech = 0; iech < db->getNSample(); iech++)
+      for (Id iech = 0; iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        double value = db->getValue(db->fromUID(iptr_mean), iech);
+        double value = db->getValue(colid_mean, iech);
         if (FFFF(value)) continue;
         Id iclass = static_cast<Id>(value);
         if (iclass < 0)
-          db->setValue(db->fromUID(iptr_mean), iech, mbelow);
+          db->setValue(colid_mean, iech, mbelow);
         else if (iclass < nclass)
-          db->setValue(db->fromUID(iptr_mean), iech, mean[iclass]);
+          db->setValue(colid_mean, iech, mean[iclass]);
         else
-          db->setValue(db->fromUID(iptr_mean), iech, mabove);
+          db->setValue(colid_mean, iech, mabove);
       }
     }
 
@@ -632,19 +633,13 @@ namespace gstlrn
     VectorString names = db->getNames(db->fromUIDs({iatt}));
     if (flag_indic == 1)
     {
-      if (flagBelow)
-      {
-        namconv.setOutput(names, 0, db, iptr_below, "Below", 1);
-      }
+      if (flagBelow) namconv.setOneColumn(db, colid_below, "Below", names[0]);
       namconv.setOutput(names, 0, db, iptr_indic, "Class", nclass);
-      if (flagAbove)
-      {
-        namconv.setOutput(names, 0, db, iptr_above, "Above", 1);
-      }
+      if (flagAbove) namconv.setOneColumn(db, colid_above, "Above", names[0]);
     }
     else
     {
-      namconv.setOutput(names, 0, db, iptr_mean, "Mean", 1);
+      namconv.setOneColumn(db, colid_mean, "Mean", names[0]);
     }
     return (0);
   }
