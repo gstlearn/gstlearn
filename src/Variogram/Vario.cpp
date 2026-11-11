@@ -419,10 +419,10 @@ namespace gstlrn
       return 1;
     }
 
-    // Translate the 'Facies' into 'categories'   VectorDouble props =
+    // Translate the 'Facies' into 'categories'
     Limits limits(nclass);
-    Id iatt = _db->getUID(RoleID(ERole::Z, 0));
-    if (limits.toIndicatorByAttribute(_db, iatt))
+    String name = _db->getName(RoleID(ERole::Z, 0));
+    if (limits.toIndicator(_db, name))
     {
       messerr("Problem when translating Facies into Categories");
       return 1;
@@ -443,7 +443,7 @@ namespace gstlrn
 
     // Delete the Indicators (created locally)
     _db->deleteColumns(ERole::Z);
-    _db->setLocator(_db->fromUID(iatt), ELoc::Z, 0);
+    _db->setLocator(name, ELoc::Z, 0);
 
     return 0;
   }

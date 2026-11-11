@@ -79,8 +79,7 @@ namespace gstlrn
    **
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  indg      Working array
-   ** \param[in]  iatt      Rank of the grid attribute
-   ** \param[in]  version   Version of the migration algorithm
+   ** \param[in]  colid_iatt Column ID of the grid attribute
    **
    ** \param[out]  value    Output value
    **
@@ -88,14 +87,13 @@ namespace gstlrn
   static Id st_multilinear_evaluate(
     DbGrid* db_grid,
     const VectorInt& indg,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     double* value)
   {
     Id jech = db_grid->indiceToRank(indg);
     if (jech < 0) return (1);
     if (!db_grid->isActive(jech)) return (1);
-    *value = db_grid->getValue(db_grid->fromUID(iatt, version), jech);
+    *value = db_grid->getValue(colid_iatt, jech);
     if (FFFF(*value)) return (1);
     return (0);
   }
@@ -107,8 +105,7 @@ namespace gstlrn
    ** \return  Interpolated value
    **
    ** \param[in]  dbgrid    descriptor of the grid parameters
-   ** \param[in]  iatt      rank of the target variable in dbgrid
-   ** \param[in]  version   rank of the version in dbgrid
+   ** \param[in]  colid_iatt Column ID of the target variable in dbgrid
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -117,8 +114,7 @@ namespace gstlrn
    *****************************************************************************/
   static double st_multilinear_interpolation(
     DbGrid* dbgrid,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     const VectorDouble& coor)
@@ -174,7 +170,7 @@ namespace gstlrn
       /* Get the sample value */
 
       double value;
-      if (!st_multilinear_evaluate(dbgrid, iwork2, iatt, version, &value))
+      if (!st_multilinear_evaluate(dbgrid, iwork2, colid_iatt, &value))
       {
         estim += weight * value;
         wgt_tot += weight;
@@ -1162,6 +1158,7 @@ namespace gstlrn
     VectorDouble coor;
     Id np = static_cast<Id>(xp.size());
     tab.resize(np);
+    auto colid_iatt = ColID(iatt);
 
     /* Initializations */
 
@@ -1187,8 +1184,8 @@ namespace gstlrn
       if (ndim >= 1) coor[0] = xp[ip];
       if (ndim >= 2) coor[1] = yp[ip];
       if (ndim >= 3) coor[2] = zp[ip];
-      tab[ip] =
-        st_multilinear_interpolation(dbgrid, iatt, 0, 0, VectorDouble(), coor);
+      tab[ip] = st_multilinear_interpolation(
+        dbgrid, colid_iatt, 0, VectorDouble(), coor);
     }
     return 0;
   }
@@ -1226,12 +1223,11 @@ namespace gstlrn
     Id* nval_ret)
   {
     double delta, vi1, vi2, cut, v1, v2;
-    Id ndim, iatt;
 
     /* Initializations */
 
-    ndim = dbgrid->getNDim();
-    iatt = dbgrid->getColIdx(RoleID(ERole::Z, 0));
+    Id ndim = dbgrid->getNDim();
+    auto colid_iatt = ColID(RoleID(ERole::Z, 0));
 
     /* Preliminary checks */
 
@@ -1240,7 +1236,7 @@ namespace gstlrn
       messerr("The number of discretization points must be larger than 1");
       return VectorDouble();
     }
-    if (iatt < 0)
+    if (dbgrid->getNLoc(ELoc::Z) <= 0)
     {
       messerr("You need a target variable on the grid");
       return VectorDouble();
@@ -1270,10 +1266,10 @@ namespace gstlrn
 
       /* Calculate the target variable value at segment endpoints */
 
-      vi1 =
-        st_multilinear_interpolation(dbgrid, iatt, 0, 0, VectorDouble(), xi1);
-      vi2 =
-        st_multilinear_interpolation(dbgrid, iatt, 0, 0, VectorDouble(), xi2);
+      vi1 = st_multilinear_interpolation(
+        dbgrid, colid_iatt, 0, VectorDouble(), xi1);
+      vi2 = st_multilinear_interpolation(
+        dbgrid, colid_iatt, 0, VectorDouble(), xi2);
       v1 = MIN(vi1, vi2);
       v2 = MAX(vi1, vi2);
 
@@ -1853,6 +1849,8 @@ namespace gstlrn
   {
     Id size = db2->getNSample();
     VectorDouble tab(size, TEST);
+    auto colid_iatt1 = db1->fromUID(iatt1, version);
+    auto colid_iatt2 = db2->fromUID(iatt2, version);
 
     if (db2->isGrid())
     {
@@ -1870,14 +1868,14 @@ namespace gstlrn
           {
             // Grid to Grid (flag_fill = TRUE)
             if (_expandGridToGrid(
-                  db1grid, db2grid, iatt1, version, distType, dmax, tab))
+                  db1grid, db2grid, colid_iatt1, distType, dmax, tab))
               return 1;
           }
           else
           {
             // Interpolate Grid to Grid
             if (_interpolateGridToPoint(
-                  db1grid, db2grid, iatt1, version, distType, dmax, tab))
+                  db1grid, db2grid, colid_iatt1, distType, dmax, tab))
               return 1;
           }
         }
@@ -1929,7 +1927,7 @@ namespace gstlrn
       {
         // Grid to Point (flag_inter = TRUE)
         if (_interpolateGridToPoint(
-              db1grid, db2, iatt1, version, distType, dmax, tab))
+              db1grid, db2, colid_iatt1, distType, dmax, tab))
           return 1;
       }
       else
@@ -1956,7 +1954,7 @@ namespace gstlrn
     }
 
     // Store the resulting array in the output Db
-    db2->setColumn(db2->fromUID(iatt2, version), tab, false);
+    db2->setColumn(colid_iatt2, tab, false);
 
     return 0;
   }
@@ -2246,8 +2244,7 @@ namespace gstlrn
    **
    ** \param[in]  db_gridin  descriptor of the grid parameters
    ** \param[in]  db_gridout descriptor of the point parameters
-   ** \param[in]  iatt       rank of the grid attribute
-   ** \param[in]  version    Version of the migration algorithm
+   ** \param[in]  colid_iatt Column identification of the grid attribute
    ** \param[in]  distType   Type of distance for calculating maximum distance
    **                        1 for L1 and 2 for L2 distance
    ** \param[in]  dmax       Array of maximum distance (optional)
@@ -2258,8 +2255,7 @@ namespace gstlrn
   Id CalcMigrate::_expandGridToGrid(
     DbGrid* db_gridin,
     DbGrid* db_gridout,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2301,7 +2297,7 @@ namespace gstlrn
         distance_inter(db_gridin, db_gridout, jech, iech, dvect);
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       if (dist_loc > dist[iech]) continue;
-      tab[iech] = db_gridin->getValue(db_gridin->fromUID(iatt, version), jech);
+      tab[iech] = db_gridin->getValue(colid_iatt, jech);
       dist[iech] = dist_loc;
     }
     return 0;
@@ -2316,7 +2312,7 @@ namespace gstlrn
    **
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  db_point  descriptor of the point parameters
-   ** \param[in]  iatt      rank of the grid attribute
+   ** \param[in]  colid_iatt Column identification of the grid attribute
    ** \param[in]  version   Version of the migration algorithm
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
@@ -2331,8 +2327,7 @@ namespace gstlrn
   Id CalcMigrate::_interpolateGridToPoint(
     DbGrid* db_grid,
     Db* db_point,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2349,8 +2344,8 @@ namespace gstlrn
     {
       if (!db_point->isActive(iech)) continue;
       db_point->getCoordinatesInPlace(coor, iech);
-      tab[iech] = st_multilinear_interpolation(
-        db_grid, iatt, version, distType, dmax, coor);
+      tab[iech] =
+        st_multilinear_interpolation(db_grid, colid_iatt, distType, dmax, coor);
     }
     return 0;
   }

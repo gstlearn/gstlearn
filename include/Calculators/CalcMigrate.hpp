@@ -100,16 +100,14 @@ namespace gstlrn
     static Id _expandGridToGrid(
       DbGrid* db_gridin,
       DbGrid* db_gridout,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);
     static Id _interpolateGridToPoint(
       DbGrid* db_grid,
       Db* db_point,
-      Id iatt,
-      Id version,
+      const ColID& colid_iatt,
       Id distType,
       const VectorDouble& dmax,
       VectorDouble& tab);

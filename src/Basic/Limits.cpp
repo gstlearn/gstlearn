@@ -235,24 +235,15 @@ namespace gstlrn
     return true;
   }
 
-  Id Limits::toCategoryByAttribute(
-    Db* db,
-    Id iatt,
-    const NamingConvention& namconv) const
-  {
-    return _computeCategory(
-      db, iatt, getLowerBounds(), getUpperBounds(), getLowerIncluded(),
-      getUpperIncluded(), namconv);
-  }
-
   Id Limits::toCategory(
     Db* db,
     const String& name,
     const NamingConvention& namconv) const
   {
-    Id iatt = db->getUID(name);
-    if (iatt < 0) return 1;
-    return toCategoryByAttribute(db, iatt, namconv);
+    auto colid_iatt = ColID(name);
+    return _computeCategory(
+      db, colid_iatt, getLowerBounds(), getUpperBounds(), getLowerIncluded(),
+      getUpperIncluded(), namconv);
   }
 
   /**
@@ -285,22 +276,9 @@ namespace gstlrn
     bool flagAbove,
     const NamingConvention& namconv) const
   {
-    Id iatt = db->getUID(name);
-    if (iatt < 0) return 1;
-    return toIndicatorByAttribute(
-      db, iatt, OptionIndicator, flagBelow, flagAbove, namconv);
-  }
-
-  Id Limits::toIndicatorByAttribute(
-    Db* db,
-    Id iatt,
-    Id OptionIndicator,
-    bool flagBelow,
-    bool flagAbove,
-    const NamingConvention& namconv) const
-  {
+    auto colid_iatt = ColID(name);
     return _computeIndicator(
-      db, iatt, OptionIndicator, getLowerBounds(), getUpperBounds(),
+      db, colid_iatt, OptionIndicator, getLowerBounds(), getUpperBounds(),
       getLowerIncluded(), getUpperIncluded(), flagBelow, flagAbove, namconv);
   }
 
@@ -335,7 +313,7 @@ namespace gstlrn
    ** \return  Error return code
    **
    ** \param[in]  db      Db structure
-   ** \param[in]  iatt    Rank of the attribute
+   ** \param[in]  colid_iatt Column descriptor of the attribute
    ** \param[in]  mini    Array containing the minima per class
    ** \param[in]  maxi    Array containing the maxima per class
    ** \param[in]  incmini Array containing the inclusive flag for minima per class
@@ -349,7 +327,7 @@ namespace gstlrn
    *****************************************************************************/
   Id Limits::_computeCategory(
     Db* db,
-    Id iatt,
+    const ColID& colid_iatt,
     const VectorDouble& mini,
     const VectorDouble& maxi,
     const VectorBool& incmini,
@@ -369,10 +347,11 @@ namespace gstlrn
 
     /* Loop on the samples */
 
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    auto nech = db->getNSample();
+    for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getValue(db->fromUID(iatt), iech);
+      double value = db->getValue(colid_iatt, iech);
       if (FFFF(value)) continue;
 
       /* Loop on the limits classes */
@@ -402,7 +381,7 @@ namespace gstlrn
       db->setValue(colid_iptr, iech, static_cast<double>(ival));
     }
 
-    namconv.setOneColumn(db, colid_iptr, "", db->getName(db->fromUID(iatt)));
+    namconv.setOneColumn(db, colid_iptr, "", db->getName(colid_iatt));
 
     return (0);
   }
@@ -414,7 +393,7 @@ namespace gstlrn
    ** \return  Error returned code
    **
    ** \param[in]  db      Db structure
-   ** \param[in]  iatt    Rank of the target variable
+   ** \param[in]  colid_iatt Column ID of the target variable
    ** \param[in]  flag_indic Type of variable(s) to be stored:
    **                     1 the indicator variable
    **                     0 the mean variable per class
@@ -433,7 +412,7 @@ namespace gstlrn
    *****************************************************************************/
   Id Limits::_computeIndicator(
     Db* db,
-    Id iatt,
+    const ColID& colid_iatt,
     Id flag_indic,
     const VectorDouble& mini,
     const VectorDouble& maxi,
@@ -514,12 +493,11 @@ namespace gstlrn
 
     /* Loop on the samples */
 
-    auto colid_in = db->fromUID(iatt);
     auto nech = db->getNSample();
     for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getValue(colid_in, iech);
+      double value = db->getValue(colid_iatt, iech);
       if (FFFF(value)) continue;
 
       /* Loop on the limit classes */
@@ -630,16 +608,16 @@ namespace gstlrn
 
     // Naming convention
 
-    VectorString names = db->getNames(db->fromUIDs({iatt}));
+    String name = db->getName(colid_iatt);
     if (flag_indic == 1)
     {
-      if (flagBelow) namconv.setOneColumn(db, colid_below, "Below", names[0]);
-      namconv.setOutput(names, 0, db, iptr_indic, "Class", nclass);
-      if (flagAbove) namconv.setOneColumn(db, colid_above, "Above", names[0]);
+      if (flagBelow) namconv.setOneColumn(db, colid_below, "Below", name);
+      namconv.setOutput({name}, 0, db, iptr_indic, "Class", nclass);
+      if (flagAbove) namconv.setOneColumn(db, colid_above, "Above", name);
     }
     else
     {
-      namconv.setOneColumn(db, colid_mean, "Mean", names[0]);
+      namconv.setOneColumn(db, colid_mean, "Mean", name);
     }
     return (0);
   }

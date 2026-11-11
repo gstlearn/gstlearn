@@ -499,8 +499,8 @@ namespace gstlrn
     bool flagSetRole,
     Id roleIndex) const
   {
-    setOutput(
-      {name}, 1, dbout, colid.getICol(), radix, 1, flagSetRole, roleIndex);
+    auto iuid = dbout->getUID(colid);
+    setOutput({name}, 1, dbout, iuid, radix, 1, flagSetRole, roleIndex);
   }
 
 } // namespace gstlrn
