@@ -263,7 +263,7 @@ namespace gstlrn
     if (dbgrid == nullptr) return 1;
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
-    auto colid = ColID(0);
+    auto colid = ColID(-1);
 
     double t1min, t1max, t2min, t2max;
     VectorDouble y;

@@ -779,7 +779,7 @@ namespace gstlrn
 
     /* Create the new variable */
 
-    iptrz = dbgrid->getColIdx(RoleID(ERole::Z, 0));
+    iptrz = dbgrid->getColumnIndex(RoleID(ERole::Z, 0));
     if (iptrz < 0) goto label_end;
     iptr = dbgrid->addColumnsByConstant(ndim, 1, TEST, String(), ELoc::G);
 
@@ -969,7 +969,7 @@ namespace gstlrn
     VectorDouble& line)
   {
     Id error, npline, idim, ecr;
-    Id iptr_time, iptr_accu, iptr_grad, nbline, knd, nquant, nbyech, ndim;
+    Id iptr_grad, nbline, knd, nquant, nbyech, ndim;
     double surf, date;
     static Id quant = 1000;
     VectorDouble coor;
@@ -979,6 +979,8 @@ namespace gstlrn
 
     error = 1;
     nbline = nquant = 0;
+    ColID colid_time(-1);
+    ColID colid_accu(-1);
     iptr_grad = -1;
     if (dbpoint == nullptr) dbpoint = dbgrid;
     nbyech = static_cast<Id>(get_keypone("Streamline_Skip", 1.));
@@ -997,10 +999,10 @@ namespace gstlrn
 
     coor.resize(ndim);
     coor0.resize(ndim);
-    iptr_time = dbgrid->addColumnsByConstant(1, 1, TEST);
-    if (iptr_time < 0) goto label_end;
-    iptr_accu = dbgrid->addColumnsByConstant(1, 1, 0.);
-    if (iptr_accu < 0) goto label_end;
+    colid_time = dbgrid->addOneColumn("time", TEST);
+    if (colid_time.empty()) goto label_end;
+    colid_accu = dbgrid->addOneColumn("accu", TEST);
+    if (colid_accu.empty()) goto label_end;
 
     /* Calculate the gradient */
 
@@ -1014,7 +1016,7 @@ namespace gstlrn
           dbgrid->getNLoc(ELoc::G));
         goto label_end;
       }
-      iptr_grad = dbgrid->getColIdx(RoleID(ERole::G, 0));
+      iptr_grad = dbgrid->getColumnIndex(RoleID(ERole::G, 0));
     }
     else
     {
@@ -1072,9 +1074,9 @@ namespace gstlrn
 
         /* Update variables in the grid Db */
 
-        date = MIN(dbgrid->getValue(dbgrid->fromUID(iptr_time), knd), i + 1.);
-        dbgrid->setValue(dbgrid->fromUID(iptr_time), knd, date);
-        dbgrid->updValue(dbgrid->fromUID(iptr_accu), knd, EOperator::ADD, 1.);
+        date = MIN(dbgrid->getValue(colid_time, knd), i + 1.);
+        dbgrid->setValue(colid_time, knd, date);
+        dbgrid->updValue(colid_accu, knd, EOperator::ADD, 1.);
       }
 
       /* Add the endpoint */

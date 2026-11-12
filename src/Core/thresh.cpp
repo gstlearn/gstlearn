@@ -159,7 +159,7 @@ namespace gstlrn
     const Db* dbprop = ruleprop->getDbprop();
 
     Id error = 1;
-    Id iptr = -1;
+    ColID colid_iptr = ColID(-1);
     PropDef propdef;
     Id ngrf = rule->getNGRF();
     VectorBool flagUsed = rule->whichGRFUsed();
@@ -190,8 +190,8 @@ namespace gstlrn
     /**********************/
 
     /* Storage of the simulations in the output file */
-    iptr = db->addColumnsByConstant(1, 1, 0., "Facies", ELoc::FACIES);
-    if (iptr < 0) goto label_end;
+    colid_iptr = db->addOneColumn("Facies", 0., ERole::FACIES);
+    if (colid_iptr.empty()) goto label_end;
 
     /* Identify the Non conditional simulations at target points */
 
@@ -212,7 +212,8 @@ namespace gstlrn
 
     // Naming convention
 
-    namconv.setOutput(VectorString(), 1, db, iptr);
+    namconv.setOneColumn(db, colid_iptr);
+
     error = 0;
 
   label_end:

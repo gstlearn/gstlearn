@@ -197,9 +197,9 @@ namespace gstlrn
     _dbin = dbin;
     _dbout = dbout;
     _model = model;
-    Id colrefd = (namerefd.empty()) ? -1 : _dbout->getColIdx(namerefd);
-    Id colreft = (namereft.empty()) ? -1 : _dbout->getColIdx(namereft);
-    Id colrefb = (namerefb.empty()) ? -1 : _dbout->getColIdx(namerefb);
+    Id colrefd = (namerefd.empty()) ? -1 : _dbout->getColumnIndex(namerefd);
+    Id colreft = (namereft.empty()) ? -1 : _dbout->getColumnIndex(namereft);
+    Id colrefb = (namerefb.empty()) ? -1 : _dbout->getColumnIndex(namerefb);
     _flagStd = flag_std;
     _irfRank = irf_rank;
     _nlayers = _model->getNVar();

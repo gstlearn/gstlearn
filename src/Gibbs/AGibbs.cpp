@@ -329,7 +329,7 @@ namespace gstlrn
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       auto icase = getRank(ipgs, ivar);
-      auto colid = ColID(RoleID(ERole::GAUSFAC, icase), isimu);
+      auto colid = _db->getColID(ColID(RoleID(ERole::GAUSFAC, icase), isimu));
 
       /* Loop on the samples */
       for (Id iact = 0; iact < nact; iact++)

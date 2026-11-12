@@ -778,12 +778,16 @@ namespace gstlrn
    ** \param[in]  dbout     Output Db structure
    ** \param[in]  seuil     Threshold
    ** \param[in]  scale     Scaling factor for the new simulation
-   ** \param[in]  iptrv     Pointer to the max-stable outcome
-   ** \param[in]  iptrs     Pointer to the current selection
+   ** \param[in]  colid_iptrv     Pointer to the max-stable outcome
+   ** \param[in]  colid_iptrs     Pointer to the current selection
    **
    *****************************************************************************/
-  static Id
-    st_maxstable_mask(Db* dbout, double seuil, double scale, Id iptrv, Id iptrs)
+  static Id st_maxstable_mask(
+    Db* dbout,
+    double seuil,
+    double scale,
+    const ColID& colid_iptrv,
+    const ColID& colid_iptrs)
   {
     Id iech, number;
     double valsim;
@@ -791,9 +795,9 @@ namespace gstlrn
     for (iech = number = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      valsim = dbout->getValue(dbout->fromUID(iptrv), iech);
+      valsim = dbout->getValue(colid_iptrv, iech);
       if (valsim > seuil / scale)
-        dbout->setValue(dbout->fromUID(iptrs), iech, 0.);
+        dbout->setValue(colid_iptrs, iech, 0.);
       else
         number++;
     }
@@ -807,9 +811,9 @@ namespace gstlrn
    ** \param[in]  dbout     Output Db structure
    ** \param[in]  scale     Scaling factor for the new simulation
    ** \param[in]  iter0     Rank of the current iteration
-   ** \param[in]  iptrg     Pointer to the newly simulated outcome
-   ** \param[in]  iptrv     Pointer to the max-stable outcome
-   ** \param[in]  iptrr     Pointer to the max-stable rank outcome
+   ** \param[in]  colid_iptrg     Pointer to the newly simulated outcome
+   ** \param[in]  colid_iptrv     Pointer to the max-stable outcome
+   ** \param[in]  colid_iptrr     Pointer to the max-stable rank outcome
    **
    ** \param[in,out] last   Rank of Iteration where the last grid node is covered
    **
@@ -818,9 +822,9 @@ namespace gstlrn
     Db* dbout,
     double scale,
     Id iter0,
-    Id iptrg,
-    Id iptrv,
-    Id iptrr,
+    const ColID& colid_iptrg,
+    const ColID& colid_iptrv,
+    const ColID& colid_iptrr,
     Id* last)
   {
     Id iech;
@@ -829,12 +833,12 @@ namespace gstlrn
     for (iech = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      valold = dbout->getValue(dbout->fromUID(iptrv), iech);
-      valsim = dbout->getValue(dbout->fromUID(iptrg), iech) / scale;
+      valold = dbout->getValue(colid_iptrv, iech);
+      valsim = dbout->getValue(colid_iptrg, iech) / scale;
       if (valsim > valold)
       {
-        dbout->setValue(dbout->fromUID(iptrv), iech, valsim);
-        dbout->setValue(dbout->fromUID(iptrr), iech, iter0);
+        dbout->setValue(colid_iptrv, iech, valsim);
+        dbout->setValue(colid_iptrr, iech, iter0);
         (*last) = iter0;
       }
     }
@@ -870,13 +874,16 @@ namespace gstlrn
     Id verbose)
   {
     double tpois, seuil;
-    Id error, iptrg, iptrv, iptrr, iptrs, niter, nleft, icov, last;
+    Id niter, nleft, icov, last;
     static double seuil_ref = 5.;
+    ColID colid_iptrv = ColID(-1);
+    ColID colid_iptrg = ColID(-1);
+    ColID colid_iptrs = ColID(-1);
+    ColID colid_iptrr = ColID(-1);
 
     /* Initializations */
 
-    error = 1;
-    iptrv = iptrg = iptrs = iptrr = -1;
+    Id error = 1;
     law_set_random_seed(seed);
     if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
     seuil = get_keypone("MaxStableThresh", seuil_ref);
@@ -896,14 +903,14 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    iptrv = dbout->addColumnsByConstant(1, 1, 0.);
-    if (iptrv < 0) goto label_end;
-    iptrr = dbout->addColumnsByConstant(1, 1, 0.);
-    if (iptrr < 0) goto label_end;
-    iptrs = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SEL);
-    if (iptrs < 0) goto label_end;
-    iptrg = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
-    if (iptrg < 0) goto label_end;
+    colid_iptrv = dbout->addOneColumn("v", 0.);
+    if (colid_iptrv.empty()) goto label_end;
+    colid_iptrr = dbout->addOneColumn("r", 0.);
+    if (colid_iptrr.empty()) goto label_end;
+    colid_iptrs = dbout->addOneColumn("selection", 0., ERole::SEL);
+    if (colid_iptrs.empty()) goto label_end;
+    colid_iptrg = dbout->addOneColumn("simu", 0., ERole::SIMU);
+    if (colid_iptrg.empty()) goto label_end;
 
     /* Implicit loop on the simulations */
 
@@ -922,7 +929,7 @@ namespace gstlrn
 
       /* Mask the nodes that cannot be accessed anymore */
 
-      nleft = st_maxstable_mask(dbout, seuil, tpois, iptrv, iptrs);
+      nleft = st_maxstable_mask(dbout, seuil, tpois, colid_iptrv, colid_iptrs);
       if (nleft <= 0) break;
 
       /* Processing the Turning Bands algorithm */
@@ -934,7 +941,8 @@ namespace gstlrn
 
       /* Combine the newly simulated outcome to the background */
 
-      st_maxstable_combine(dbout, tpois, niter, iptrg, iptrv, iptrr, &last);
+      st_maxstable_combine(
+        dbout, tpois, niter, colid_iptrg, colid_iptrv, colid_iptrr, &last);
 
       if (verbose)
         message(
@@ -958,10 +966,10 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    if (iptrs >= 0) dbout->deleteColumn(dbout->fromUID(iptrs));
-    if (iptrg >= 0) dbout->deleteColumn(dbout->fromUID(iptrg));
-    if (!flag_rank && iptrr >= 0) dbout->deleteColumn(dbout->fromUID(iptrr));
-    if (!flag_simu && iptrv >= 0) dbout->deleteColumn(dbout->fromUID(iptrv));
+    if (!colid_iptrs.empty()) dbout->deleteColumn(colid_iptrs);
+    if (!colid_iptrg.empty()) dbout->deleteColumn(colid_iptrg);
+    if (!flag_rank && !colid_iptrr.empty()) dbout->deleteColumn(colid_iptrr);
+    if (!flag_simu && !colid_iptrv.empty()) dbout->deleteColumn(colid_iptrv);
     return (error);
   }
 
@@ -1031,17 +1039,18 @@ namespace gstlrn
     Id verbose)
   {
     double cumul, simval, proba, seuil;
-    Id icut, error, iptrg, iptrs, nech, iech, count, total;
+    Id icut, iech, count, total;
     VectorDouble sort;
     VectorDouble pton;
     VectorDouble pres;
-    auto colid = ColID(0);
+    auto colid = ColID(-1);
+    auto colid_iptrg = ColID(-1);
+    auto colid_iptrs = ColID(-1);
 
     /* Initializations */
 
-    error = 1;
-    iptrg = iptrs = -1;
-    nech = dbout->getNSample();
+    Id error = 1;
+    Id nech = dbout->getNSample();
     law_set_random_seed(seed);
     if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
 
@@ -1058,10 +1067,10 @@ namespace gstlrn
     sort.resize(nech);
     pton.resize(ncut);
     pres.resize(ncut - 1);
-    iptrs = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SEL);
-    if (iptrs < 0) goto label_end;
-    iptrg = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
-    if (iptrg < 0) goto label_end;
+    colid_iptrs = dbout->addOneColumn("selection", 0., ERole::SEL);
+    if (colid_iptrs.empty()) goto label_end;
+    colid_iptrg = dbout->addOneColumn("simulated", 0., ERole::SIMU);
+    if (colid_iptrg.empty()) goto label_end;
 
     /* Preliminary calculations */
 
@@ -1149,7 +1158,7 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    if (iptrs >= 0) dbout->deleteColumn(dbout->fromUID(iptrs));
+    if (!colid_iptrs.empty()) dbout->deleteColumn(colid_iptrs);
     return (error);
   }
 

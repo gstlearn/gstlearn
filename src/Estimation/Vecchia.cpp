@@ -314,7 +314,7 @@ namespace gstlrn
       // Update the Diagonal due to the presence of Variance of Measurement Error
       if (_dbout->hasLocator(ELoc::V) && icase1 == 1)
       {
-        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar1));
+        Id icolVerr = _dbout->getColumnIndex(RoleID(ERole::V, ivar1));
 
         double verr = 0.;
 
@@ -496,7 +496,7 @@ namespace gstlrn
     {
       if (_dbout->hasLocator(ELoc::V))
       {
-        Id icolVerr = _dbout->getColIdx(RoleID(ERole::V, ivar));
+        Id icolVerr = _dbout->getColumnIndex(RoleID(ERole::V, ivar));
         if (icolVerr >= 0) var0 += _dbout->getValue(icolVerr, ipAbs);
       }
     }

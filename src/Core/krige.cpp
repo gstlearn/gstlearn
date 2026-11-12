@@ -3589,10 +3589,11 @@ namespace gstlrn
    ** \param[in]  mode      0 before the declustering; 1 after
    ** \param[in]  method    Method for declustering
    ** \param[in]  db        input Db structure
-   ** \param[in]  iptr      Rank of the weighting variable
+   ** \param[in]  colid_iptr Column ID of the weighting variable
    **
    *****************************************************************************/
-  static void st_declustering_stats(Id mode, Id method, Db* db, Id iptr)
+  static void
+    st_declustering_stats(Id mode, Id method, Db* db, const ColID& colid_iptr)
   {
     double mean, var, zval, coeff, mini, maxi, sumwgt;
 
@@ -3604,7 +3605,7 @@ namespace gstlrn
       if (!db->isActive(iech)) continue;
       zval = db->getValue(RoleID(ERole::Z, 0), iech);
       if (FFFF(zval)) continue;
-      coeff = (mode == 0) ? 1. : db->getValue(db->fromUID(iptr), iech);
+      coeff = (mode == 0) ? 1. : db->getValue(colid_iptr, iech);
       coeff = ABS(coeff);
       sumwgt += coeff;
       mean += coeff * zval;
@@ -3684,13 +3685,17 @@ namespace gstlrn
    ** \return  Error return code
    **
    ** \param[in]  db        input Db structure
-   ** \param[in]  iptr      Rank of the declustering weight
+   ** \param[in]  colid_iptr  Column ID for the declustering weight
    ** \param[in]  radius    Array of neighborhood radius
    **
    *****************************************************************************/
-  static Id st_declustering_1(Db* db, Id iptr, const VectorDouble& radius)
+  static Id st_declustering_1(
+    Db* db,
+    const ColID& colid_iptr,
+    const VectorDouble& radius)
   {
     Id ndim = db->getNDim();
+    auto nech = db->getNSample();
     VectorDouble vec(ndim);
 
     if (radius.empty())
@@ -3701,14 +3706,14 @@ namespace gstlrn
 
     /* Loop on the target sample */
 
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
       if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
 
       /* Loop on the second sample */
 
-      for (Id jech = 0; jech < db->getNSample(); jech++)
+      for (Id jech = 0; jech < nech; jech++)
       {
         if (!db->isActive(jech)) continue;
         double value = db->getValue(RoleID(ERole::Z, 0), jech);
@@ -3718,32 +3723,31 @@ namespace gstlrn
         /* Normalize the distance */
 
         double dist = 0.;
-        for (Id idim = 0; idim < db->getNDim(); idim++)
+        for (Id idim = 0; idim < ndim; idim++)
         {
           vec[idim] /= radius[idim];
           dist += vec[idim] * vec[idim];
         }
         if (dist > 1) continue;
-        db->updValue(db->fromUID(iptr), iech, EOperator::ADD, 1);
+        db->updValue(colid_iptr, iech, EOperator::ADD, 1);
       }
     }
 
     /* Normalization step */
 
     double total = 0.;
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
       if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
-      total += 1. / db->getValue(db->fromUID(iptr), iech);
+      total += 1. / db->getValue(colid_iptr, iech);
     }
-    for (Id iech = 0; iech < db->getNSample(); iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
       if (FFFF(db->getValue(RoleID(ERole::Z, 0), iech))) continue;
       db->setValue(
-        db->fromUID(iptr), iech,
-        1. / db->getValue(db->fromUID(iptr), iech) / total);
+        colid_iptr, iech, 1. / db->getValue(colid_iptr, iech) / total);
     }
     return 0;
   }
@@ -3757,22 +3761,28 @@ namespace gstlrn
    ** \param[in]  db         input Db structure
    ** \param[in]  model      Model structure
    ** \param[in]  neigh      ANeigh structure (should be Unique)
-   ** \param[in]  iptr       Rank of the declustering weight
+   ** \param[in]  colid_iptr  Column ID for the declustering weight
    **
    *****************************************************************************/
-  static Id st_declustering_2(Db* db, Model* model, ANeigh* neigh, Id iptr)
+  static Id st_declustering_2(
+    Db* db,
+    Model* model,
+    ANeigh* neigh,
+    const ColID& colid_iptr)
   {
+    // TODO: next line should be deleted when passing ColID to setKrigOptDataWeight()
+    auto iuid = colid_iptr.getUniqueIndex();
     KrigOpt krigopt;
     krigopt.setOptionCalcul(EKrigOpt::DRIFT);
     KrigingSystem ksys(db, db, model, neigh, krigopt);
-    if (ksys.setKrigOptDataWeights(iptr, true)) return 1;
+    if (ksys.setKrigOptDataWeights(iuid, true)) return 1;
     if (!ksys.isReady()) return 1;
     if (ksys.estimate(0)) return 1;
     ksys.conclusion();
 
     /* Truncate the negative weights */
 
-    st_declustering_truncate_and_rescale(db, iptr);
+    st_declustering_truncate_and_rescale(db, iuid);
 
     return 0;
   }
@@ -3789,7 +3799,7 @@ namespace gstlrn
    ** \param[in]  model      Model structure
    ** \param[in]  neigh      ANeigh structure
    ** \param[in]  ndiscs     Array of discretization counts
-   ** \param[in]  iptr       Rank of the declustering weight
+   ** \param[in]  colid_iptr Column ID for the declustering weight
    **
    *****************************************************************************/
   static Id st_declustering_3(
@@ -3798,7 +3808,7 @@ namespace gstlrn
     Model* model,
     ANeigh* neigh,
     const VectorInt& ndiscs,
-    Id iptr)
+    const ColID& colid_iptr)
   {
     // Preliminary checks
 
@@ -3820,10 +3830,12 @@ namespace gstlrn
 
     /* Setting options */
 
+    // TODO: next line should be deleted when passing ColID to setKrigOptDataWeight()
+    auto iuid = colid_iptr.getUniqueIndex();
     KrigOpt krigopt;
     krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndiscs);
     KrigingSystem ksys(db, dbgrid, model, neigh, krigopt);
-    if (ksys.setKrigOptDataWeights(iptr, false)) return 1;
+    if (ksys.setKrigOptDataWeights(iuid, false)) return 1;
     if (!ksys.isReady()) return 1;
 
     /* Loop on the targets to be processed */
@@ -3838,7 +3850,7 @@ namespace gstlrn
 
     /* Truncate the negative weights */
 
-    st_declustering_truncate_and_rescale(db, iptr);
+    st_declustering_truncate_and_rescale(db, iuid);
 
     return 0;
   }
@@ -3875,12 +3887,12 @@ namespace gstlrn
 
     /* Add the kriging weight as a new variable */
 
-    Id iptr = dbin->addColumnsByConstant(1, 1, 0.);
-    if (iptr < 0) return 1;
+    auto colid_iptr = dbin->addOneColumn("weight");
+    if (colid_iptr.empty()) return 1;
 
     /* Produce statistics on the target variable before declustering */
 
-    if (verbose) st_declustering_stats(0, method, dbin, iptr);
+    if (verbose) st_declustering_stats(0, method, dbin, colid_iptr);
 
     /* Dispatch */
 
@@ -3888,7 +3900,7 @@ namespace gstlrn
     {
       case 1: /* Weight proportional to number of samples */
       {
-        if (st_declustering_1(dbin, iptr, radius)) return 1;
+        if (st_declustering_1(dbin, colid_iptr, radius)) return 1;
         break;
       }
 
@@ -3899,7 +3911,7 @@ namespace gstlrn
           messerr("A Model is needed for this declustering method");
           return 1;
         }
-        if (st_declustering_2(dbin, model, neigh, iptr)) return 1;
+        if (st_declustering_2(dbin, model, neigh, colid_iptr)) return 1;
         break;
       }
 
@@ -3910,7 +3922,7 @@ namespace gstlrn
           messerr("A Model is needed for this declustering method");
           return 1;
         }
-        if (st_declustering_3(dbin, dbgrid, model, neigh, ndiscs, iptr))
+        if (st_declustering_3(dbin, dbgrid, model, neigh, ndiscs, colid_iptr))
           return 1;
         break;
       }
@@ -3922,20 +3934,21 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      Id iptr_sel = dbin->addColumnsByConstant(1, 1, 0.);
-      if (iptr_sel < 0) return 1;
-      for (Id iech = 0; iech < dbin->getNSample(); iech++)
+      auto colid_sel = dbin->addOneColumn("selection", 0.);
+      if (colid_sel.empty()) return 1;
+      auto nech = dbin->getNSample();
+      for (Id iech = 0; iech < nech; iech++)
       {
-        dbin->setValue(dbin->fromUID(iptr_sel), iech, 0.);
+        dbin->setValue(colid_sel, iech, 0.);
         if (!dbin->isActive(iech)) continue;
-        double indic = (dbin->getValue(dbin->fromUID(iptr), iech) > 0.);
-        dbin->setValue(dbin->fromUID(iptr_sel), iech, indic);
+        double indic = (dbin->getValue(colid_iptr, iech) > 0.);
+        dbin->setValue(colid_sel, iech, indic);
       }
     }
 
     /* Produce statistics on the target variable after declustering */
 
-    if (verbose) st_declustering_stats(1, method, dbin, iptr);
+    if (verbose) st_declustering_stats(1, method, dbin, colid_iptr);
 
     return 0;
   }

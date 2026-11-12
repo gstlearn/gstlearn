@@ -222,6 +222,7 @@ namespace gstlrn
     ColID colIDout(*icol);
     colIDout._setName(_cols[*icol].getName());
     colIDout._setRoleID(_roleIDs[*icol]);
+    colIDout._setVersion(colid.getVersion());
     return colIDout;
   }
 
@@ -309,13 +310,13 @@ namespace gstlrn
     VectorString matchNames = expandList(getNames(), name);
 
     // Loop to create the list of Column Identifiers
-    std::vector<ColID> colIDs;
+    std::vector<ColID> colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
-      if (colID.getICol() >= 0) colIDs.push_back(colID);
+      if (colID.getICol() >= 0) colids.push_back(colID);
     }
-    return colIDs;
+    return colids;
   }
 
   /**
@@ -327,13 +328,13 @@ namespace gstlrn
   std::vector<ColID> DbData::getColIDs(const VectorString& names) const
   {
     VectorString matchNames = expandList(getNames(), names);
-    std::vector<ColID> colIDs;
+    std::vector<ColID> colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
-      if (colID.getICol() >= 0) colIDs.push_back(colID);
+      if (colID.getICol() >= 0) colids.push_back(colID);
     }
-    return colIDs;
+    return colids;
   }
 
   /**
@@ -344,16 +345,16 @@ namespace gstlrn
    */
   std::vector<ColID> DbData::getColIDs(const ERole& role) const
   {
-    std::vector<ColID> colIDs;
+    std::vector<ColID> colids;
     for (const auto& id: this->_roleIDs)
     {
       if (id.getRole().isEqual(role))
       {
         const auto colID = getColID(ColID(id));
-        if (colID.getICol() >= 0) colIDs.push_back(colID);
+        if (colID.getICol() >= 0) colids.push_back(colID);
       }
     }
-    return colIDs;
+    return colids;
   }
 
   Id DbData::getNSamples() const
@@ -411,8 +412,8 @@ namespace gstlrn
    */
   void DbData::clearRole(const ERole& role)
   {
-    std::vector<ColID> colIDs = getColIDs(role);
-    for (const auto& colID: colIDs) _roleIDs[colID.getICol()].removeRole();
+    std::vector<ColID> colids = getColIDs(role);
+    for (const auto& colID: colids) _roleIDs[colID.getICol()].removeRole();
   }
 
   void DbData::clearAllRoles()
@@ -659,12 +660,12 @@ namespace gstlrn
     {
       const auto& role = *it;
 
-      auto colIDs = getColIDs(role);
-      if (!colIDs.empty())
+      auto colids = getColIDs(role);
+      if (!colids.empty())
       {
         sstr << "Role: " << role.getKey() << " (" << getNRoles(role) << ")";
         sstr << " - Columns = ";
-        for (const auto& colID: colIDs) sstr << colID.getICol() << " ";
+        for (const auto& colID: colids) sstr << colID.getICol() << " ";
         sstr << std::endl;
       }
       it.toNext();
@@ -767,7 +768,6 @@ namespace gstlrn
     // 3. Identification by Role
     else if (colid.getRole().isDifferent(ERole::UNDEFINED))
     {
-      // Look for a Column with the matching RoleID
       icol0 = _searchByRole(colid, verbose);
       if (icol0 < 0) return std::nullopt;
     }

@@ -404,16 +404,15 @@ namespace gstlrn
      *  @{
      */
     bool hasColumn(const ColID& colid) const;
+    bool hasLocator(const ELoc& locatorType) const;
     bool hasValidVersion(const ColID& colid) const;
 
     String getName(const ColID& colid, bool withVersion = false) const;
-    void setName(const ColID& colid, const String& name);
-
-    Id getColIdx(const ColID& colid) const;
-
+    Id getColumnIndex(const ColID& colid) const;
     Id getUID(const ColID& colid) const;
+    Id getNVersions(const ColID& colid) const;
 
-    bool hasLocator(const ELoc& locatorType) const;
+    void setName(const ColID& colid, const String& name);
 
     Id getSelection(Id iech) const;
     double getValue(const ColID& colid, Id iech, bool verbose = true) const;
@@ -436,8 +435,6 @@ namespace gstlrn
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
 
-    Id getNVersions(const ColID& colid) const;
-
     void setColumn(
       const ColID& colid,
       const VectorDouble& tab,
@@ -454,6 +451,8 @@ namespace gstlrn
 
     const double* getColumnPtrUnprotected(const ColID& colid) const;
 
+    ColID getColID(const ColID& colid) const;
+
     /**@}*/
 
     /** @addtogroup DB_Multi_Column Methods for a Managing Several Column.
@@ -464,12 +463,13 @@ namespace gstlrn
      */
 
     VectorString getNames(const MultID& multid) const;
-    void setNames(const MultID& multid, const String& name);
-    VectorInt getColIdxs(const MultID& multid) const;
-
+    VectorInt getColumnIndices(const MultID& multid) const;
     VectorInt getUIDs(const MultID& multid) const;
+    Id getNLoc(const ELoc& locatorType) const;
 
     void deleteColumns(const MultID& multid);
+
+    void setNames(const MultID& multid, const String& name);
 
     VectorDouble getValues(
       const MultID& multid,
@@ -498,7 +498,7 @@ namespace gstlrn
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
 
-    Id getNLoc(const ELoc& locatorType) const;
+    std::vector<ColID> getColIDs(const MultID& multid) const;
 
     // TODO: still to be upgraded
     void deleteColumnsByUIDRange(Id i_del, Id n_del);
@@ -930,7 +930,7 @@ namespace gstlrn
       static double dummy = std::numeric_limits<double>::quiet_NaN();
       auto iuid = getUID(name);
       if (iuid < 0) return dummy;
-      auto icol = getColIdx(fromUID(iuid));
+      auto icol = getColumnIndex(fromUID(iuid));
       if (icol < 0) return dummy;
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
@@ -942,7 +942,7 @@ namespace gstlrn
     {
       static const double dummy = std::numeric_limits<double>::quiet_NaN();
       auto iuid = getUID(name);
-      auto icol = getColIdx(fromUID(iuid));
+      auto icol = getColumnIndex(fromUID(iuid));
       if (icol < 0) return dummy;
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;

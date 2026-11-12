@@ -2751,8 +2751,8 @@ namespace gstlrn
   ** \param[in]  wgt       Array containing the Kriging weights
   ** \param[in]  rhs       Array containing the R.H.S. member
   ** \param[in]  var0      Array containing the C00 terms
-  ** \param[in]  iatt_est  Array of pointers to the kriged result
-  ** \param[in]  iatt_std  Array of pointers to the variance of estimation
+  ** \param[in]  colid_est  Array of pointers to the kriged result
+  ** \param[in]  colid_std  Array of pointers to the variance of estimation
   **
   *****************************************************************************/
   static void st_estimate_result(
@@ -2765,8 +2765,8 @@ namespace gstlrn
     const MatrixDense& wgt,
     const MatrixDense& rhs,
     const VectorDouble& var0,
-    Id* iatt_est,
-    Id* iatt_std)
+    const std::vector<ColID>& colid_est,
+    const std::vector<ColID>& colid_std)
   {
     Id i, ivar, jvar, nech, lec;
     double result, value, stdev;
@@ -2792,7 +2792,7 @@ namespace gstlrn
           value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
           result += wgt.getValue(lec++, ivar) * value;
         }
-      db->setValue(db->fromUID(iatt_est[ivar]), IECH_OUT, result);
+      db->setValue(colid_est[ivar], IECH_OUT, result);
 
       /* Variance of estimation */
 
@@ -2803,7 +2803,7 @@ namespace gstlrn
         for (i = 0; i < nred; i++)
           stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
         stdev = (stdev > 0) ? sqrt(stdev) : 0.;
-        db->setValue(db->fromUID(iatt_std[ivar]), IECH_OUT, stdev);
+        db->setValue(colid_std[ivar], IECH_OUT, stdev);
       }
 
       if (OptDbg::query(EDbg::RESULTS))
@@ -2990,7 +2990,7 @@ namespace gstlrn
     Id flag_sort,
     Id flag_stat)
   {
-    Id npres[2], iatt_est[2], iatt_std[2];
+    Id npres[2];
     Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
     Id nb_total, nb_process, nb_calcul;
     ST_Seismic_Neigh *ngh_cur, *ngh_old;
@@ -3001,6 +3001,8 @@ namespace gstlrn
     VectorInt flag;
     VectorInt rank;
     VectorVectorInt presence(2);
+    std::vector<ColID> colid_est(2, ColID(-1));
+    std::vector<ColID> colid_std(2, ColID(-1));
 
     /* Initializations */
 
@@ -3008,10 +3010,9 @@ namespace gstlrn
     nvois = nred = nb_total = nb_process = nb_calcul = 0;
     nfeq = (flag_ks) ? 0 : 1;
     ngh_cur = ngh_old = nullptr;
+
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = -1;
-      iatt_std[i] = -1;
       presence[i].clear();
       npres[i] = 0;
     }
@@ -3080,14 +3081,14 @@ namespace gstlrn
 
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = db->addColumnsByConstant(1, 1, TEST);
-      if (iatt_est[i] < 0) goto label_end;
+      colid_est[i] = db->addOneColumn("Estimate", TEST);
+      if (colid_est[i].empty()) goto label_end;
     }
     if (flag_std)
       for (i = 0; i < 2; i++)
       {
-        iatt_std[i] = db->addColumnsByConstant(1, 1, TEST);
-        if (iatt_std[i] < 0) goto label_end;
+        colid_std[i] = db->addOneColumn("Standard Deviation", TEST);
+        if (colid_std[i].empty()) goto label_end;
       }
 
     /* Calculate the constant terms for the variances */
@@ -3144,8 +3145,8 @@ namespace gstlrn
         /* Perform the estimation */
 
         st_estimate_result(
-          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, iatt_est,
-          iatt_std);
+          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, colid_est,
+          colid_std);
 
         /* Save the neighborhood */
 
@@ -3170,8 +3171,8 @@ namespace gstlrn
     for (i = 0; i < 2; i++)
     {
       presence[i].clear();
-      if (error && iatt_est[i] >= 0) db->deleteColumn(db->fromUID(iatt_est[i]));
-      if (error && iatt_std[i] >= 0) db->deleteColumn(db->fromUID(iatt_std[i]));
+      if (error && !colid_est[i].empty()) db->deleteColumn(colid_est[i]);
+      if (error && !colid_std[i].empty()) db->deleteColumn(colid_std[i]);
     }
     (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
     st_estimate_neigh_management(-1, nvois, ngh_cur);

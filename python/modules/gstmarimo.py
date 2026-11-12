@@ -967,7 +967,7 @@ def createDefaultIsoPot(nech=3, seed=13424):
         flagAddSampleRank=False,
     )
     # Adding the Layer information
-    dbIso.addColumnsByConstant(1, 1, 1.0, "Layer", gl.ELoc.LAYER)
+    dbIso.addOneColumn("Layer", 1.0, gl.Role.LAYER)
     dbIso.setName("x-1", "x")
     dbIso.setName("x-2", "y")
     return dbIso
@@ -1016,8 +1016,8 @@ def createDefaultGradPot(nech=1, seed=13424):
         flagAddSampleRank=False,
     )
     # Add the gradient coordinates
-    dbGrad.addColumnsByConstant(1, 1, 1.0, "gx", gl.ELoc.G, 0)
-    dbGrad.addColumnsByConstant(1, 1, 0.0, "gy", gl.ELoc.G, 1)
+    dbGrad.addOneColumn("gx", 1.0, gl.Role.G, 0)
+    dbGrad.addOneColumn("gy", 0.0, gl.Role.G, 1)
 
     dbGrad.setName("x-1", "x")
     dbGrad.setName("x-2", "y")
@@ -1066,8 +1066,8 @@ def createDefaultTgtePot(nech=1, seed=42683):
         flagAddSampleRank=False,
     )
     # Add the tangent coordinates
-    dbTgte.addColumnsByConstant(1, 1, 1.0, "tx", gl.ELoc.TGT, 0)
-    dbTgte.addColumnsByConstant(1, 1, 0.0, "ty", gl.ELoc.TGT, 1)
+    dbTgte.addOneColumn("tx", 1.0, gl.Role.TGT, 0)
+    dbTgte.addOneColumn("ty", 0.0, gl.Role.TGT, 1)
 
     dbTgte.setName("x-1", "x")
     dbTgte.setName("x-2", "y")
@@ -2164,7 +2164,7 @@ def plotGrid(
 ):
     if grid is None:
         return
-    if name is None or grid.getColIdx(name) <= 0:
+    if name is None or grid.getColumnIndex(name) <= 0:
         return
     if title is None:
         title = f"Grid: {name}"

@@ -1264,8 +1264,7 @@ namespace gstlrn
     Id verbose)
   {
     double diff_coeff, pmid, probtot;
-    Id error, ndim, ind0[3], nxyz[3], iech, nech, iptr, opt_center;
-    Id ntot, iech_save, flag_save, opt_morpho, flag_traj, n_nbgh;
+    Id ndim, ind0[3], nxyz[3], iech, nech, ntot, flag_save, n_nbgh;
     String name;
     VectorInt nbgh;
     VectorInt tabini;
@@ -1280,13 +1279,16 @@ namespace gstlrn
 
     /* Initializations */
 
-    error = 1;
-    iech_save = static_cast<Id>(get_keypone("Diffusion.Converge.Block", 0));
-    opt_morpho = static_cast<Id>(get_keypone("Diffusion.Converge.Morpho", 1));
-    opt_center = static_cast<Id>(get_keypone("Diffusion.Converge.Center", 1));
-    flag_traj = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
+    Id error = 1;
+    Id iech_save = static_cast<Id>(get_keypone("Diffusion.Converge.Block", 0));
+    Id opt_morpho =
+      static_cast<Id>(get_keypone("Diffusion.Converge.Morpho", 1));
+    Id opt_center =
+      static_cast<Id>(get_keypone("Diffusion.Converge.Center", 1));
+    Id flag_traj = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
     pmid = get_keypone("Diffusion.Converge.PMid", 70.);
     if (seed != 0) law_set_random_seed(seed);
+    ColID colid_iptr = ColID(-1);
 
     /* Preliminary checks */
 
@@ -1339,8 +1341,8 @@ namespace gstlrn
 
     /* Create the new variable in the output file */
 
-    iptr = dbgrid2->addColumnsByConstant(1, 1, TEST);
-    if (iptr < 0) goto label_end;
+    colid_iptr = dbgrid2->addOneColumn("diffusion", TEST);
+    if (colid_iptr.empty()) goto label_end;
 
     /* Loop on the cells of the Output Grid */
 
@@ -1395,7 +1397,7 @@ namespace gstlrn
 
       /* Store the result */
 
-      dbgrid2->setValue(dbgrid2->fromUID(iptr), iech, diff_coeff);
+      dbgrid2->setValue(colid_iptr, iech, diff_coeff);
     }
 
     /* Set the error return code */

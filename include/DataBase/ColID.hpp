@@ -93,6 +93,8 @@ namespace gstlrn
 
     bool empty() const;
 
+    void free();
+
     /**
      * Factory helpers mainly intended for language bindings (SWIG).
      */

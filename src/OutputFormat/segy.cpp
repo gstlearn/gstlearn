@@ -1947,7 +1947,7 @@ namespace gstlrn
   {
     DECLARE_UNUSED(nz_ss);
     double xtrace, ytrace, coor[3];
-    Id iline, xline, nbvalues, iatt;
+    Id iline, xline, nbvalues;
     Id rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;
     RefPt refpt[3];
     RefStats refstats;
@@ -1967,6 +1967,7 @@ namespace gstlrn
     VectorInt indg(ndim, 0);
     st_refstats_init(refstats, modif_high, modif_low, modif_scale);
     traceHead traceHead_ = st_traceHead_init();
+    ColID colid_iatt = ColID(-1);
 
     // Preliminary checks
 
@@ -1995,8 +1996,8 @@ namespace gstlrn
 
     // Allocate the new vector in the output file
 
-    iatt = grid3D->addColumnsByConstant(1, 1, TEST);
-    if (iatt < 0) return 1;
+    colid_iatt = grid3D->addOneColumn("segy", TEST);
+    if (colid_iatt.empty()) return 1;
 
     // Working arrays
 
@@ -2079,7 +2080,7 @@ namespace gstlrn
         double dmean = st_get_average(nz, writes);
         indg[2] = 0;
         rank = grid3D->indiceToRank(indg);
-        if (rank >= 0) grid3D->setValue(grid3D->fromUID(iatt), rank, dmean);
+        if (rank >= 0) grid3D->setValue(colid_iatt, rank, dmean);
       }
       else
       {
@@ -2088,7 +2089,7 @@ namespace gstlrn
           indg[2] = iz;
           rank = grid3D->indiceToRank(indg);
           if (rank < 0) continue;
-          grid3D->setValue(grid3D->fromUID(iatt), rank, writes[iz]);
+          grid3D->setValue(colid_iatt, rank, writes[iz]);
         }
       }
     }
@@ -2102,7 +2103,7 @@ namespace gstlrn
 
     // Assign Name and Locator to the newly created variable
 
-    namconv.setOutput(VectorString(), 0, grid3D, iatt, String());
+    namconv.setOneColumn(grid3D, colid_iatt);
 
     if (file != nullptr) fclose(file);
     return 0;

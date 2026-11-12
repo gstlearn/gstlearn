@@ -193,11 +193,11 @@ namespace gstlrn
     Id ip,
     VectorDouble& dvect,
     Id flag_aniso,
-    Id iatt_time,
-    Id iatt_angle,
-    Id iatt_scaleu,
-    Id iatt_scalev,
-    Id iatt_scalew)
+    const ColID& colid_time,
+    const ColID& colid_angle,
+    const ColID& colid_scaleu,
+    const ColID& colid_scalev,
+    const ColID& colid_scalew)
   {
     double dd = TEST;
 
@@ -213,9 +213,9 @@ namespace gstlrn
       double scalew = 1.;
 
       // Rotation angle in degrees (optional)
-      if (iatt_angle >= 0 && ndim >= 2)
+      if (!colid_angle.empty() && ndim >= 2)
       {
-        angle = dbgrid->getValue(dbgrid->fromUID(iatt_angle), ig);
+        angle = dbgrid->getValue(colid_angle, ig);
         GH::rotationGetSinCos(angle, &cosa, &sina);
         x = dvect[0];
         y = dvect[1];
@@ -227,8 +227,7 @@ namespace gstlrn
       dd = 0;
       if (ndim >= 1)
       {
-        if (iatt_scaleu >= 0)
-          scaleu = dbgrid->getValue(dbgrid->fromUID(iatt_scaleu), ig);
+        if (!colid_scaleu.empty()) scaleu = dbgrid->getValue(colid_scaleu, ig);
         if (!FFFF(scaleu) && scaleu > 0)
         {
           dloc = dvect[0] / scaleu;
@@ -237,8 +236,7 @@ namespace gstlrn
       }
       if (ndim >= 2)
       {
-        if (iatt_scalev >= 0)
-          scalev = dbgrid->getValue(dbgrid->fromUID(iatt_scalev), ig);
+        if (!colid_scalev.empty()) scalev = dbgrid->getValue(colid_scalev, ig);
         if (!FFFF(scalev) && scalev > 0.)
         {
           dloc = dvect[1] / scalev;
@@ -247,8 +245,7 @@ namespace gstlrn
       }
       if (ndim >= 3)
       {
-        if (iatt_scalew >= 0)
-          scalew = dbgrid->getValue(dbgrid->fromUID(iatt_scalew), ig);
+        if (!colid_scalew.empty()) scalew = dbgrid->getValue(colid_scalew, ig);
         if (!FFFF(scalew) && scalew > 0.)
         {
           dloc = dvect[2] / scalew;
@@ -266,9 +263,9 @@ namespace gstlrn
     }
 
     // Add the Time Shift penalty (optional)
-    if (iatt_time >= 0)
+    if (!colid_time.empty())
     {
-      double time = dbpoint->getValue(dbpoint->fromUID(iatt_time), ip);
+      double time = dbpoint->getValue(colid_time, ip);
       if (time > 0) dd = (FFFF(dd)) ? time : dd + time;
     }
     return dd;
@@ -283,11 +280,11 @@ namespace gstlrn
    ** \param[in]  dbpoint     Descriptor of the point parameters
    ** \param[in]  ip          Rank of the sample in the Point file
    ** \param[in]  flag_aniso  1 if anisotropic distance must be calculated
-   ** \param[in]  iatt_time   Optional variable for Time shift
-   ** \param[in]  iatt_angle  Optional variable for anisotropy angle (around Z)
-   ** \param[in]  iatt_scaleu Optional variable for anisotropy scale factor (U)
-   ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
-   ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
+   ** \param[in]  colid_time   Optional variable for Time shift
+   ** \param[in]  colid_angle  Optional variable for anisotropy angle (around Z)
+   ** \param[in]  colid_scaleu Optional variable for anisotropy scale factor (U)
+   ** \param[in]  colid_scalev Optional variable for anisotropy scale factor (V)
+   ** \param[in]  colid_scalew Optional variable for anisotropy scale factor (W)
    **
    ** \param[in,out]  ipmin   Rank of the Point sample
    ** \param[in,out]  ddmin   Minimum distance
@@ -304,11 +301,11 @@ namespace gstlrn
     Db* dbpoint,
     Id ip,
     Id flag_aniso,
-    Id iatt_time,
-    Id iatt_angle,
-    Id iatt_scaleu,
-    Id iatt_scalev,
-    Id iatt_scalew,
+    const ColID& colid_time,
+    const ColID& colid_angle,
+    const ColID& colid_scaleu,
+    const ColID& colid_scalev,
+    const ColID& colid_scalew,
     Id* ipmin,
     double* ddmin,
     VectorDouble& dvect)
@@ -317,11 +314,11 @@ namespace gstlrn
     double dd = distance_inter(dbgrid, dbpoint, ig, ip, dvect);
 
     // Distance modifier
-    if (flag_aniso || iatt_time >= 0)
+    if (flag_aniso || !colid_time.empty())
     {
       double dd2 = st_distance_modify(
-        dbgrid, ig, dbpoint, ip, dvect, flag_aniso, iatt_time, iatt_angle,
-        iatt_scaleu, iatt_scalev, iatt_scalew);
+        dbgrid, ig, dbpoint, ip, dvect, flag_aniso, colid_time, colid_angle,
+        colid_scaleu, colid_scalev, colid_scalew);
       if (!FFFF(dd2)) dd = dd2;
     }
 
@@ -568,8 +565,7 @@ namespace gstlrn
    **
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  db_point  descriptor of the point parameters
-   ** \param[in]  iatt      rank of the grid attribute
-   ** \param[in]  version   Version of the point attribute
+   ** \param[in]  colid_iatt  Column ID of the grid attribute
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -580,8 +576,7 @@ namespace gstlrn
   Id CalcMigrate::_migrateGridToPoint(
     DbGrid* db_grid,
     Db* db_point,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -611,7 +606,7 @@ namespace gstlrn
         (void)distance_inter(db_grid, db_point, rank, iech, dvect);
         if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       }
-      tab[iech] = db_grid->getValue(db_grid->fromUID(iatt, version), rank);
+      tab[iech] = db_grid->getValue(colid_iatt, rank);
     }
     return 0;
   }
@@ -723,8 +718,10 @@ namespace gstlrn
       {
         Id iatt1 = _iuids[ivar];
         Id iatt2 = _iattOut + ivar;
+        auto colid_iatt1 = getDbin()->fromUID(iatt1, version);
+        auto colid_iatt2 = getDbout()->fromUID(iatt2, version);
         if (_migrate(
-              getDbin(), getDbout(), iatt1, iatt2, version, _distType, _dmax,
+              getDbin(), getDbout(), colid_iatt1, colid_iatt2, _distType, _dmax,
               _flagFill, _flagInter, _flagBall))
           return false;
       }
@@ -1158,7 +1155,7 @@ namespace gstlrn
     VectorDouble coor;
     Id np = static_cast<Id>(xp.size());
     tab.resize(np);
-    auto colid_iatt = ColID(iatt);
+    auto colid_iatt = dbgrid->getColID(iatt);
 
     /* Initializations */
 
@@ -1227,7 +1224,7 @@ namespace gstlrn
     /* Initializations */
 
     Id ndim = dbgrid->getNDim();
-    auto colid_iatt = ColID(RoleID(ERole::Z, 0));
+    auto colid_iatt = dbgrid->getColID(ERole::Z);
 
     /* Preliminary checks */
 
@@ -1303,13 +1300,12 @@ namespace gstlrn
    **
    ** \param[in]  db_point    Descriptor of the point parameters
    ** \param[in]  db_grid     Descriptor of the grid parameters
-   ** \param[in]  iatt        Rank of the point attribute
-   ** \param[in]  version     Version of the point attribute
-   ** \param[in]  iatt_time   Optional variable for Time shift
-   ** \param[in]  iatt_angle  Optional variable for anisotropy angle (around Z)
-   ** \param[in]  iatt_scaleu Optional variable for anisotropy scale factor (U)
-   ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
-   ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
+   ** \param[in]  colid_iatt  Column ID of the point attribute
+   ** \param[in]  colid_time   Optional variable for Time shift
+   ** \param[in]  colid_angle  Optional variable for anisotropy angle (around Z)
+   ** \param[in]  colid_scaleu Optional variable for anisotropy scale factor (U)
+   ** \param[in]  colid_scalev Optional variable for anisotropy scale factor (V)
+   ** \param[in]  colid_scalew Optional variable for anisotropy scale factor (W)
    ** \param[in]  flag_index  1 if the Index must be assigned to grid node
    **                         0 if the 'iatt' attribute is assigned instead
    ** \param[in]  distType    Type of distance for calculating maximum distance
@@ -1327,13 +1323,12 @@ namespace gstlrn
   Id expandPointToGrid(
     Db* db_point,
     DbGrid* db_grid,
-    Id iatt,
-    Id version,
-    Id iatt_time,
-    Id iatt_angle,
-    Id iatt_scaleu,
-    Id iatt_scalev,
-    Id iatt_scalew,
+    const ColID& colid_iatt,
+    const ColID& colid_time,
+    const ColID& colid_angle,
+    const ColID& colid_scaleu,
+    const ColID& colid_scalev,
+    const ColID& colid_scalew,
     Id flag_index,
     Id distType,
     const VectorDouble& dmax,
@@ -1348,9 +1343,9 @@ namespace gstlrn
     Id ndim_min = MIN(db_point->getNDim(), db_grid->getNDim());
     Id ndim_max = MAX(db_point->getNDim(), db_grid->getNDim());
     bool flag_aniso = 0;
-    if (ndim_min >= 1 && iatt_scaleu >= 0) flag_aniso = 1;
-    if (ndim_min >= 2 && iatt_scalev >= 0) flag_aniso = 1;
-    if (ndim_min >= 3 && iatt_scalew >= 0) flag_aniso = 1;
+    if (ndim_min >= 1 && !colid_scaleu.empty()) flag_aniso = 1;
+    if (ndim_min >= 2 && !colid_scalev.empty()) flag_aniso = 1;
+    if (ndim_min >= 3 && !colid_scalew.empty()) flag_aniso = 1;
     Id idim_ref = ndim_min - 1;
     double dmax_ref = MAXIMUM_BIG;
     if (!dmax.empty()) dmax_ref = dmax[idim_ref];
@@ -1367,8 +1362,7 @@ namespace gstlrn
     for (Id ip = np = 0; ip < db_point->getNSample(); ip++)
     {
       if (!db_point->isActive(ip)) continue;
-      if (FFFF(db_point->getValue(db_point->fromUID(iatt, version), ip)))
-        continue;
+      if (FFFF(db_point->getValue(colid_iatt, ip))) continue;
       xtab[np] = db_point->getCoordinate(ip, idim_ref);
       np++;
     }
@@ -1377,11 +1371,11 @@ namespace gstlrn
     /* Calculate the maximum time (if defined) */
 
     double time_max = 0.;
-    if (iatt_time >= 0)
+    if (!colid_time.empty())
     {
       for (Id ip = 0; ip < np; ip++)
       {
-        double time = db_point->getValue(db_point->fromUID(iatt_time), ip);
+        double time = db_point->getValue(colid_time, ip);
         if (time > time_max) time_max = time;
       }
     }
@@ -1411,8 +1405,8 @@ namespace gstlrn
         dd1d = ABS(xtab[jp] - xtarget);
         if (dd1d >= ddmin) break;
         st_get_closest_sample(
-          db_grid, ig, db_point, jp, flag_aniso, iatt_time, iatt_angle,
-          iatt_scaleu, iatt_scalev, iatt_scalew, &jpmin, &ddmin, dvect);
+          db_grid, ig, db_point, jp, flag_aniso, colid_time, colid_angle,
+          colid_scaleu, colid_scalev, colid_scalew, &jpmin, &ddmin, dvect);
       }
 
       /* Look for closer points for samples located above rank[ip0+1] */
@@ -1423,8 +1417,8 @@ namespace gstlrn
         dd1d = ABS(xtab[jp] - xtarget);
         if (dd1d >= ddmin) break;
         st_get_closest_sample(
-          db_grid, ig, db_point, jp, flag_aniso, iatt_time, iatt_angle,
-          iatt_scaleu, iatt_scalev, iatt_scalew, &jpmin, &ddmin, dvect);
+          db_grid, ig, db_point, jp, flag_aniso, colid_time, colid_angle,
+          colid_scaleu, colid_scalev, colid_scalew, &jpmin, &ddmin, dvect);
       }
 
       /* Truncation by 'dmax' if provided */
@@ -1444,7 +1438,7 @@ namespace gstlrn
         if (flag_index)
           tab[ig] = static_cast<double>(jpmin);
         else
-          tab[ig] = db_point->getValue(db_point->fromUID(iatt, version), jpmin);
+          tab[ig] = db_point->getValue(colid_iatt, jpmin);
       }
     }
     return 0;
@@ -1534,12 +1528,12 @@ namespace gstlrn
    ** \param[in]  option      Connectivity option (0 for cross and 1 for block)
    ** \param[in]  flag_size   When 1, the border pixels report the border thickness
    **                         When 0, the border pixels are painted in 1
-   ** \param[in]  iatt_time   Attribute of 'dbpoint'for Time shift (optional)
-   ** \param[in]  iatt_size   Attribute of 'dbpoint' giving size (optional)
-   ** \param[in]  iatt_angle  Optional variable for anisotropy angle (around Z)
-   ** \param[in]  iatt_scaleu Optional variable for anisotropy scale factor (U)
-   ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
-   ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
+   ** \param[in]  colid_time   Attribute of 'dbpoint'for Time shift (optional)
+   ** \param[in]  colid_size   Attribute of 'dbpoint' giving size (optional)
+   ** \param[in]  colid_angle  Optional variable for anisotropy angle (around Z)
+   ** \param[in]  colid_scaleu Optional variable for anisotropy scale factor (U)
+   ** \param[in]  colid_scalev Optional variable for anisotropy scale factor (V)
+   ** \param[in]  colid_scalew Optional variable for anisotropy scale factor (W)
    **
    ** \remarks The value of 'flag_index' can be turned on for assigning
    ** \remarks the sample index to the grid cell (instead of the 'iatt' value)
@@ -1551,55 +1545,56 @@ namespace gstlrn
     DbGrid* dbgrid,
     Id option,
     Id flag_size,
-    Id iatt_time,
-    Id iatt_size,
-    Id iatt_angle,
-    Id iatt_scaleu,
-    Id iatt_scalev,
-    Id iatt_scalew)
+    const ColID& colid_time,
+    const ColID& colid_size,
+    const ColID& colid_angle,
+    const ColID& colid_scaleu,
+    const ColID& colid_scalev,
+    const ColID& colid_scalew)
   {
-    Id iatt_edge, iatt_rank, iatt_surf, iatt_vol, iatt_code;
-    Id val_iech, val_jech, jech, ndim, nvois, lec, error, flag_index;
-    VectorInt indret;
-    VectorDouble tab1, tab2;
+    Id val_iech, val_jech, jech, nvois, lec;
 
     /* Initializations */
 
-    error = 1;
-    iatt_rank = -1;
     if (!dbgrid->hasSameDimension(dbpoint)) return 1;
-    ndim = dbgrid->getNDim();
-    flag_index = static_cast<Id>(get_keypone("PTB_Flag_Index", 0.));
+    Id error = 1;
+    Id ndim = dbgrid->getNDim();
+    Id flag_index = static_cast<Id>(get_keypone("PTB_Flag_Index", 0.));
 
     /* Core allocation */
 
+    VectorInt indret;
     VectorInt indg0(ndim);
     VectorInt indg(ndim);
-    ;
-    tab1.resize(dbgrid->getNSample());
-    tab2.resize(dbgrid->getNSample(), -1.);
+    VectorDouble tab1(dbgrid->getNSample());
+    VectorDouble tab2(dbgrid->getNSample(), -1.);
 
     /* Variable allocation */
 
-    iatt_edge = dbgrid->addColumnsByConstant(1, 1, 0.);
-    if (iatt_edge < 0) goto label_end;
-    iatt_rank = dbpoint->addColumnsByConstant(1, 1, 0.);
-    if (iatt_rank < 0) goto label_end;
-    iatt_surf = dbpoint->addColumnsByConstant(1, 1, 0.);
-    if (iatt_surf < 0) goto label_end;
-    iatt_vol = dbpoint->addColumnsByConstant(1, 1, 0.);
-    if (iatt_vol < 0) goto label_end;
-    iatt_code = dbpoint->addColumnsByConstant(1, 1, 0.);
-    if (iatt_code < 0) goto label_end;
+    ColID colid_rank(-1);
+    ColID colid_edge(-1);
+    ColID colid_surf(-1);
+    ColID colid_vol(-1);
+    ColID colid_code(-1);
+
+    colid_rank = dbpoint->addOneColumn("rank");
+    if (colid_rank.empty()) goto label_end;
+    colid_edge = dbgrid->addOneColumn("edge");
+    if (colid_edge.empty()) goto label_end;
+    colid_surf = dbpoint->addOneColumn("surf");
+    if (colid_surf.empty()) goto label_end;
+    colid_vol = dbpoint->addOneColumn("vol");
+    if (colid_vol.empty()) goto label_end;
+    colid_code = dbpoint->addOneColumn("code");
+    if (colid_code.empty()) goto label_end;
 
     /* Create the sample rank attribute and expand it over the grid */
 
     for (Id iech = 0; iech < dbpoint->getNSample(); iech++)
-      dbpoint->setValue(
-        dbpoint->fromUID(iatt_rank), iech, static_cast<double>(iech));
+      dbpoint->setValue(colid_rank, iech, static_cast<double>(iech));
     if (expandPointToGrid(
-          dbpoint, dbgrid, iatt_rank, 0, iatt_time, iatt_angle, iatt_scaleu,
-          iatt_scalev, iatt_scalew, flag_index, 0, VectorDouble(), tab1))
+          dbpoint, dbgrid, colid_rank, colid_time, colid_angle, colid_scaleu,
+          colid_scalev, colid_scalew, flag_index, 0, VectorDouble(), tab1))
       goto label_end;
 
     /* When sample index needed, work is over, except copying 'tab1' into 'tab2'*/
@@ -1628,8 +1623,7 @@ namespace gstlrn
 
       /* Increment the volume by one */
 
-      dbpoint->updValue(
-        dbpoint->fromUID(iatt_vol), val_iech, EOperator::ADD, 1.);
+      dbpoint->updValue(colid_vol, val_iech, EOperator::ADD, 1.);
 
       /* Loop on the neighborhood nodes */
 
@@ -1644,7 +1638,7 @@ namespace gstlrn
 
           /* The center point is located on the edge of the field */
 
-          dbpoint->setValue(dbpoint->fromUID(iatt_code), val_iech, 2.);
+          dbpoint->setValue(colid_code, val_iech, 2.);
         }
         else
         {
@@ -1654,22 +1648,20 @@ namespace gstlrn
 
           /* Increment the perimeter by one */
 
-          dbpoint->updValue(
-            dbpoint->fromUID(iatt_surf), val_iech, EOperator::ADD, 1.);
+          dbpoint->updValue(colid_surf, val_iech, EOperator::ADD, 1.);
 
           /* Set the edge */
 
-          tab2[iech] =
-            (iatt_size >= 0)
-              ? dbpoint->getValue(dbpoint->fromUID(iatt_size), val_iech)
-              : 1.;
+          tab2[iech] = (!colid_size.empty())
+                       ? dbpoint->getValue(colid_size, val_iech)
+                       : 1.;
         }
       }
     }
 
     /* If size is defined, expand the perimeter */
 
-    if (iatt_size >= 0)
+    if (!colid_size.empty())
     {
       for (Id i = 0; i < dbgrid->getNSample(); i++) tab1[i] = tab2[i];
       st_expand(flag_size, dbgrid, tab1, indg0, indg, tab2);
@@ -1688,7 +1680,7 @@ namespace gstlrn
     /* Save the array 'tab' in the Grid Db file */
 
   label_suite:
-    dbgrid->setColumn(dbgrid->fromUID(iatt_edge), tab2);
+    dbgrid->setColumn(colid_edge, tab2);
 
     /* Set the error return code */
 
@@ -1697,7 +1689,7 @@ namespace gstlrn
     /* Core deallocation */
 
   label_end:
-    if (iatt_rank >= 0) dbpoint->deleteColumn(dbpoint->fromUID(iatt_rank));
+    if (!colid_rank.empty()) dbpoint->deleteColumn(colid_rank);
     return (error);
   }
 
@@ -1824,9 +1816,8 @@ namespace gstlrn
    **
    ** \param[in]  db1        descriptor of the input Db
    ** \param[in]  db2        descriptor of the output Db
-   ** \param[in]  iatt1      Attribute in Db1 to be migrated
-   ** \param[in]  iatt2      Attribute in Db2 where the result must be stored
-   ** \param[in]  version    Version of the migration algorithm
+   ** \param[in]  colid_iatt1 Attribute in Db1 to be migrated
+   ** \param[in]  colid_iatt2 Attribute in Db2 where the result must be stored
    ** \param[in]  distType   Type of distance for calculating maximum distance
    **                        1 for L1 and 2 for L2 distance
    ** \param[in]  dmax       Array of maximum distances (optional)
@@ -1838,9 +1829,8 @@ namespace gstlrn
   Id CalcMigrate::_migrate(
     Db* db1,
     Db* db2,
-    Id iatt1,
-    Id iatt2,
-    Id version,
+    const ColID& colid_iatt1,
+    const ColID& colid_iatt2,
     Id distType,
     const VectorDouble& dmax,
     bool flag_fill,
@@ -1849,8 +1839,6 @@ namespace gstlrn
   {
     Id size = db2->getNSample();
     VectorDouble tab(size, TEST);
-    auto colid_iatt1 = db1->fromUID(iatt1, version);
-    auto colid_iatt2 = db2->fromUID(iatt2, version);
 
     if (db2->isGrid())
     {
@@ -1883,7 +1871,7 @@ namespace gstlrn
         {
           // Grid to Grid (flag_fill = FALSE)
           if (_migrateGridToGrid(
-                db1grid, db2grid, iatt1, version, distType, dmax, tab))
+                db1grid, db2grid, colid_iatt1, distType, dmax, tab))
             return 1;
         }
       }
@@ -1897,14 +1885,14 @@ namespace gstlrn
           {
             // Note that we do not benefit from the fact that db2 is a Grid
             if (_expandPointToPointBall(
-                  db1, db2grid, iatt1, version, distType, dmax, tab))
+                  db1, db2grid, colid_iatt1, distType, dmax, tab))
               return 1;
           }
           else
           {
             if (expandPointToGrid(
-                  db1, db2grid, iatt1, version, -1, -1, -1, -1, -1, 0, distType,
-                  dmax, tab))
+                  db1, db2grid, colid_iatt1, ColID(-1), ColID(-1), ColID(-1),
+                  ColID(-1), ColID(-1), 0, distType, dmax, tab))
               return 1;
           }
         }
@@ -1913,7 +1901,7 @@ namespace gstlrn
           // Point to Grid (flag_fill = FALSE)
           // flag_ball option is not considered as it does not save time
           if (_migratePointToGrid(
-                db1, db2grid, iatt1, version, distType, dmax, tab))
+                db1, db2grid, colid_iatt1, distType, dmax, tab))
             return 1;
         }
       }
@@ -1933,8 +1921,7 @@ namespace gstlrn
       else
       {
         // Grid to Point (flag_inter = FALSE)
-        if (_migrateGridToPoint(
-              db1grid, db2, iatt1, version, distType, dmax, tab))
+        if (_migrateGridToPoint(db1grid, db2, colid_iatt1, distType, dmax, tab))
           return 1;
       }
     }
@@ -1943,13 +1930,13 @@ namespace gstlrn
       // Point to Point
       if (flag_ball)
       {
-        if (_expandPointToPointBall(
-              db1, db2, iatt1, version, distType, dmax, tab))
+        if (_expandPointToPointBall(db1, db2, colid_iatt1, distType, dmax, tab))
           return 1;
       }
       else
       {
-        if (_expandPointToPoint(db1, db2, iatt1, distType, dmax, tab)) return 1;
+        if (_expandPointToPoint(db1, db2, colid_iatt1, distType, dmax, tab))
+          return 1;
       }
     }
 
@@ -1968,8 +1955,7 @@ namespace gstlrn
    **
    ** \param[in]  db_point  Descriptor of the point parameters
    ** \param[in]  db_grid   Descriptor of the grid parameters
-   ** \param[in]  iatt      Rank of the point attribute
-   ** \param[in]  version    Version of the point attribute
+   ** \param[in]  colid_iatt Column ID of the point attribute
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -1980,8 +1966,7 @@ namespace gstlrn
   Id CalcMigrate::_migratePointToGrid(
     Db* db_point,
     DbGrid* db_grid,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2007,8 +1992,7 @@ namespace gstlrn
     for (Id iech = 0; iech < db_point->getNSample(); iech++)
     {
       if (FFFF(local[iech])) continue;
-      if (FFFF(db_point->getValue(db_point->fromUID(iatt, version), iech)))
-        continue;
+      if (FFFF(db_point->getValue(colid_iatt, iech))) continue;
       Id inode = static_cast<Id>(local[iech]);
       nb_assign++;
       if (FFFF(tab[inode]))
@@ -2039,8 +2023,7 @@ namespace gstlrn
     for (Id jnode = 0; jnode < db_grid->getNSample(); jnode++)
     {
       if (FFFF(tab[jnode])) continue;
-      tab[jnode] = db_point->getValue(
-        db_point->fromUID(iatt, version), static_cast<Id>(tab[jnode]));
+      tab[jnode] = db_point->getValue(colid_iatt, static_cast<Id>(tab[jnode]));
     }
     return 0;
   }
@@ -2054,8 +2037,7 @@ namespace gstlrn
    **
    ** \param[in]  db1       Descriptor of the input parameters
    ** \param[in]  db2       Descriptor of the output parameters
-   ** \param[in]  iatt      Rank of the input attribute
-   ** \param[in]  version    Version of the migration algorithm
+   ** \param[in]  colid_iatt Column ID for the input attribute
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -2068,8 +2050,7 @@ namespace gstlrn
   Id CalcMigrate::_expandPointToPointBall(
     Db* db1,
     Db* db2,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2098,7 +2079,7 @@ namespace gstlrn
         if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
       }
 
-      tab[inode] = db1->getValue(db1->fromUID(iatt, version), iech);
+      tab[inode] = db1->getValue(colid_iatt, iech);
     }
     return 0;
   }
@@ -2112,8 +2093,7 @@ namespace gstlrn
    **
    ** \param[in]  db_gridin  descriptor of the grid parameters
    ** \param[in]  db_gridout descriptor of the point parameters
-   ** \param[in]  iatt       rank of the grid attribute
-   ** \param[in]  version    Version of the migration algorithm
+   ** \param[in]  colid_iatt Column ID for the grid attribute
    ** \param[in]  distType   Type of distance for calculating maximum distance
    **                        1 for L1 and 2 for L2 distance
    ** \param[in]  dmax       Array of maximum distances (optional)
@@ -2124,8 +2104,7 @@ namespace gstlrn
   Id CalcMigrate::_migrateGridToGrid(
     DbGrid* db_gridin,
     DbGrid* db_gridout,
-    Id iatt,
-    Id version,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2147,10 +2126,10 @@ namespace gstlrn
 
     /* Loop on the input grid nodes */
 
-    for (Id iech = 0; iech < db_gridin->getNSample(); iech++)
+    auto nech = db_gridin->getNSamples();
+    for (Id iech = 0; iech < nech; iech++)
     {
-      double value =
-        db_gridin->getValue(db_gridin->fromUID(iatt, version), iech);
+      double value = db_gridin->getValue(colid_iatt, iech);
       if (FFFF(value)) continue;
 
       /* Get the coordinates of the node from the input grid node */
@@ -2180,7 +2159,7 @@ namespace gstlrn
    **
    ** \param[in]  db1       descriptor of the input parameters
    ** \param[in]  db2       descriptor of the output parameters
-   ** \param[in]  iatt      rank of the input attribute
+   ** \param[in]  colid_iatt  Column ID of the input attribute
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)
@@ -2195,7 +2174,7 @@ namespace gstlrn
   Id CalcMigrate::_expandPointToPoint(
     Db* db1,
     Db* db2,
-    Id iatt,
+    const ColID& colid_iatt,
     Id distType,
     const VectorDouble& dmax,
     VectorDouble& tab)
@@ -2210,7 +2189,8 @@ namespace gstlrn
 
     /* Loop on the output structure */
 
-    for (Id iech2 = 0; iech2 < db2->getNSample(); iech2++)
+    auto nech2 = db2->getNSample();
+    for (Id iech2 = 0; iech2 < nech2; iech2++)
     {
       if (!db2->isActive(iech2)) continue;
 
@@ -2229,7 +2209,7 @@ namespace gstlrn
           iechmin = iech1;
         }
       }
-      if (iechmin >= 0) tab[iech2] = db1->getValue(db1->fromUID(iatt), iechmin);
+      if (iechmin >= 0) tab[iech2] = db1->getValue(colid_iatt, iechmin);
     }
     return 0;
   }
@@ -2313,7 +2293,6 @@ namespace gstlrn
    ** \param[in]  db_grid   descriptor of the grid parameters
    ** \param[in]  db_point  descriptor of the point parameters
    ** \param[in]  colid_iatt Column identification of the grid attribute
-   ** \param[in]  version   Version of the migration algorithm
    ** \param[in]  distType  Type of distance for calculating maximum distance
    **                       1 for L1 and 2 for L2 distance
    ** \param[in]  dmax      Array of maximum distances (optional)

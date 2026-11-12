@@ -307,8 +307,8 @@ namespace gstlrn
 
   Id Db::_findUIDInLocator(const ELoc& locatorType, Id iuid) const
   {
-    auto colIDs = _data.getColIDs(toERole(locatorType));
-    for (const auto& colID: colIDs)
+    auto colids = _data.getColIDs(toERole(locatorType));
+    for (const auto& colID: colids)
     {
       if (getUID(colID.getICol()) == iuid) return colID.getIndex();
     }
@@ -364,7 +364,7 @@ namespace gstlrn
   {
     VectorInt iuids = _ids(name, true);
     if (iuids.empty()) return false;
-    auto icol = getColIdx(fromUID(iuids[0]));
+    auto icol = getColumnIndex(fromUID(iuids[0]));
     if (icol < 0) return false;
     ELoc ret_locatorType;
     Id ret_locatorIndex;
@@ -471,7 +471,7 @@ namespace gstlrn
   void
     Db::setArrayVec(const VectorInt& iechs, Id iuid, const VectorDouble& values)
   {
-    auto icol = getColIdx(fromUID(iuid));
+    auto icol = getColumnIndex(fromUID(iuid));
     if (!isColIdxValid(icol)) return;
     for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
       _data.setValue(icol, iechs[i], values[i]);
@@ -543,7 +543,7 @@ namespace gstlrn
   void
     Db::getArrayVec(const VectorInt& iechs, Id iuid, VectorDouble& values) const
   {
-    auto icol = getColIdx(fromUID(iuid));
+    auto icol = getColumnIndex(fromUID(iuid));
     if (!isColIdxValid(icol)) return;
     for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
     {
@@ -799,7 +799,7 @@ namespace gstlrn
     Id ndim = MIN(nsize, getNDim());
     for (Id idim = 0; idim < ndim; idim++)
     {
-      auto icol = getColIdx(RoleID(ERole::X, idim));
+      auto icol = getColumnIndex(RoleID(ERole::X, idim));
       if (icol < 0) continue;
       coor[idim] = *_data.getValue<double>(icol, iech);
     }
@@ -950,14 +950,14 @@ namespace gstlrn
   void Db::setCoordinate(Id iech, Id idim, double value)
   {
     if (!isSampleIndexValid(iech)) return;
-    auto icol = getColIdx(RoleID(ERole::X, idim));
+    auto icol = getColumnIndex(RoleID(ERole::X, idim));
     if (!isColIdxValid(icol)) return;
     _data.setValue(icol, iech, value);
   }
 
   void Db::setCoordinates(Id idim, const VectorDouble& coor, bool useSel)
   {
-    auto icol = getColIdx(RoleID(ERole::X, idim));
+    auto icol = getColumnIndex(RoleID(ERole::X, idim));
     if (!isColIdxValid(icol)) return;
     setColumn(icol, coor, useSel);
   }
@@ -979,7 +979,7 @@ namespace gstlrn
 
   const double* Db::getColumnPtrUnprotected(const ColID& colid) const
   {
-    auto icol = getColIdx(colid);
+    auto icol = getColumnIndex(colid);
     if (!isColIdxValid(icol)) return nullptr;
     return _data.getColumn<VectorDouble>(icol).data();
   }
@@ -2371,7 +2371,7 @@ namespace gstlrn
       // p_out.setLocatorByIndex(n_out + i_in, p_in.getLocatorByIndex(i_in));
 
       // Correction for the Temporary Locator
-      auto icol = getColIdx(RoleID(toERole(locatorType_in), i_in));
+      auto icol = getColumnIndex(RoleID(toERole(locatorType_in), i_in));
       auto role = toERole(locatorType_out);
       _data.setRoleID(icol, RoleID(role, n_out + i_in));
     }
@@ -2842,7 +2842,7 @@ namespace gstlrn
     VectorDouble tab(nech);
 
     if (useSel) sel = getSelections();
-    if (hasLocator(ELoc::W)) icol = getColIdx(ERole::W);
+    if (hasLocator(ELoc::W)) icol = getColumnIndex(ERole::W);
 
     Id ecr = 0;
     for (Id iech = 0; iech < nech; iech++)
@@ -2917,6 +2917,11 @@ namespace gstlrn
     return ColID(roleid, isimu);
   }
 
+  ColID Db::getColID(const ColID& colid) const
+  {
+    return _data.getColID(colid);
+  }
+
   bool Db::isActive(Id iech) const
   {
     return (getSelection(iech) != 0 && isActiveDomain(iech));
@@ -2954,7 +2959,7 @@ namespace gstlrn
    */
   Id Db::getLastUID() const
   {
-    return getColIdx(fromUID(_getNUIDMax() - 1));
+    return getColumnIndex(fromUID(_getNUIDMax() - 1));
   }
 
   String Db::getLastName(Id number) const
@@ -2984,6 +2989,11 @@ namespace gstlrn
   {
     ColID colid_copy = colid;
     return _data.getName(std::move(colid_copy), withVersion);
+  }
+
+  std::vector<ColID> Db::getColIDs(const MultID& multid) const
+  {
+    return _data.getColumnIndices(multid);
   }
 
   /**
@@ -3270,7 +3280,7 @@ namespace gstlrn
     if (cols.empty())
     {
       VectorInt iuids = _ids(dsf.getNames(), false);
-      if (!iuids.empty()) cols = getColIdxs(fromUIDs(iuids));
+      if (!iuids.empty()) cols = getColumnIndices(fromUIDs(iuids));
     }
 
     /* Print the Extension */
@@ -3322,7 +3332,7 @@ namespace gstlrn
     VectorDouble tab;
 
     if (!hasLocator(ELoc::SEL)) return tab;
-    auto icol = getColIdx(ERole::SEL);
+    auto icol = getColumnIndex(ERole::SEL);
     if (!isColIdxValid(icol)) return tab;
 
     tab.resize(nech);
@@ -3622,7 +3632,7 @@ namespace gstlrn
 
     // Create the column index for the selection (only if 'useSel')
     Id icol = -1;
-    if (useSel) icol = getColIdx(ERole::SEL);
+    if (useSel) icol = getColumnIndex(ERole::SEL);
 
     // Update the search for variable, if no variable is defined
     if (getNLoc(ELoc::Z) <= 0) ivar = -1;
@@ -3634,7 +3644,7 @@ namespace gstlrn
     bool useV = false;
     if (useVerr && ivar >= 0)
     {
-      if (getColIdx(RoleID(ERole::V, ivar)) >= 0) useV = true;
+      if (getColumnIndex(RoleID(ERole::V, ivar)) >= 0) useV = true;
     }
 
     // Constitute the resulting vector of selected sample ranks
@@ -4042,13 +4052,13 @@ namespace gstlrn
    * @param colid Column identifier
    * @return Id Returned Column index
    */
-  Id Db::getColIdx(const ColID& colid) const
+  Id Db::getColumnIndex(const ColID& colid) const
   {
     ColID colid_copy = colid;
     return _data.getICol(std::move(colid_copy));
   }
 
-  VectorInt Db::getColIdxs(const MultID& multid) const
+  VectorInt Db::getColumnIndices(const MultID& multid) const
   {
     auto colids = _data.getColumnIndices(multid);
     VectorInt icols;
@@ -4074,10 +4084,10 @@ namespace gstlrn
     if (names.empty()) return VectorInt();
 
     VectorInt iuids;
-    auto colIDs = _data.getColIDs(names);
-    for (size_t i = 0; i < colIDs.size(); i++)
+    auto colids = _data.getColIDs(names);
+    for (size_t i = 0; i < colids.size(); i++)
     {
-      auto icol = colIDs[i].getICol();
+      auto icol = colids[i].getICol();
       if (icol < 0) continue;
       auto iuid = getUID(icol);
       if (iuid < 0) continue;
@@ -4812,7 +4822,7 @@ namespace gstlrn
     VectorDouble values(nech);
     for (Id icol = 0, ncol = static_cast<Id>(names.size()); icol < ncol; icol++)
     {
-      Id jcol = db->getColIdx(names[icol]);
+      Id jcol = db->getColumnIndex(names[icol]);
       for (Id iech = 0; iech < nech; iech++)
         values[iech] = db->getValue(jcol, ranks[iech]);
       setColumn(icol + shift, values);
@@ -5567,8 +5577,8 @@ namespace gstlrn
 
   void Db::copyByUID(Id iuidIn, Id iuidOut, Id versionIn, Id versionOut)
   {
-    auto icolIn = getColIdx(fromUID(iuidIn));
-    auto icolOut = getColIdx(fromUID(iuidOut));
+    auto icolIn = getColumnIndex(fromUID(iuidIn));
+    auto icolOut = getColumnIndex(fromUID(iuidOut));
     copyByCol(icolIn, icolOut, versionIn, versionOut);
   }
 
@@ -5590,8 +5600,8 @@ namespace gstlrn
     Id versionIn,
     Id versionOut)
   {
-    auto icolIn = getColIdx(nameIn);
-    auto icolOut = getColIdx(nameOut);
+    auto icolIn = getColumnIndex(nameIn);
+    auto icolOut = getColumnIndex(nameOut);
     copyByCol(icolIn, icolOut, versionIn, versionOut);
   }
 

@@ -240,7 +240,7 @@ namespace gstlrn
     const String& name,
     const NamingConvention& namconv) const
   {
-    auto colid_iatt = ColID(name);
+    auto colid_iatt = db->getColID(name);
     return _computeCategory(
       db, colid_iatt, getLowerBounds(), getUpperBounds(), getLowerIncluded(),
       getUpperIncluded(), namconv);
@@ -276,7 +276,7 @@ namespace gstlrn
     bool flagAbove,
     const NamingConvention& namconv) const
   {
-    auto colid_iatt = ColID(name);
+    auto colid_iatt = db->getColID(name);
     return _computeIndicator(
       db, colid_iatt, OptionIndicator, getLowerBounds(), getUpperBounds(),
       getLowerIncluded(), getUpperIncluded(), flagBelow, flagAbove, namconv);

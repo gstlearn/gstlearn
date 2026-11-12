@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
     // Next display gives the status right after the creation
     db->display();
     // Clearly the column named "toto" is located in position 5 (0-based)
-    auto icol = db->getColIdx("toto");
+    auto icol = db->getColumnIndex("toto");
     message("Variable 'toto' is located in Column %d (0-based)\n", icol);
     // We now delete the column named 'f'
     db->deleteColumn("f");
