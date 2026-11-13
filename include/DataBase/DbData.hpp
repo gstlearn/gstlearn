@@ -98,11 +98,11 @@ namespace gstlrn
     const VectorType& getColumn(ColID&& colid) const;
 
     template<typename VectorType>
-    std::span<typename VectorType::value_type>
+    span<typename VectorType::value_type>
       getVersion(ColID&& colid, Id version = 0);
 
     template<typename VectorType>
-    std::span<const typename VectorType::value_type>
+    span<const typename VectorType::value_type>
       getVersion(ColID&& colid, Id version = 0) const;
 
     template<typename VectorType>
@@ -305,7 +305,7 @@ namespace gstlrn
     {
       if (_mode == SliceMode::ALL_SAMPLES_SINGLE_VERSION)
       {
-        std::span<const double> span =
+        span<const double> span =
           _db.getVersion<VectorType>(ColID(_colid), _targetIdx);
         return VectorType(span.begin(), span.end());
       }
@@ -766,7 +766,7 @@ namespace gstlrn
   }
 
   template<typename VectorType>
-  std::span<typename VectorType::value_type>
+  span<typename VectorType::value_type>
     DbData::getVersion(ColID&& colid, Id version)
   {
     auto col = _identifyColumn(std::move(colid));
@@ -779,7 +779,7 @@ namespace gstlrn
   }
 
   template<typename VectorType>
-  std::span<const typename VectorType::value_type>
+  span<const typename VectorType::value_type>
     DbData::getVersion(ColID&& colid, Id version) const
   {
     auto col = _identifyColumn(std::move(colid));
@@ -829,6 +829,7 @@ namespace gstlrn
     }
     else
     {
+      DECLARE_UNUSED(dict)
       const auto actual =
         value.value_or(getNA<typename VectorType::value_type>());
 
