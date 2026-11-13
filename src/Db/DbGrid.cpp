@@ -1827,9 +1827,9 @@ namespace gstlrn
       VectorString(), VectorString(), 1, flagAddCoordinates);
 
     // Add the variables of interest
-    VectorInt iuidOut(nvar);
+    ColIDs colids_out(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      iuidOut[ivar] = gridOut->addColumnsByConstant(1, 1, TEST, names[ivar]);
+      colids_out[ivar] = gridOut->addOneColumn(names[ivar], TEST);
 
     // Loop on the nodes of the output sub-grid
     VectorInt indg(ndim);
@@ -1850,7 +1850,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         value = gridIn->getValue(gridIn->fromUID(iuidIn[ivar]), igin);
-        gridOut->setValue(gridOut->fromUID(iuidOut[ivar]), igout, value);
+        gridOut->setValue(colids_out[ivar], igout, value);
       }
     }
     return gridOut;
@@ -1957,9 +1957,9 @@ namespace gstlrn
       VectorString(), VectorString(), 1, false);
 
     // Create the variables in the 3D grid and identify their UIDs
+    ColIDs colids_out(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      grid3Dout->addColumnsByConstant(1, 1, TEST, names[ivar]);
-    VectorInt iuids = grid3Dout->getUIDs(names);
+      colids_out[ivar] = grid3Dout->addOneColumn(names[ivar], TEST);
 
     // Define local variables
     Id iuidTop = surf2D->getUID(nameTop);
@@ -1994,13 +1994,15 @@ namespace gstlrn
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           // Read the pile from the 3D input grid
-          grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
+          grid3Din->getGridPileInPlace(
+            colids_out[ivar].getUID(), indg, idim0, vecin);
 
           // Perform the squeeze-and-stretch forward operation
           VH::squeezeAndStretchInPlaceForward(vecin, vecout, z0, dz, top, bot);
 
           // Write the resulting pile in the output 3D grid
-          grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
+          grid3Dout->setGridPileInPlace(
+            colids_out[ivar].getUID(), indg, idim0, vecout);
         }
       }
     return grid3Dout;
@@ -2097,9 +2099,9 @@ namespace gstlrn
       VectorString(), VectorString(), 1, false);
 
     // Create the variables in the 3D grid and identify their UIDs
+    ColIDs colids_out(nvar);
     for (Id ivar = 0; ivar < nvar; ivar++)
-      grid3Dout->addColumnsByConstant(1, 1, TEST, names[ivar]);
-    VectorInt iuids = grid3Dout->getUIDs(names);
+      colids_out[ivar] = grid3Dout->addOneColumn(names[ivar], TEST);
 
     // Define local variables
     Id iuidTop = surf2D->getUID(nameTop);
@@ -2131,14 +2133,16 @@ namespace gstlrn
         for (Id ivar = 0; ivar < nvar; ivar++)
         {
           // Read the pile from the 3D input grid
-          grid3Din->getGridPileInPlace(iuids[ivar], indg, idim0, vecin);
+          grid3Din->getGridPileInPlace(
+            colids_out[ivar].getUID(), indg, idim0, vecin);
 
           // Perform the squeeze-and-stretch operation backwards
           VH::squeezeAndStretchInPlaceBackward(
             vecin, vecout, z0out, dzout, top, bot);
 
           // Write the resulting pile in the output 3D grid
-          grid3Dout->setGridPileInPlace(iuids[ivar], indg, idim0, vecout);
+          grid3Dout->setGridPileInPlace(
+            colids_out[ivar].getUID(), indg, idim0, vecout);
         }
       }
     return grid3Dout;
@@ -2235,34 +2239,32 @@ namespace gstlrn
    * but not correctly ordered.
    * This is the reason why this method cannot be 'const'
    */
-  Id DbGrid::setSelectionFromVariableExtend(
+  void DbGrid::setSelectionFromVariableExtend(
     const String& nameTop,
     const String& nameBot)
   {
-    // Create the selection new variable
-    Id iuidSel = addColumnsByConstant(1, 1, 1, "SelLayer", ELoc::SEL);
+    if (nameTop.empty() || nameBot.empty()) return;
 
-    if (nameTop.empty() || nameBot.empty()) return -1;
+    // Create the selection new variable
+    auto colid_sel = addOneColumn("SelLayer", 1.0);
+    auto colid_top = getColID(nameTop);
+    auto colid_bot = getColID(nameBot);
 
     // Find the set of Min and Max indices of the subgrid
 
     auto nech = getNSample(true);
-    Id iuid_top = getUID(nameTop);
-    Id iuid_bot = getUID(nameBot);
-
     for (Id iech = 0; iech < nech; iech++)
     {
       // Discard not relevant pixels
       if (!isActive(iech)) continue;
-      double top = getValue(fromUID(iuid_top), iech);
-      double bot = getValue(fromUID(iuid_bot), iech);
+      double top = getValue(colid_top, iech);
+      double bot = getValue(colid_bot, iech);
       if (FFFF(top) || FFFF(bot) || bot > top)
       {
-        setValue(fromUID(iuidSel), iech, 0);
+        setValue(colid_sel, iech, 0);
         continue;
       }
     }
-    return iuidSel;
   }
 
   /**
@@ -2490,19 +2492,20 @@ namespace gstlrn
     auto nech = getNSample();
 
     VectorString names = db->getNames(0);
-    Id iuid = addColumnsByConstant(1, 1);
-    if (dbStatisticsInGridTool(db, this, names, EStatOption::NUM, radius, iuid))
+    auto colid = addOneColumn(String(), 0.);
+    if (dbStatisticsInGridTool(
+          db, this, names, EStatOption::NUM, radius, colid.getUID()))
       return 1;
-    VectorDouble stats = getColumn(fromUID(iuid), false, false);
+    VectorDouble stats = getColumn(colid, false, false);
     for (Id iech = 0; iech < nech; iech++)
       stats[iech] = (stats[iech] <= nmin) ? 0. : 1.;
-    setColumn(fromUID(iuid), stats, false);
-    setLocator(fromUID(iuid), ELoc::Z, 0, true);
+    setColumn(colid, stats, false);
+    setLocator(colid, ELoc::Z, 0, true);
 
     Id err = morpho(
       EMorpho::DILATION, 0.5, 1.5, option, dilation, false, verbose, namconv);
 
-    deleteColumn(fromUID(iuid));
+    deleteColumn(colid);
     return err;
   }
 

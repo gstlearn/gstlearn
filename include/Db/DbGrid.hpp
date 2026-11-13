@@ -457,7 +457,7 @@ namespace gstlrn
       const String& nameTop,
       const String& nameBot,
       const VectorInt& dimExclude = VectorInt()) const;
-    Id setSelectionFromVariableExtend(
+    void setSelectionFromVariableExtend(
       const String& nameTop,
       const String& nameBot);
     void clean3DFromSurfaces(

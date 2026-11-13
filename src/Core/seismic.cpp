@@ -2765,8 +2765,8 @@ namespace gstlrn
     const MatrixDense& wgt,
     const MatrixDense& rhs,
     const VectorDouble& var0,
-    const std::vector<ColID>& colid_est,
-    const std::vector<ColID>& colid_std)
+    const ColIDs& colid_est,
+    const ColIDs& colid_std)
   {
     Id i, ivar, jvar, nech, lec;
     double result, value, stdev;
@@ -3001,8 +3001,8 @@ namespace gstlrn
     VectorInt flag;
     VectorInt rank;
     VectorVectorInt presence(2);
-    std::vector<ColID> colid_est(2, ColID(-1));
-    std::vector<ColID> colid_std(2, ColID(-1));
+    ColIDs colid_est(2, ColID(-1));
+    ColIDs colid_std(2, ColID(-1));
 
     /* Initializations */
 

@@ -1308,8 +1308,8 @@ namespace gstlrn
    * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
    * @remark of samples provided in 'tab' must match the number of active samples.
    * @remark The dimensioning elements are (sorted by decreasing degree of confidence);
-   * @remark - the number of (active) samples in the Db (if it is not empty)
-   * @remark - the number of samples provided in 'tab' (if it is not empty)
+   * @remark - the number of (active) samples in the Db (if not empty)
+   * @remark - the number of samples provided in 'tab' (if not empty)
    * @remark - the number of versions ('nversion') provided in the argument
    * @remark - the number of variables ('nvar') provided in the argument
    */
@@ -1522,15 +1522,15 @@ namespace gstlrn
     Id locatorIndex,
     bool cleanSameLocator)
   {
-    VectorInt iuids_in = _ids(nameIn, true);
-    if (iuids_in.empty()) return;
-    Id iuid_out = addColumnsByConstant(1, 1, 0., nameOut);
+    auto colid_in = getColID(nameIn);
+    if (colid_in.empty()) return;
+    auto colid_out = addOneColumn(nameOut, 0.);
+    if (colid_out.empty()) return;
 
-    duplicateColumnByUID(iuids_in[0], iuid_out, versionIn);
+    if (cleanSameLocator) clearLocators(locatorType);
+    duplicateColumnByUID(colid_in.getUID(), colid_out.getUID(), versionIn);
 
-    if (locatorType.isDifferent(ELoc::UNDEFINED))
-      setLocator(
-        fromUID(iuid_out), locatorType, locatorIndex, cleanSameLocator);
+    setLocator(colid_out, locatorType, locatorIndex);
   }
 
   void Db::deleteColumn(const ColID& colid)
@@ -2991,7 +2991,7 @@ namespace gstlrn
     return _data.getName(std::move(colid_copy), withVersion);
   }
 
-  std::vector<ColID> Db::getColIDs(const MultID& multid) const
+  ColIDs Db::getColIDs(const MultID& multid) const
   {
     return _data.getColumnIndices(multid);
   }
@@ -3921,7 +3921,7 @@ namespace gstlrn
       {
         // sublist is empty: the variable must be created
 
-        (void)addColumnsByConstant(1, 1, TEST, colnames[i]);
+        (void)addOneColumn(colnames[i], TEST);
         exp_names.push_back(colnames[i]);
       }
       else

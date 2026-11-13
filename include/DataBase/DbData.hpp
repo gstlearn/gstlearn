@@ -137,9 +137,9 @@ namespace gstlrn
     void removeAllRoles();
     ColID fromUID(Id iuid, Id version = 0) const;
     MultID fromUIDs(const VectorInt& iuids) const;
-    std::vector<ColID> getColIDs(const String& name) const;
-    std::vector<ColID> getColIDs(const VectorString& name) const;
-    std::vector<ColID> getColIDs(const ERole& role) const;
+    ColIDs getColIDs(const String& name) const;
+    ColIDs getColIDs(const VectorString& name) const;
+    ColIDs getColIDs(const ERole& role) const;
 
     Id getNColumns() const { return static_cast<Id>(_cols.size()); }
 
@@ -163,7 +163,7 @@ namespace gstlrn
     String summaryRoles(void) const;
 
     bool isValidColumn(Id icol) const;
-    std::vector<ColID> getColumnIndices(const MultID& multid) const;
+    ColIDs getColumnIndices(const MultID& multid) const;
 
   private:
     std::optional<std::reference_wrapper<DbCol>> _identifyColumn(ColID&& colid);

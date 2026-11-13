@@ -19,6 +19,14 @@ namespace gstlrn
   {
   }
 
+  ColID::ColID()
+    : _icol(-1)
+    , _name()
+    , _roleID()
+    , _version(0)
+  {
+  }
+
   ColID::ColID(const std::string_view name, Id version)
     : _icol(-1)
     , _name(name)

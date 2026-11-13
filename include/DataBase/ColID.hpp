@@ -51,6 +51,7 @@ namespace gstlrn
   class GSTLEARN_EXPORT ColID: public AStringable
   {
   public:
+    ColID();
     ColID(const std::string& name, Id version = 0);
     ColID(const std::string_view name, Id version = 0);
     ColID(Id icol, Id version = 0);
@@ -87,9 +88,7 @@ namespace gstlrn
 
     bool hasRoleDefined() const;
 
-    Id getUniqueIndex() const { return _uid; }
-
-    void setUniqueIndex(Id uid) { _uid = uid; }
+    Id getUID() const { return _uid; }
 
     bool empty() const;
 
@@ -126,5 +125,7 @@ namespace gstlrn
     friend class DbData;
     friend class Db;
   };
+
+  using ColIDs = std::vector<ColID>;
 
 } // namespace gstlrn

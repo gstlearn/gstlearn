@@ -1373,12 +1373,12 @@ namespace gstlrn
 
     /* Create the new variable in the Data base */
 
-    Id iptr = db->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
+    auto colid = db->addOneColumn("Simu", 0.0);
 
     SimuSpherical simsphe(1, seed);
-    if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
+    if (simsphe.simulate(db, model, sphepar, colid.getUID(), verbose)) return 1;
 
-    namconv.setOutput(VectorString(), 1, db, iptr, "Simu");
+    namconv.setOneColumn(db, colid, "", "Simu");
     return 0;
   }
 

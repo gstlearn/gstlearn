@@ -72,13 +72,13 @@ int main(int argc, char* argv[])
   DbGrid* db = DbGrid::create({nx, nx}, {1., 1.});
   if (!FFFF(bound))
   {
-    db->addColumnsByConstant(1, 1, -bound, "Lower", ELoc::L);
-    db->addColumnsByConstant(1, 1, +bound, "Upper", ELoc::U);
+    db->addOneColumn("Lower", -bound, ERole::L);
+    db->addOneColumn("Upper", +bound, ERole::U);
   }
   else
   {
-    db->addColumnsByConstant(1, 1, TEST, "Lower", ELoc::L);
-    db->addColumnsByConstant(1, 1, TEST, "Upper", ELoc::U);
+    db->addOneColumn("Lower", TEST, ERole::L);
+    db->addOneColumn("Upper", TEST, ERole::U);
   }
   iptr = db->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
   if (iptr < 0) return 1;

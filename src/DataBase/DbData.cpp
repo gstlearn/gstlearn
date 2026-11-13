@@ -223,6 +223,7 @@ namespace gstlrn
     colIDout._setName(_cols[*icol].getName());
     colIDout._setRoleID(_roleIDs[*icol]);
     colIDout._setVersion(colid.getVersion());
+    colIDout._setUID(_cols[*icol].getUniqueIndex());
     return colIDout;
   }
 
@@ -302,15 +303,15 @@ namespace gstlrn
    * @brief Return a set of Column Identifiers starting from a Column Name
    *
    * @param name Column Name (with regexp facility)
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const String& name) const
+  ColIDs DbData::getColIDs(const String& name) const
   {
     // Looking for matching names
     VectorString matchNames = expandList(getNames(), name);
 
     // Loop to create the list of Column Identifiers
-    std::vector<ColID> colids;
+    ColIDs colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
@@ -323,12 +324,12 @@ namespace gstlrn
    * @brief Return a set of Column Identifiers starting from a set of Column Names
    *
    * @param names Column Names (with regexp facility)
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const VectorString& names) const
+  ColIDs DbData::getColIDs(const VectorString& names) const
   {
     VectorString matchNames = expandList(getNames(), names);
-    std::vector<ColID> colids;
+    ColIDs colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
@@ -341,11 +342,11 @@ namespace gstlrn
    * @brief Returns a set of Column Identifiers matching a given Role
    *
    * @param role Target Role to be searched
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const ERole& role) const
+  ColIDs DbData::getColIDs(const ERole& role) const
   {
-    std::vector<ColID> colids;
+    ColIDs colids;
     for (const auto& id: this->_roleIDs)
     {
       if (id.getRole().isEqual(role))
@@ -412,7 +413,7 @@ namespace gstlrn
    */
   void DbData::clearRole(const ERole& role)
   {
-    std::vector<ColID> colids = getColIDs(role);
+    ColIDs colids = getColIDs(role);
     for (const auto& colID: colids) _roleIDs[colID.getICol()].removeRole();
   }
 
@@ -806,7 +807,7 @@ namespace gstlrn
    */
   Id DbData::_checkUID(const ColID& colid, Id icol0, bool verbose) const
   {
-    auto uidCol = colid.getUniqueIndex();
+    auto uidCol = colid.getUID();
     auto ncol = getNColumns();
     bool validColIndex = (icol0 >= 0 && icol0 < ncol);
 
@@ -885,7 +886,7 @@ namespace gstlrn
    * (as long as duplicate column references are suppressed).
    * - the invalid column references are ignored
    */
-  std::vector<ColID> DbData::getColumnIndices(const MultID& multid) const
+  ColIDs DbData::getColumnIndices(const MultID& multid) const
   {
     auto ncols = getNColumns();
     VectorInt found;
@@ -953,7 +954,7 @@ namespace gstlrn
     }
 
     // Create the list of ColIDs corresponding to the found columns
-    std::vector<ColID> colids;
+    ColIDs colids;
     colids.reserve(found.size());
     for (Id icol: found)
     {

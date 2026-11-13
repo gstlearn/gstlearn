@@ -926,10 +926,10 @@ namespace gstlrn
 
     // Create the new variable and duplicate the Z-locator variable
 
-    Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, 0));
-    Id iatt_out = dbgrid->addColumnsByConstant(1, 1);
-    dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
-    dbgrid->setLocator(dbgrid->fromUID(iatt_out), ELoc::Z, 0);
+    auto colid_in = dbgrid->getColID(ERole::Z);
+    ColID colid_out = dbgrid->addOneColumn(String(), 0.);
+    dbgrid->duplicateColumnByUID(colid_in.getUID(), colid_out.getUID());
+    dbgrid->setLocator(colid_out, ELoc::Z, 0);
 
     /* Global variables */
 
@@ -984,8 +984,8 @@ namespace gstlrn
     /* Set the error return code */
 
     error = 0;
-    namconv.setOutput(
-      dbgrid->getNames(dbgrid->fromUIDs({iatt_in})), 0, dbgrid, iatt_out);
+
+    namconv.setOneColumn(dbgrid, colid_out, "", colid_in.getName());
 
   label_end:
     delete skin;

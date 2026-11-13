@@ -3771,7 +3771,7 @@ namespace gstlrn
     const ColID& colid_iptr)
   {
     // TODO: next line should be deleted when passing ColID to setKrigOptDataWeight()
-    auto iuid = colid_iptr.getUniqueIndex();
+    auto iuid = colid_iptr.getUID();
     KrigOpt krigopt;
     krigopt.setOptionCalcul(EKrigOpt::DRIFT);
     KrigingSystem ksys(db, db, model, neigh, krigopt);
@@ -3831,7 +3831,7 @@ namespace gstlrn
     /* Setting options */
 
     // TODO: next line should be deleted when passing ColID to setKrigOptDataWeight()
-    auto iuid = colid_iptr.getUniqueIndex();
+    auto iuid = colid_iptr.getUID();
     KrigOpt krigopt;
     krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndiscs);
     KrigingSystem ksys(db, dbgrid, model, neigh, krigopt);
