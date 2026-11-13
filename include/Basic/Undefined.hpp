@@ -95,6 +95,7 @@ namespace gstlrn
     else
     {
       // Pour tout type non scalaire : jamais NA
+      DECLARE_UNUSED(v)
       return false;
     }
   }
