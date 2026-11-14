@@ -682,7 +682,8 @@ namespace gstlrn
 
     /* Add the attribute */
 
-    auto colid_spill = dbgrid->addOneColumn("Spill", 0., ERole::Z);
+    auto colid_spill =
+      dbgrid->addOneColumn("Spill", 0., VectorDouble(), ERole::Z);
     if (colid_spill.empty()) goto label_end;
 
     /* Core allocation */

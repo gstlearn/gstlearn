@@ -927,7 +927,7 @@ namespace gstlrn
     // Create the new variable and duplicate the Z-locator variable
 
     auto colid_in = dbgrid->getColID(ERole::Z);
-    ColID colid_out = dbgrid->addOneColumn(String(), 0.);
+    ColID colid_out = dbgrid->addOneColumn();
     dbgrid->duplicateColumnByUID(colid_in.getUID(), colid_out.getUID());
     dbgrid->setLocator(colid_out, ELoc::Z, 0);
 

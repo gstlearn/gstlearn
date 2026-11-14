@@ -68,13 +68,13 @@ int main(int argc, char* argv[])
   DbGrid* db = DbGrid::create({nx, nx}, dx);
   if (!FFFF(bound))
   {
-    db->addOneColumn("Bounds", -bound, ERole::L);
-    db->addOneColumn("Bounds", +bound, ERole::U);
+    db->addOneColumn("Bounds", -bound, VectorDouble(), ERole::L);
+    db->addOneColumn("Bounds", +bound, VectorDouble(), ERole::U);
   }
   else
   {
-    db->addOneColumn("Bounds", TEST, ERole::L);
-    db->addOneColumn("Bounds", TEST, ERole::U);
+    db->addOneColumn("Bounds", TEST, VectorDouble(), ERole::L);
+    db->addOneColumn("Bounds", TEST, VectorDouble(), ERole::U);
   }
   db->display();
 

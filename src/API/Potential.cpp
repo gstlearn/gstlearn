@@ -1336,7 +1336,7 @@ namespace gstlrn
 
     /* Add the selection */
 
-    (void)_dbExt->addOneColumn("Selection", 0., ERole::SEL);
+    (void)_dbExt->addOneColumn("Selection", 0., VectorDouble(), ERole::SEL);
 
     /* Complementary core allocation */
 
@@ -1533,7 +1533,7 @@ namespace gstlrn
    *****************************************************************************/
   void Potential::_fillDualSimulation(Id nbsimu, MatrixDense& zvals)
   {
-    auto colid = ColID(-1);
+    ColID colid;
     zvals.fill(0.);
 
     // Loop on the simulations */
@@ -2629,7 +2629,8 @@ namespace gstlrn
     _saveResultData(
       _dbtgt, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, uid_tgt_pot,
       uid_tgt_grad);
-    if (flag_tempere) (void)dbout->addOneColumn("Tempere", TEST, ERole::Z);
+    if (flag_tempere)
+      (void)dbout->addOneColumn("Tempere", TEST, VectorDouble(), ERole::Z);
 
     /* Processing the non-conditional simulation over the iso-values */
     {

@@ -259,11 +259,11 @@ namespace gstlrn
     Id ipgs,
     Id isimu) const
   {
+    ColID colid;
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr) return 1;
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
     check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
-    auto colid = ColID(-1);
 
     double t1min, t1max, t2min, t2max;
     VectorDouble y;

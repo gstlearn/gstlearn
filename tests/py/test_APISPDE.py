@@ -50,7 +50,7 @@ mesh = gl.MeshETurbo(resultDb, False)
 S = gl.ShiftOpMatrix(mesh, cova, paramDb)
 Qsimu = gl.PrecisionOp(S, cova, False)
 tab = Qsimu.simulateOne()
-resultDb.addColumns(tab, "Simu", gl.ELoc.Z)
+resultDb.addOneColumn("Simu", 0.0, tab, gl.ERole.Z)
 
 # Prepare the conditioning file (if necessary) by sampling the previous simulation
 ind = np.random.choice(resultDb.getNSampleActive(), size=100, replace=False)

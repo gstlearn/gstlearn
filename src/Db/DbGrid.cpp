@@ -2492,7 +2492,7 @@ namespace gstlrn
     auto nech = getNSample();
 
     VectorString names = db->getNames(0);
-    auto colid = addOneColumn(String(), 0.);
+    auto colid = addOneColumn(String());
     if (dbStatisticsInGridTool(
           db, this, names, EStatOption::NUM, radius, colid.getUID()))
       return 1;

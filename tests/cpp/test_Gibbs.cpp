@@ -50,26 +50,26 @@ static Id st_save(
   const VectorDouble& z)
 {
   auto nech = dbgrid->getNSample();
-  ColID colid(-1);
+  ColID colid;
 
   /* Add the terms to 'dbgrid' */
 
   if (!consmin.empty())
   {
-    colid = dbgrid->addOneColumn(String(), 0., ERole::L);
+    colid = dbgrid->addOneColumn(String(), 0., VectorDouble(), ERole::L);
     if (colid.empty()) return 1;
     for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, consmin[i]);
   }
   if (!consmax.empty())
   {
-    colid = dbgrid->addOneColumn(String(), 0., ERole::U);
+    colid = dbgrid->addOneColumn(String(), 0., VectorDouble(), ERole::U);
     if (colid.empty()) return 1;
     for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, consmax[i]);
   }
-  colid = dbgrid->addOneColumn("Color", 0);
+  colid = dbgrid->addOneColumn("Color");
   if (colid.empty()) return 1;
   for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, colors[i]);
-  colid = dbgrid->addOneColumn(String(), 0., ERole::Z);
+  colid = dbgrid->addOneColumn(String(), 0., VectorDouble(), ERole::Z);
   if (colid.empty()) return 1;
   for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, z[i]);
 

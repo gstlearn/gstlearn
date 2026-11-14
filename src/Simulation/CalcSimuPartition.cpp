@@ -102,8 +102,8 @@ namespace gstlrn
     Id iattp = dbpoint->getNColumn() - 1;
     auto colid_iattp = dbpoint->getColID(iattp);
     if (expandPointToGrid(
-          dbpoint, dbgrid, colid_iattp, ColID(-1), ColID(-1), ColID(-1),
-          ColID(-1), ColID(-1), 0, 0, VectorDouble(), simgrid))
+          dbpoint, dbgrid, colid_iattp, ColID(), ColID(), ColID(), ColID(),
+          ColID(), 0, 0, VectorDouble(), simgrid))
       return 1;
 
     /* Save the grid in dbgrid */

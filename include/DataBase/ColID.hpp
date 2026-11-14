@@ -95,6 +95,15 @@ namespace gstlrn
     void free();
 
     /**
+     * @brief Set the Version object
+     *
+     * @param version Version to be defined
+     *
+     * @remark: This method needs to be public: it is the only one.
+     */
+    void setVersion(Id version) { _version = version; }
+
+    /**
      * Factory helpers mainly intended for language bindings (SWIG).
      */
 #ifndef SWIG
@@ -111,15 +120,13 @@ namespace gstlrn
 
     void _setRoleID(const RoleID& roleID) { _roleID = roleID; }
 
-    void _setVersion(Id version) { _version = version; }
-
     void _setUID(Id uid) { _uid = uid; }
 
   private:
     Id _icol{-1};
     String _name{};
     RoleID _roleID{RoleID(ERole::UNDEFINED, 0)};
-    Id _version{0};
+    mutable Id _version{0};
     Id _uid{-1};
 
     friend class DbData;

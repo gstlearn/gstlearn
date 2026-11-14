@@ -159,7 +159,7 @@ namespace gstlrn
     const Db* dbprop = ruleprop->getDbprop();
 
     Id error = 1;
-    ColID colid_iptr = ColID(-1);
+    ColID colid_iptr;
     PropDef propdef;
     Id ngrf = rule->getNGRF();
     VectorBool flagUsed = rule->whichGRFUsed();
@@ -190,7 +190,7 @@ namespace gstlrn
     /**********************/
 
     /* Storage of the simulations in the output file */
-    colid_iptr = db->addOneColumn("Facies", 0., ERole::FACIES);
+    colid_iptr = db->addOneColumn("Facies", 0., VectorDouble(), ERole::FACIES);
     if (colid_iptr.empty()) goto label_end;
 
     /* Identify the Non conditional simulations at target points */

@@ -1602,12 +1602,12 @@ namespace gstlrn
 
     /* Allocate the new variable */
 
-    colid_perm = dbgrid->addOneColumn("perm", 0.);
+    colid_perm = dbgrid->addOneColumn("perm");
     if (!isNA(col_perm)) dbgrid->copyByUID(col_perm, colid_perm.getUID());
 
     if (flag_fluid)
     {
-      colid_fluid = dbgrid->addOneColumn("fluid", 0.);
+      colid_fluid = dbgrid->addOneColumn("fluid");
       if (!isNA(col_fluid)) dbgrid->copyByUID(col_fluid, colid_fluid.getUID());
     }
 

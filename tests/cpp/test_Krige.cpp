@@ -399,7 +399,7 @@ int main(int argc, char* argv[])
     delete grid_res;
     grid_res = grid->clone();
     tab = VH::simulateUniform(grid->getNSample(), 10., 20.);
-    grid_res->addColumns(tab, "Constraints", ELoc::SUM);
+    grid_res->addOneColumn("Constraints", 0., tab, ERole::SUM);
     krigsum(data, grid_res, model, neighU, true);
     grid_res->display(&dbfmtKriging);
   }

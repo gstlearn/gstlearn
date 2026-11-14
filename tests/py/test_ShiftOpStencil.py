@@ -11,7 +11,7 @@ seltab[middle] = 0
 flagSel = False  # TODO flagSel = True makes a read out-of-bounds
 meshref = gl.MeshETurbo(dbg, False)
 if flagSel:
-    dbg.addColumns(seltab, "sel", gl.ELoc.SEL)
+    colid = dbg.addOneColumn("sel", 0.0, seltab, gl.ERole.SEL)
     print("Pixel", middle, "has been masked off")
 
 meshsel = gl.MeshETurbo(dbg, False)

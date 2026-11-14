@@ -1064,7 +1064,7 @@ namespace gstlrn
       VectorDouble vec = dbgrid->getVecCoordinate(idim, false);
       for (Id i = 0; i < static_cast<Id>(vec.size()); i++)
         vec[i] += taille * law_uniform(-0.5, 0.5);
-      db->addColumns(vec, names[idim], ELoc::X, idim);
+      db->addOneColumn(names[idim], 0., vec, ERole::X, idim);
     }
     return db;
   }

@@ -1891,8 +1891,8 @@ namespace gstlrn
           else
           {
             if (expandPointToGrid(
-                  db1, db2grid, colid_iatt1, ColID(-1), ColID(-1), ColID(-1),
-                  ColID(-1), ColID(-1), 0, distType, dmax, tab))
+                  db1, db2grid, colid_iatt1, ColID(), ColID(), ColID(), ColID(),
+                  ColID(), 0, distType, dmax, tab))
               return 1;
           }
         }

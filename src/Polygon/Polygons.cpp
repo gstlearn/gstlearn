@@ -1020,7 +1020,7 @@ namespace gstlrn
   {
     // Adding a new variable
 
-    auto colid_iatt = db->addOneColumn(String(), 0.);
+    auto colid_iatt = db->addOneColumn();
 
     /* Loop on the samples */
 

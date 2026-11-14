@@ -31,8 +31,8 @@ gl.defineDefaultSpace(gl.ESpaceType.RN, ndim)
 x0 = [1.0, 3.0]
 dx = [2.0, 1.0]
 grid = gl.DbGrid.create([nx, ny], dx, x0)
-ipt_z1 = grid.addColumns(array1, "var1")
-ipt_z2 = grid.addColumns(array2, "var2")
+colid_z1 = grid.addOneColumn("var1", 0.0, array1)
+colid_z2 = grid.addOneColumn("var2", 0.0, array2)
 grid.setLocators(["var1", "var2"], gl.ELoc.Z)
 
 print(grid)

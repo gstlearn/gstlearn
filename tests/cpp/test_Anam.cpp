@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   VectorDouble Z(Y.size());
   for (Id i = 0; i < static_cast<Id>(Y.size()); i++)
     Z[i] = m_Z * exp(s_Z * Y[i] - 0.5 * s_Z * s_Z);
-  grid->addColumns(Z, "Z");
+  grid->addOneColumn("Z", 0., Z);
 
   // Extracting a subset
   Id np = 500;

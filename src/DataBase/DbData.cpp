@@ -217,12 +217,12 @@ namespace gstlrn
   ColID DbData::getColID(const ColID& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
-    if (!icol || !isValidColumn(*icol)) return ColID(-1);
+    if (!icol || !isValidColumn(*icol)) return ColID();
 
     ColID colIDout(*icol);
     colIDout._setName(_cols[*icol].getName());
     colIDout._setRoleID(_roleIDs[*icol]);
-    colIDout._setVersion(colid.getVersion());
+    colIDout.setVersion(colid.getVersion());
     colIDout._setUID(_cols[*icol].getUniqueIndex());
     return colIDout;
   }
@@ -248,14 +248,14 @@ namespace gstlrn
   ColID DbData::fromUID(Id iuid, Id version) const
   {
     const auto ncol = getNColumns();
-    if (ncol <= 0 || iuid < 0) return ColID(-1);
+    if (ncol <= 0 || iuid < 0) return ColID();
 
     Id jcol = _searchColumnByUID(iuid);
     if (jcol >= 0)
     {
       return ColID(jcol, version);
     }
-    return ColID(-1);
+    return ColID();
   }
 
   MultID DbData::fromUIDs(const VectorInt& iuids) const

@@ -3130,7 +3130,7 @@ namespace gstlrn
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
       colid_old = db->getColID(ERole::W);
-      colid_new = db->addOneColumn(String(), 0., ERole::W);
+      colid_new = db->addOneColumn(String(), 0., VectorDouble(), ERole::W);
       if (colid_new.empty()) return 1;
       maille = db->getCellSize();
       for (Id iech = 0; iech < db->getNSample(); iech++)

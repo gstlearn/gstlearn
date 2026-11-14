@@ -332,15 +332,6 @@ namespace gstlrn
       Id locatorIndex = 0,
       Id nversion = 1,
       bool useSel = false);
-
-    Id addColumnsRandom(
-      Id nadd,
-      Id nversion = 1,
-      const String& radix = "New",
-      const ELoc& locatorType = ELoc::fromKey("Z"),
-      Id locatorIndex = 0,
-      Id seed = 1352,
-      Id nechInit = 0);
     Id addColumns(
       const VectorDouble& tab,
       const String& radix = "New",
@@ -358,11 +349,17 @@ namespace gstlrn
       const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
       Id locatorIndex = 0,
       Id nechInit = 0);
+
     ColID addOneColumn(
       const String& name = String(),
       double valinit = 0.,
+      const VectorDouble& tab = VectorDouble(),
       const ERole& roleType = ERole::fromKey("UNDEFINED"),
       Id roleIndex = 0,
+      Id nversion = 1,
+      bool useSel = false,
+      bool flagRandom = false,
+      Id seed = 1352,
       Id nechInit = 0);
 
     Id addSelection(
@@ -980,6 +977,8 @@ namespace gstlrn
 
     Id _getNUIDMax() const { return _data.getUniqueIndexCounter(); }
 
+    VectorDouble
+      _expandUseSel(const VectorDouble& tabin, Id nversion, bool useSel) const;
     Id _getNextLocator(const ELoc& locatorType) const;
     Id _getAddress(Id iech, Id icol) const;
     void _columnInit(

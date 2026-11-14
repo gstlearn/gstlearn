@@ -1120,34 +1120,84 @@ namespace gstlrn
       setLocator(fromUID(iuid + i), locatorType, locatorIndex + i);
   }
 
+  VectorDouble
+    Db::_expandUseSel(const VectorDouble& tabin, Id nversion, bool useSel) const
+  {
+    // If useSel is not used, then simply return the input vector
+    if (!useSel) return tabin;
+
+    Id nechtot = getNSample();
+    VectorDouble tabout(nechtot * nversion);
+    VectorDouble sel = getSelections();
+
+    Id lec = 0;
+    Id ecr = 0;
+    for (Id version = 0; version < nversion; version++)
+      for (Id iech = 0; iech < nechtot; iech++)
+        tabout[ecr++] = (isOne(sel[iech])) ? tabin[lec++] : TEST;
+    return tabout;
+  }
+
   /**
    * Create a new variable in a Db and initialize its contents to a constant value
    * @param name     Name of the new variable
    * @param valinit  Value to be used for variable initialization
+   * @param tab      Vector of values to be used for variable initialization
    * @param roleType Generic Role assigned to new variables
    * @param roleIndex Role index (starting from 0)
+   * @param nversion Number of versions for the new variables (default is 1)
+   * @param useSel true if the Selection must be taken into account when using 'tab'
+   * @param flagRandom If true, the variable is initialized with random values
+   * @param seed     Seed value (used only when 'flagRandom' is true)
    * @param nechInit Number of samples (used only if the Db is initially empty)
    * @return The corresponding ColID
    *
+   * @remark Naming:
    * @remark If 'name' is not provided, the default name is set to "tempVar"
    * @remark unless a 'role' is defined (then the default name is constructed from this role)
+   *
+   * @remark Filling:
+   * @remark If 'tab' is provided, its values are used for initialization.
+   * @remark Otherwise, if 'flagRandom' is true, the variable is initialized with random values
+   * @remark Otherwise, the variable is initialized with the value 'valinit'
+   * @remark Note that when 'tab' is provided and 'useSel' is true, 'tab' is a compressed version (through selection)
+   *
+   * @remark The random values are generated using a normal distribution with mean 0 and standard deviation 1
    */
   ColID Db::addOneColumn(
     const String& name,
     double valinit,
+    const VectorDouble& tab,
     const ERole& roleType,
     Id roleIndex,
+    Id nversion,
+    bool useSel,
+    bool flagRandom,
+    Id seed,
     Id nechInit)
   {
+    // Check the number of version(s)
+    if (nversion <= 0) nversion = 1;
+
     // Check the number of samples (set using 'nechInit' for an empty Db)
     auto nech = getNSamples();
     if (nech <= 0)
     {
-      nech = nechInit;
+      // It does not make sense to consider any selection in an empty 'Db'
+      useSel = false;
+      if (!tab.empty())
+        nech = static_cast<Id>(tab.size()) / nversion;
+      else
+        nech = nechInit;
+      if (nech <= 0)
+      {
+        messerr("Db::addOneColumn: The number of samples must be positive");
+        return ColID();
+      }
       _setNSamples(nech);
     }
 
-    // Set the name
+    // Naming
     String varName = name;
     if (varName.empty())
     {
@@ -1159,8 +1209,32 @@ namespace gstlrn
     // Check the Role (if defined)
     auto roleid = RoleID(roleType, roleIndex);
 
-    // Add the Column to the Db
-    _data.addColumnEmpty<VectorDouble>(varName, nech, 1, roleid, valinit);
+    // Filling
+    if (!tab.empty())
+    {
+      if (static_cast<Id>(tab.size()) != nech * nversion)
+      {
+        messerr(
+          "Db::addOneColumn: 'tab' is provided but its dimension (%d) does not "
+          "match number of "
+          "samples (%d) x number of versions (%d)",
+          static_cast<Id>(tab.size()), nech, nversion);
+        return ColID();
+      }
+      VectorDouble tabCopy = _expandUseSel(tab, nversion, useSel);
+      _data.addColumn(varName, std::move(tabCopy), roleid, nversion);
+    }
+    else if (flagRandom)
+    {
+      law_set_random_seed(seed);
+      VectorDouble tabrnd = VH::simulateGaussian(nech);
+      _data.addColumn(varName, std::move(tabrnd), roleid, nversion);
+    }
+    else
+    {
+      _data.addColumnEmpty<VectorDouble>(
+        varName, nech, nversion, roleid, valinit);
+    }
 
     // Construct the returned ColID
     auto colid = ColID(_data.getNColumns() - 1);
@@ -1226,48 +1300,6 @@ namespace gstlrn
     // Set the locator (if defined)
     if (locatorType.isDifferent(ELoc::UNDEFINED))
       setLocatorsByUIDRange(nadd, iuid0, locatorType, locatorIndex);
-
-    return iuid0;
-  }
-
-  /**
-   * Create a set of new variables in an already existing Db and initialize
-   * their contents as a random value (from Normal distribution)
-   * @param nadd     Number of variables to be added
-   * @param nversion Number of versions for the new variables (default is 1)
-   * @param radix    Generic radix given to the newly created variables
-   * @param locatorType Generic locator assigned to new variables
-   * @param locatorIndex   Locator index (starting from 0)
-   * @param seed     Seed value
-   * @param nechInit Number of samples (used only if the Db is initially empty)
-   *
-   * @return Rank of the first UID
-   */
-  Id Db::addColumnsRandom(
-    Id nadd,
-    Id nversion,
-    const String& radix,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    Id seed,
-    Id nechInit)
-  {
-    Id ncol = getNColumn();
-    if (nadd * nversion <= 0) return (-1);
-
-    /* Case of an empty Db, define the number of samples using 'nechInit' */
-
-    auto nech = getNSamples();
-    if (nech <= 0) nech = nechInit;
-    _setNSamples(nech);
-
-    /* Dimension the array */
-    Id iuid0 = addColumnsByConstant(
-      nadd, nversion, 0., radix, locatorType, locatorIndex);
-
-    // Initialize the variables with a random value
-    law_set_random_seed(seed);
-    _columnInit(nadd, nversion, ncol, false);
 
     return iuid0;
   }
@@ -1524,7 +1556,7 @@ namespace gstlrn
   {
     auto colid_in = getColID(nameIn);
     if (colid_in.empty()) return;
-    auto colid_out = addOneColumn(nameOut, 0.);
+    auto colid_out = addOneColumn(nameOut);
     if (colid_out.empty()) return;
 
     if (cleanSameLocator) clearLocators(locatorType);

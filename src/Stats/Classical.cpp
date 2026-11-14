@@ -1884,9 +1884,9 @@ namespace gstlrn
 
     if (oper == EStatOption::MEAN || oper == EStatOption::VAR
         || oper == EStatOption::STDV)
-      colid_iptn = dbgrid->addOneColumn(String(), 0.);
+      colid_iptn = dbgrid->addOneColumn();
     if (oper == EStatOption::VAR || oper == EStatOption::STDV)
-      colid_iptm = dbgrid->addOneColumn(String(), 0.);
+      colid_iptm = dbgrid->addOneColumn();
 
     /* Core allocation */
 

@@ -83,7 +83,7 @@ namespace gstlrn
   ColID ColID::create(const ColID& colid, Id version)
   {
     ColID res(colid);
-    if (version != 0) res._setVersion(version);
+    if (version != 0) res.setVersion(version);
     return res;
   }
 #endif

@@ -15,8 +15,8 @@ np.random.seed(124)
 ndat = 10000
 coords = np.random.uniform(1, 99, size=(ndat, 2))
 dat = gl.Db()
-dat.addColumns(coords[:, 0], "X", gl.ELoc.X, 0)
-dat.addColumns(coords[:, 1], "Y", gl.ELoc.X, 1)
+colid = dat.addOneColumn("X", 0.0, coords[:, 0], gl.ERole.X, 0)
+colid = dat.addOneColumn("Y", 0.0, coords[:, 1], gl.ERole.X, 1)
 
 # Create the model
 

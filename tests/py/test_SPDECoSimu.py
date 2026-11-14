@@ -125,7 +125,7 @@ for i in range(nbsimu):
     for j in range(nvar):
         gl.VH.extractInPlace(resultMatH, local, j * ntarget)
         name = gl.NC.getNameEncoded("HF.Data", None, j + 1, nvar, i + 1, nbsimu)
-        iuid = grid.addColumns(local, name)
+        colid = grid.addOneColumn(name, 0.0, local)
 
 
 gl.dbStatisticsMono(grid, ["HF*"]).display()

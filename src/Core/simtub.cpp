@@ -876,10 +876,7 @@ namespace gstlrn
     double tpois, seuil;
     Id niter, nleft, icov, last;
     static double seuil_ref = 5.;
-    ColID colid_iptrv = ColID(-1);
-    ColID colid_iptrg = ColID(-1);
-    ColID colid_iptrs = ColID(-1);
-    ColID colid_iptrr = ColID(-1);
+    ColID colid_iptrv, colid_iptrg, colid_iptrs, colid_iptrr;
 
     /* Initializations */
 
@@ -903,13 +900,14 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    colid_iptrv = dbout->addOneColumn("v", 0.);
+    colid_iptrv = dbout->addOneColumn("v");
     if (colid_iptrv.empty()) goto label_end;
-    colid_iptrr = dbout->addOneColumn("r", 0.);
+    colid_iptrr = dbout->addOneColumn("r");
     if (colid_iptrr.empty()) goto label_end;
-    colid_iptrs = dbout->addOneColumn("selection", 0., ERole::SEL);
+    colid_iptrs =
+      dbout->addOneColumn("selection", 0., VectorDouble(), ERole::SEL);
     if (colid_iptrs.empty()) goto label_end;
-    colid_iptrg = dbout->addOneColumn("simu", 0., ERole::SIMU);
+    colid_iptrg = dbout->addOneColumn("simu", 0., VectorDouble(), ERole::SIMU);
     if (colid_iptrg.empty()) goto label_end;
 
     /* Implicit loop on the simulations */
@@ -1043,9 +1041,7 @@ namespace gstlrn
     VectorDouble sort;
     VectorDouble pton;
     VectorDouble pres;
-    auto colid = ColID(-1);
-    auto colid_iptrg = ColID(-1);
-    auto colid_iptrs = ColID(-1);
+    ColID colid, colid_iptrg, colid_iptrs;
 
     /* Initializations */
 
@@ -1067,9 +1063,11 @@ namespace gstlrn
     sort.resize(nech);
     pton.resize(ncut);
     pres.resize(ncut - 1);
-    colid_iptrs = dbout->addOneColumn("selection", 0., ERole::SEL);
+    colid_iptrs =
+      dbout->addOneColumn("selection", 0., VectorDouble(), ERole::SEL);
     if (colid_iptrs.empty()) goto label_end;
-    colid_iptrg = dbout->addOneColumn("simulated", 0., ERole::SIMU);
+    colid_iptrg =
+      dbout->addOneColumn("simulated", 0., VectorDouble(), ERole::SIMU);
     if (colid_iptrg.empty()) goto label_end;
 
     /* Preliminary calculations */
@@ -1373,7 +1371,7 @@ namespace gstlrn
 
     /* Create the new variable in the Data base */
 
-    auto colid = db->addOneColumn("Simu", 0.0);
+    auto colid = db->addOneColumn("Simu");
 
     SimuSpherical simsphe(1, seed);
     if (simsphe.simulate(db, model, sphepar, colid.getUID(), verbose)) return 1;

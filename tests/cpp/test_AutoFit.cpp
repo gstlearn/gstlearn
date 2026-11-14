@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
     auto* db =
       Db::createFromBox(100, {0., 0., 0., 0.}, {100., 100., 100., 100.});
     VectorDouble tab = VH::simulateGaussian(db->getNSampleActive(), 0., 1.);
-    db->addColumns(tab, "Var", ELoc::Z);
+    db->addOneColumn("Var", 0., tab, ERole::Z);
 
     // Calculate the experimental variogram
     auto* varioparam = VarioParam::createOmniDirection(20);

@@ -1276,6 +1276,7 @@ namespace gstlrn
     VectorDouble cvsave;
     VectorDouble trsave;
     VectorDouble valwrk;
+    ColID colid_iptr;
 
     /* Initializations */
 
@@ -1288,7 +1289,6 @@ namespace gstlrn
     Id flag_traj = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
     pmid = get_keypone("Diffusion.Converge.PMid", 70.);
     if (seed != 0) law_set_random_seed(seed);
-    ColID colid_iptr = ColID(-1);
 
     /* Preliminary checks */
 

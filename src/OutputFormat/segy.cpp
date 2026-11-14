@@ -1952,6 +1952,7 @@ namespace gstlrn
     RefPt refpt[3];
     RefStats refstats;
     VectorDouble values, cotes, writes;
+    ColID colid_iatt;
 
     // Initializations
 
@@ -1967,7 +1968,6 @@ namespace gstlrn
     VectorInt indg(ndim, 0);
     st_refstats_init(refstats, modif_high, modif_low, modif_scale);
     traceHead traceHead_ = st_traceHead_init();
-    ColID colid_iatt = ColID(-1);
 
     // Preliminary checks
 

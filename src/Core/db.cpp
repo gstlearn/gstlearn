@@ -1782,7 +1782,8 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      auto colid_isel = ss_grid->addOneColumn("Selection", 0., ERole::SEL);
+      auto colid_isel =
+        ss_grid->addOneColumn("Selection", 0., VectorDouble(), ERole::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);
@@ -1798,7 +1799,8 @@ namespace gstlrn
 
     if (flag_copy)
     {
-      auto colid_icopy = ss_grid->addOneColumn("Copy", 0., ERole::SEL);
+      auto colid_icopy =
+        ss_grid->addOneColumn("Copy", 0., VectorDouble(), ERole::SEL);
       for (Id i = 0; i < ss_grid->getNSample(); i++)
       {
         ss_grid->rankToIndice(i, indcur);

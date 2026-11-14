@@ -361,7 +361,7 @@ namespace gstlrn
   {
     double t1min, t1max, t2min, t2max, sh_dsup, sh_down;
     VectorDouble y;
-    auto colid = ColID(-1);
+    ColID colid;
 
     /* Initializations */
 
@@ -423,6 +423,7 @@ namespace gstlrn
     double y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
     double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max, sh_dsup,
       sh_down, seuil;
+    ColID colid;
 
     /* Initializations */
 
@@ -431,7 +432,6 @@ namespace gstlrn
     check_mandatory_attribute("rule_gaus2fac_result_shadow", dbout, ELoc::SIMU);
     auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr) return 1;
-    auto colid = ColID(-1);
 
     error = 1;
     nstep = 0;

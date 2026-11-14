@@ -3934,7 +3934,7 @@ namespace gstlrn
 
     if (flag_sel)
     {
-      auto colid_sel = dbin->addOneColumn("selection", 0.);
+      auto colid_sel = dbin->addOneColumn("selection");
       if (colid_sel.empty()) return 1;
       auto nech = dbin->getNSample();
       for (Id iech = 0; iech < nech; iech++)

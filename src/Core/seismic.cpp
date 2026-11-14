@@ -3001,8 +3001,8 @@ namespace gstlrn
     VectorInt flag;
     VectorInt rank;
     VectorVectorInt presence(2);
-    ColIDs colid_est(2, ColID(-1));
-    ColIDs colid_std(2, ColID(-1));
+    ColIDs colid_est(2, ColID());
+    ColIDs colid_std(2, ColID());
 
     /* Initializations */
 
