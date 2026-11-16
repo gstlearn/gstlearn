@@ -94,6 +94,10 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     if (NOT ${TARGET_EXE} STREQUAL ${EXCLUDE_FROM_DIFF})
       # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
       set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref)
+	  # test_DataBase.cpp has some part that require HDF5.
+      if("${TARGET_EXE}" STREQUAL "test_DataBase" AND NOT USE_HDF5)
+        set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}_noHDF5.ref)
+      endif()
       # Use maybe a specific output log for the local computer
       cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR myoutput ${TARGET_EXE}.ref
                   OUTPUT_VARIABLE REF_FILE_LOCAL)
