@@ -54,7 +54,8 @@ gl.mestitle(0, "Names")
 
 
 tab = gl.VH.simulateUniform(nech)
-iatt1 = grid.addColumns(tab, "first")
+colid = grid.OneMultiColumn("first", 0.0, tab)
+iatt1 = colid.getUID()
 print(f"Attribute corresponding to 'first' = {iatt1}")
 
 # We can double-check the attribute information by visiting the current

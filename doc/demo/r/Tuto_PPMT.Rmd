@@ -161,7 +161,7 @@ Results
 
 ```{r}
 # adding the results to the data base
-iuid = data$addColumns(Xmat$getValues(), radix = "U")
+colids = data$addMultiColumns("U", 0., Xmat$getValues())
 dbStatisticsMono(data,c("Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
 
 # Q-Q plots for initial Gaussian
