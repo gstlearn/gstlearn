@@ -1120,21 +1120,40 @@ namespace gstlrn
       setLocator(fromUID(iuid + i), locatorType, locatorIndex + i);
   }
 
-  VectorDouble
-    Db::_expandUseSel(const VectorDouble& tabin, Id nversion, bool useSel) const
+  VectorDouble Db::_expandUseSel(
+    const VectorDouble& tabin,
+    Id ivar,
+    Id nversion,
+    bool useSel) const
   {
-    // If useSel is not used, then simply return the input vector
-    if (!useSel) return tabin;
-
     Id nechtot = getNSample();
+
+    // If useSel is not used, the data for a given 'ivar' is contiguous.
+    // We can extract the exact slice without looping, using iterators.
+    if (!useSel)
+    {
+      Id blockSize = nversion * nechtot;
+      auto startIt = tabin.begin() + ivar * blockSize;
+      auto endIt = startIt + blockSize;
+
+      // Returns a sub-vector copy of the contiguous block for this ivar
+      return VectorDouble(startIt, endIt);
+    }
+
+    // If useSel is active, filtering sample by sample is required
     VectorDouble tabout(nechtot * nversion);
     VectorDouble sel = getSelections();
-
-    Id lec = 0;
+    Id lec = ivar * (nversion * nechtot); // Start reading from the ivar block
     Id ecr = 0;
+
     for (Id version = 0; version < nversion; version++)
+    {
       for (Id iech = 0; iech < nechtot; iech++)
+      {
         tabout[ecr++] = (isOne(sel[iech])) ? tabin[lec++] : TEST;
+      }
+    }
+
     return tabout;
   }
 
@@ -1176,22 +1195,27 @@ namespace gstlrn
     Id seed,
     Id nechInit)
   {
+    auto sizeTab = static_cast<Id>(tab.size());
+
     // Check the number of version(s)
     if (nversion <= 0) nversion = 1;
 
-    // Check the number of samples (set using 'nechInit' for an empty Db)
+    // Check the number of samples
     auto nech = getNSamples();
     if (nech <= 0)
     {
       // It does not make sense to consider any selection in an empty 'Db'
       useSel = false;
       if (!tab.empty())
-        nech = static_cast<Id>(tab.size()) / nversion;
+        nech = sizeTab / nversion;
       else
         nech = nechInit;
       if (nech <= 0)
       {
-        messerr("Db::addOneColumn: The number of samples must be positive");
+        messerr("Db::addOneColumn: You wish to add a Column to an empty Db");
+        messerr(
+          "You must provide either a non-empty 'tab' or a positive "
+          "'nechInit'");
         return ColID();
       }
       _setNSamples(nech);
@@ -1212,16 +1236,16 @@ namespace gstlrn
     // Filling
     if (!tab.empty())
     {
-      if (static_cast<Id>(tab.size()) != nech * nversion)
+      if (sizeTab != nech * nversion)
       {
         messerr(
           "Db::addOneColumn: 'tab' is provided but its dimension (%d) does not "
           "match number of "
           "samples (%d) x number of versions (%d)",
-          static_cast<Id>(tab.size()), nech, nversion);
+          sizeTab, nech, nversion);
         return ColID();
       }
-      VectorDouble tabCopy = _expandUseSel(tab, nversion, useSel);
+      VectorDouble tabCopy = _expandUseSel(tab, 0, nversion, useSel);
       _data.addColumn(varName, std::move(tabCopy), roleid, nversion);
     }
     else if (flagRandom)
@@ -1240,6 +1264,195 @@ namespace gstlrn
     auto colid = ColID(_data.getNColumns() - 1);
     colid._setUID(_data.getUniqueIndexCounter() - 1);
     return colid;
+  }
+
+  ColIDs Db::addMultiColumns(
+    const VectorString& names,
+    double valinit,
+    const VectorDouble& tab,
+    const ERole& roleType,
+    Id nversion,
+    bool useSel,
+    bool flagRandom,
+    Id seed,
+    Id nechInit)
+  {
+    ColIDs colids;
+    auto sizeTab = static_cast<Id>(tab.size());
+    auto nech = getNSamples();
+    VectorString varNames = names;
+    Id nvar = static_cast<Id>(varNames.size());
+
+    // Check the number of version(s)
+    if (nversion <= 0) nversion = 1;
+
+    if (nech <= 0)
+    {
+      // Case of an empty Db
+
+      if (sizeTab <= 0)
+      {
+        // Case where "tab" is not provided
+
+        if (nechInit <= 0)
+        {
+          messerr(
+            "Db::addMultiColumns: You wish to add Columns to an empty Db");
+          messerr(
+            "You must provide either a non-empty 'tab' or a positive "
+            "'nechInit'");
+          return colids;
+        }
+        nech = nechInit;
+      }
+      else
+      {
+        // Case where "tab" is provided
+
+        if (nechInit > 0)
+        {
+          // Case where "nechInit" is provided
+
+          if (!isMultiple(sizeTab, nechInit * nversion))
+          {
+            messerr(
+              "Db::addMultiColumns: You wish to add Columns to an empty Db");
+            messerr(
+              "You provided a 'tab' but its dimension (%d) "
+              "is not compatible with 'nechInit'' (%d) x number of "
+              "versions (%d)",
+              sizeTab, nechInit, nversion);
+            return colids;
+          }
+          nech = nechInit;
+        }
+        else
+        {
+          // Case where "nechInit" is not provided
+
+          if (nvar <= 0)
+          {
+            // Case where "names" is not provided
+
+            nech = sizeTab;
+            nvar = 1;
+            varNames = {"TempVar"};
+          }
+          else
+          {
+            // Case where "names" is provided
+
+            if (!isMultiple(sizeTab, nvar * nversion))
+            {
+              messerr(
+                "Db::addMultiColumns: You wish to add Columns to an empty Db");
+              messerr(
+                "You provided a 'tab' but its dimension (%d) "
+                "is not compatible with the number of variables (%d) x number "
+                "of versions (%d)",
+                sizeTab, nvar, nversion);
+              return colids;
+            }
+            nech = sizeTab / (nvar * nversion);
+          }
+        }
+      }
+
+      // Final assignments on the Number of samples
+      useSel = false;
+      if (nech <= 0)
+      {
+        messerr("Db::addMultiColumn: The number of samples must be positive");
+        return colids;
+      }
+      _setNSamples(nech);
+    }
+    else
+    {
+      // Case of a non-empty Db; we known 'nech' at this stage
+
+      if (sizeTab > 0)
+      {
+        // Case where "tab" is provided
+
+        if (nvar > 0)
+        {
+          // Case where "names" is provided: check the consistency
+          if (!isMultiple(sizeTab, nech * nversion))
+          {
+            messerr(
+              "Db::addMultiColumn: 'tab' is provided but its dimension (%d) "
+              "is not compatible with the number of samples (%d) x number of "
+              "versions (%d)",
+              sizeTab, nech, nversion);
+            return colids;
+          }
+        }
+      }
+    }
+
+    // Expand the variable names to the variable count (if necessary)
+    if (nvar <= 0)
+    {
+      varNames = {"TempVar"};
+      nvar = 1;
+    }
+    nvar = sizeTab / (nech * nversion);
+    if (nvar != static_cast<Id>(varNames.size()))
+    {
+      varNames = generateMultipleNames(varNames[0], nvar);
+    }
+
+    // Filling
+    auto firstColumnIndex = _data.getNColumns() - 1;
+    auto firstUID = _data.getUniqueIndexCounter() - 1;
+    if (!tab.empty())
+    {
+      if (sizeTab != nech * nvar * nversion)
+      {
+        messerr(
+          "Db::addMultiColumn: 'tab' is provided but its dimension (%d) does "
+          "not match number of variables (%d) x number of samples (%d) x "
+          "number of versions (%d)",
+          sizeTab, nech, nvar, nversion);
+        return colids;
+      }
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        auto roleid = RoleID(roleType, ivar);
+        VectorDouble tabCopy = _expandUseSel(tab, ivar, nversion, useSel);
+        _data.addColumn(varNames[ivar], std::move(tabCopy), roleid, nversion);
+      }
+    }
+    else if (flagRandom)
+    {
+      law_set_random_seed(seed);
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        auto roleid = RoleID(roleType, ivar);
+        VectorDouble tabrnd = VH::simulateGaussian(nech);
+        _data.addColumn(varNames[ivar], std::move(tabrnd), roleid, nversion);
+      }
+    }
+    else
+    {
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        auto roleid = RoleID(roleType, ivar);
+        _data.addColumnEmpty<VectorDouble>(
+          varNames[ivar], nech, nversion, roleid, valinit);
+      }
+    }
+
+    // Construct the returned ColIDs
+
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      auto colid = ColID(firstColumnIndex + ivar);
+      colid._setUID(firstUID + ivar);
+      colids.push_back(colid);
+    }
+    return colids;
   }
 
   /**
