@@ -678,7 +678,7 @@ class DoxygenParser:
 
                 if kind in ("class", "struct"):
                     # Class to be ignored
-                    skip_words = [""]
+                    skip_words = ["argClass"]
                     if any(word in c_name for word in skip_words):
                         continue
 
@@ -737,6 +737,8 @@ if __name__ == "__main__":
     print(f"Parsing Doxygen XML files from: {args.INPUT_DIR}")
     parser = DoxygenParser(args.INPUT_DIR)
     funcs, classes = parser.parse()
+    print(f"Number of functions: {len(funcs)}")
+    print(f"Number of classes: {len(classes)}")
 
     print(f"Writing output files to: {args.OUTPUT_DIR}")
     for f in funcs:
