@@ -806,7 +806,7 @@ namespace gstlrn
           value = db->getValue(db->fromUID(cols[icol]), iech);
           value = MIN(1., MAX(0., value));
           if (ndef == ncol && proptot > 0.)
-            db->setValue(colids[icol].getUID(), iech, value / proptot);
+            db->setValue(colids[icol], iech, value / proptot);
         }
       }
     }
@@ -841,20 +841,18 @@ namespace gstlrn
           if (!strcmp(oper, "mean"))
           {
             if (!FFFF(mm[icol]))
-              db->setValue(
-                colids[icol].getUID(), iech, value - mm[icol] + center);
+              db->setValue(colids[icol], iech, value - mm[icol] + center);
           }
           else if (!strcmp(oper, "stdv"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0.)
-              db->setValue(
-                colids[icol].getUID(), iech, value * stdv / sqrt(vv[icol]));
+              db->setValue(colids[icol], iech, value * stdv / sqrt(vv[icol]));
           }
           else if (!strcmp(oper, "scal"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0. && !FFFF(mm[icol]))
               db->setValue(
-                colids[icol].getUID(), iech,
+                colids[icol], iech,
                 center + (value - mm[icol]) * stdv / sqrt(vv[icol]));
           }
         }

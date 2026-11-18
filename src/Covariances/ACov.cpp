@@ -2325,8 +2325,7 @@ namespace gstlrn
       Id ecr = 0;
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++, ecr++)
-          dbgrid->setValue(
-            colids[ecr].getUID(), iech, mat.getValue(ivar, jvar));
+          dbgrid->setValue(colids[ecr], iech, mat.getValue(ivar, jvar));
     }
 
     /* Set the error return code */

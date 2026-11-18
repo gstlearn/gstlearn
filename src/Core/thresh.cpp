@@ -463,7 +463,6 @@ namespace gstlrn
     const VectorDouble& propcst = ruleprop->getPropCst();
     const Db* dbprop = ruleprop->getDbprop();
 
-    Id rank;
     double t1min, t1max, t2min, t2max;
 
     /* Initializations */

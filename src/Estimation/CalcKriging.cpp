@@ -251,7 +251,7 @@ namespace gstlrn
           if (FFFF(value)) continue;
 
           getDbin()->setValue(
-            colids[jvar + nvar * ivar].getUID(), jech,
+            colids[jvar + nvar * ivar], jech,
             100. * _ktest.wgt.getValue(lec++, ivar));
         }
     }

@@ -1849,9 +1849,9 @@ Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = NA
 Column = 9 - Name = Y.Zn - Locator = NA
-Column = 10 - Name = Indicator.Pb.Class.S1 - Locator = z1
-Column = 11 - Name = Indicator.Pb.Class.S2 - Locator = z2
-Column = 12 - Name = Indicator.Pb.Class.S3 - Locator = z3
+Column = 10 - Name = Indicator.Pb-1.Class - Locator = z1
+Column = 11 - Name = Indicator.Pb-2.Class - Locator = z2
+Column = 12 - Name = Indicator.Pb-3.Class - Locator = z3
 ----
 
 
@@ -1863,7 +1863,7 @@ Variogram characteristics
 Number of variable(s)       = 3
 Number of direction(s)      = 1
 Space dimension             = 2
-Variable(s)                 = [Indicator.Pb.Class.S1 Indicator.Pb.Class.S2 Indicator.Pb.Class.S3]
+Variable(s)                 = [Indicator.Pb-1.Class Indicator.Pb-2.Class Indicator.Pb-3.Class]
 
 Variance-Covariance Matrix
                  [,  0]     [,  1]     [,  2]
@@ -2001,8 +2001,8 @@ Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
 Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = NA
 Column = 9 - Name = Y.Zn - Locator = NA
-Column = 10 - Name = Indicator.Pb.Class.S1 - Locator = NA
-Column = 11 - Name = Indicator.Pb.Class.S2 - Locator = NA
-Column = 12 - Name = Indicator.Pb.Class.S3 - Locator = NA
+Column = 10 - Name = Indicator.Pb-1.Class - Locator = NA
+Column = 11 - Name = Indicator.Pb-2.Class - Locator = NA
+Column = 12 - Name = Indicator.Pb-3.Class - Locator = NA
 Column = 13 - Name = Category.Pb - Locator = z1
 ----

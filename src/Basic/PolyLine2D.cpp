@@ -493,8 +493,8 @@ namespace gstlrn
       PolyPoint2D pldist = polyline.getPLIndex(target);
       double newx = pldist.dist;
       double newy = polyline.distanceAlongPolyline(pldist0, pldist);
-      db->setValue(colids[0].getUID(), iech, newx);
-      db->setValue(colids[1].getUID(), iech, newy);
+      db->setValue(colids[0], iech, newx);
+      db->setValue(colids[1], iech, newy);
     }
 
     /* Set the error return code */
@@ -583,7 +583,7 @@ namespace gstlrn
       for (Id icol = 0; icol < ncol; icol++)
       {
         double value = dbin->getValue(dbin->fromUID(cols[icol]), iad);
-        dbout->setValue(colids[icol].getUID(), iech, value);
+        dbout->setValue(colids[icol], iech, value);
       }
     }
 
@@ -677,9 +677,9 @@ namespace gstlrn
         distinter = TEST;
         angle = TEST;
       }
-      db->setValue(colids[0].getUID(), iech, distmin);
-      db->setValue(colids[1].getUID(), iech, distinter);
-      db->setValue(colids[2].getUID(), iech, angle);
+      db->setValue(colids[0], iech, distmin);
+      db->setValue(colids[1], iech, distinter);
+      db->setValue(colids[2], iech, angle);
     }
 
     /* Set the error return code */

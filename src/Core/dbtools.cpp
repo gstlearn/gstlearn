@@ -688,7 +688,7 @@ namespace gstlrn
         double ton_cut0 = tonnage[icut];
         double ton_cut1 = (icut > 0) ? tonnage[icut - 1] : 1.;
         Id ir = ind_cut0 / ton_cut0 - ind_cut1 / ton_cut1;
-        db->setValue(colids[icut].getUID(), iech, ir);
+        db->setValue(colids[icut], iech, ir);
       }
     }
 

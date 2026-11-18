@@ -121,6 +121,7 @@ namespace gstlrn
       const ColIDs& colids,
       const String& radix = "",
       const VectorString& names = VectorString(),
+      Id nitems = 1,
       bool flagSetRole = true,
       Id roleIndex = 0) const;
 

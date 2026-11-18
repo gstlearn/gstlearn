@@ -523,8 +523,7 @@ namespace gstlrn
         /* Store the indicator (if required) */
 
         if (flag_indic)
-          db->setValue(
-            colids_indic[iclass].getUID(), iech, static_cast<double>(belong));
+          db->setValue(colids_indic[iclass], iech, static_cast<double>(belong));
 
         if (belong)
         {
@@ -612,7 +611,7 @@ namespace gstlrn
     if (flag_indic == 1)
     {
       if (flagBelow) namconv.setOneColumn(db, colid_below, "Below", name);
-      namconv.setMultiColumns(db, colids_indic, "Class", {name});
+      namconv.setMultiColumns(db, colids_indic, "Class", {name}, nclass);
       if (flagAbove) namconv.setOneColumn(db, colid_above, "Above", name);
     }
     else

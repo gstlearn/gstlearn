@@ -269,8 +269,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar < nvar; jvar++, ecr++)
           dbgrid->setValue(
-            colids[ecr].getUID(), iadd,
-            wgt.getValue(nbneigh * jvar + ineigh, ivar));
+            colids[ecr], iadd, wgt.getValue(nbneigh * jvar + ineigh, ivar));
     }
 
     // Optional printout
