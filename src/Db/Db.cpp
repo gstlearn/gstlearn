@@ -1130,7 +1130,7 @@ namespace gstlrn
 
     // If useSel is not used, the data for a given 'ivar' is contiguous.
     // We can extract the exact slice without looping, using iterators.
-    if (!useSel)
+    if (!useSel || getNLoc(ELoc::SEL) == 0)
     {
       Id blockSize = nversion * nechtot;
       auto startIt = tabin.begin() + ivar * blockSize;
@@ -1201,7 +1201,7 @@ namespace gstlrn
     if (nversion <= 0) nversion = 1;
 
     // Check the number of samples
-    auto nech = getNSamples();
+    auto nech = getNSample(useSel);
     if (nech <= 0)
     {
       // It does not make sense to consider any selection in an empty 'Db'
@@ -1275,11 +1275,12 @@ namespace gstlrn
     bool useSel,
     bool flagRandom,
     Id seed,
-    Id nechInit)
+    Id nechInit,
+    Id nvarInit)
   {
     ColIDs colids;
     auto sizeTab = static_cast<Id>(tab.size());
-    auto nech = getNSamples();
+    auto nech = getNSample(useSel);
     VectorString varNames = names;
     Id nvar = static_cast<Id>(varNames.size());
 
@@ -1398,14 +1399,15 @@ namespace gstlrn
       nvar = 1;
     }
     nvar = sizeTab / (nech * nversion);
+    if (nvar <= 0) nvar = nvarInit;
     if (nvar != static_cast<Id>(varNames.size()))
     {
       varNames = generateMultipleNames(varNames[0], nvar);
     }
 
     // Filling
-    auto firstColumnIndex = _data.getNColumns() - 1;
-    auto firstUID = _data.getUniqueIndexCounter() - 1;
+    auto firstColumnIndex = _data.getNColumns();
+    auto firstUID = _data.getUniqueIndexCounter();
     if (!tab.empty())
     {
       if (sizeTab != nech * nvar * nversion)
@@ -1453,6 +1455,19 @@ namespace gstlrn
       colids.push_back(colid);
     }
     return colids;
+  }
+
+  // Short cut for calling addMultiColumns with empty contents
+  // It is just meant to specify the number of samples and variables
+  ColIDs Db::addEmptyColumns(
+    const VectorString& names,
+    double valinit,
+    Id nechInit,
+    Id nvarInit)
+  {
+    return addMultiColumns(
+      names, valinit, VectorDouble(), ERole::UNDEFINED, 1, false, false, 0,
+      nechInit, nvarInit);
   }
 
   /**
@@ -1517,118 +1532,6 @@ namespace gstlrn
     return iuid0;
   }
 
-  void Db::addColumnsByVVD(
-    const VectorVectorDouble& tab,
-    const String& radix,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    Id nversion,
-    bool useSel)
-  {
-    VectorDouble tabv;
-    Id ncol = static_cast<Id>(tab.size());
-    Id nvar = ncol / nversion;
-    for (const auto& e: tab)
-      for (const auto& f: e) tabv.push_back(f);
-    addColumns(
-      tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar, nversion);
-  }
-
-  /**
-   * Add one or several columns to an already existing Db. This is performed
-   * by providing an array of values 'tab'. Its dimension must be equal to the
-   * number of samples (or active samples if 'useSel' is true, times the number
-   * of variables 'nvar'.
-   * @param tab    Array to be loaded
-   * @param radix  Generic name for the newly created variables
-   * @param locatorType Generic locator assigned to new variables
-   * @param locatorIndex   Locator index (starting from 0)
-   * @param useSel true if the Selection must be taken into account
-   * @param valinit initial value (for unselected samples)
-   * @param nvar   Number of variables loaded
-   * @param nversion Number of versions for the new variables (default is 1)
-   *
-   * @return Rank of the first UID
-   *
-   * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
-   * @remark of samples provided in 'tab' must match the number of active samples.
-   * @remark The dimensioning elements are (sorted by decreasing degree of confidence);
-   * @remark - the number of (active) samples in the Db (if not empty)
-   * @remark - the number of samples provided in 'tab' (if not empty)
-   * @remark - the number of versions ('nversion') provided in the argument
-   * @remark - the number of variables ('nvar') provided in the argument
-   */
-  Id Db::addColumns(
-    const VectorDouble& tab,
-    const String& radix,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool useSel,
-    double valinit,
-    Id nvar,
-    Id nversion)
-  {
-    // If the input array 'tab' is empty, nothing is done
-    if (tab.empty()) return 0;
-
-    Id size = static_cast<Id>(tab.size());
-    auto nech = getNSample(useSel);
-    auto ncol = nvar * nversion; // Total number of columns (from arguments)
-    if (ncol <= 0)
-    {
-      messerr(
-        "Db::addColumns : Arguments 'nvar' (%d) and 'nversion' (%d) are "
-        "incorrect",
-        nvar, nversion);
-      return 1;
-    }
-
-    // Particular case where the Db is empty.
-    // Set its dimension to the number of samples of the input array 'tab'
-    if (nech <= 0) nech = size / ncol;
-
-    // Now 'ncol' (total number of columns) can be derived safely
-    // from the size of the input array 'tab' and the number of samples 'nech'
-    ncol = size / nech;
-    if (size != ncol * nech)
-    {
-      messerr(
-        "Db::addColumns : Incompatibility between 'tab'(%d) and 'ntot'(%d) * "
-        "'nech'(%d)",
-        size, ncol, nech);
-      return 1;
-    }
-
-    // 'nvar' is derived from the total number of columns 'ncol'
-    nvar = ncol / nversion;
-    if (nvar * nversion != ncol)
-    {
-      messerr(
-        "Db::addColumns : Incompatibility between 'nvar'(%d) * "
-        "'nversion'(%d) "
-        "and 'ncol'(%d)",
-        nvar, nversion, ncol);
-      return 1;
-    }
-
-    // Setting the dimensions
-    _setNSamples(nech);
-
-    // Adding the new Columns
-    Id iuid = addColumnsByConstant(
-      nvar, nversion, valinit, radix, locatorType, locatorIndex);
-    if (iuid < 0) return 1;
-
-    const double* local = tab.data();
-    for (Id i = 0; i < ncol; i++)
-    {
-      auto colid = fromUID(iuid + i);
-      _setColumnOldStyle(colid, &local[i * nech], useSel);
-    }
-
-    return iuid;
-  }
-
   /**
    * @brief Set the values of a (numerical) column in the Db.
    * Note that if the comlumn does not exist, it is created beforehand.
@@ -1651,7 +1554,8 @@ namespace gstlrn
     }
 
     if (!hasColumn(colid))
-      (void)addColumns(tab, colid.getName(), ELoc::UNDEFINED, -1, useSel);
+      (void)
+        addOneColumn(colid.getName(), 0., tab, ERole::UNDEFINED, 0, 1, useSel);
     else
     {
       if (!hasValidVersion(colid)) return;
@@ -1843,8 +1747,8 @@ namespace gstlrn
     // Convert the input array into a selection (0 or 1)
 
     _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-    return iuid;
+    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
+    return colid.getUID();
   }
 
   /**
@@ -1891,8 +1795,8 @@ namespace gstlrn
 
     // Store the newly createed selection
     _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-    return iuid;
+    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
+    return colid.getUID();
   }
 
   /**
@@ -1916,8 +1820,8 @@ namespace gstlrn
     // Convert the input array into a selection (0 or 1)
 
     _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-    return iuid;
+    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
+    return colid.getUID();
   }
 
   /**
@@ -1952,9 +1856,8 @@ namespace gstlrn
       sel[iech] = answer;
     }
     _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-
-    return iuid;
+    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
+    return colid.getUID();
   }
 
   /**
@@ -4408,7 +4311,7 @@ namespace gstlrn
     VectorDouble vec(nech);
     for (Id iech = 0; iech < nech; iech++) vec[iech] = iech + 1;
 
-    (void)addColumns(vec, radix);
+    (void)addOneColumn(radix, 0., vec);
   }
 
   /**
@@ -4438,7 +4341,7 @@ namespace gstlrn
       return;
     }
     VectorDouble ranks = VH::sequenceVD(1., static_cast<double>(nech));
-    addColumns(ranks, "rank");
+    (void)addOneColumn("rank", 0., ranks);
   }
 
   void Db::_defineDefaultNames(Id shift, const VectorString& names)
@@ -5168,11 +5071,11 @@ namespace gstlrn
           if (flagMask)
           {
             VectorDouble coor = VH::compress(coors[idim], ranksel);
-            addColumns(coor, namloc[idim], ELoc::X, idim);
+            (void)addOneColumn(namloc[idim], 0., coor, ERole::X, idim);
           }
           else
           {
-            addColumns(coors[idim], namloc[idim], ELoc::X, idim);
+            (void)addOneColumn(namloc[idim], 0., coors[idim], ERole::X, idim);
           }
         }
       }
@@ -5657,38 +5560,52 @@ namespace gstlrn
 
     // Create the Db
     Db* db = Db::create();
+    VectorDouble buffer;
 
     // Add the sample rank attribute
     if (flagAddSampleRank) db->_addRank(ndat);
 
     // Generate the vector of coordinates
-    VectorVectorDouble coor(ndim);
+    VectorDouble coors;
+    coors.reserve(ndim * ndat);
     for (Id idim = 0; idim < ndim; idim++)
     {
       double mini =
         (static_cast<Id>(coormin.size()) == ndim) ? coormin[idim] : 0.;
       double maxi =
         (static_cast<Id>(coormax.size()) == ndim) ? coormax[idim] : 1.;
-      coor[idim] = VH::simulateUniform(ndat, mini, maxi);
+      buffer = VH::simulateUniform(ndat, mini, maxi);
+      coors.insert(coors.end(), buffer.begin(), buffer.end());
     }
-    db->addColumnsByVVD(coor, "x", ELoc::X, 0, 1);
+    // In next statement, 'nechInit' must be provided as there is no possibility
+    // to know the number of samples from the size of 'coors'
+    db->addMultiColumns(
+      {"x"}, 0., coors, ERole::X, 1, false, false, 1352, ndat);
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (varmax > 0.)
     {
-      VectorVectorDouble varm(nvar);
+      VectorDouble varms;
+      varms.reserve(nvar * ndat);
       for (Id ivar = 0; ivar < nvar; ivar++)
-        varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
-      db->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
+      {
+        buffer = VH::simulateUniform(ndat, 0., varmax);
+        varms.insert(varms.end(), buffer.begin(), buffer.end());
+      }
+      db->addMultiColumns({"v"}, 0., varms, ERole::V);
     }
 
     // Generate the External Drift functions (optional)
     if (nfex > 0)
     {
-      VectorVectorDouble fex(nfex);
+      VectorDouble fexs;
+      fexs.reserve(nfex * ndat);
       for (Id ifex = 0; ifex < nfex; ifex++)
-        fex[ifex] = VH::simulateGaussian(ndat);
-      db->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
+      {
+        buffer = VH::simulateGaussian(ndat);
+        fexs.insert(fexs.end(), buffer.begin(), buffer.end());
+      }
+      db->addMultiColumns({"f"}, 0., fexs, ERole::F);
     }
 
     // Generate the selection (optional)
@@ -5698,23 +5615,25 @@ namespace gstlrn
       VectorDouble rnd = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
-      db->addColumns(sel, "sel", ELoc::SEL);
+      db->addSelection(sel, "sel");
     }
 
     // Generate the variables
     bool flag_hetero = (static_cast<Id>(heteroRatio.size()) == nvar);
-    VectorVectorDouble vars(nvar);
+    VectorDouble vars;
+    vars.reserve(nvar * ndat);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      vars[ivar] = VH::simulateGaussian(ndat);
+      buffer = VH::simulateGaussian(ndat);
       if (flag_hetero)
       {
         VectorDouble rnd = VH::simulateUniform(ndat);
         for (Id idat = 0; idat < ndat; idat++)
-          if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
+          if (rnd[idat] <= heteroRatio[ivar]) buffer[idat] = TEST;
       }
+      vars.insert(vars.end(), buffer.begin(), buffer.end());
     }
-    db->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
+    db->addMultiColumns({"z"}, 0., vars, ERole::Z);
 
     // Generate the code (optional)
     if (ncode > 0)
@@ -5722,7 +5641,7 @@ namespace gstlrn
       VectorDouble codes = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         codes[idat] = floor(ncode * codes[idat]);
-      db->addColumns(codes, "code", ELoc::C);
+      (void)db->addOneColumn("code", 0., codes, ERole::C);
     }
 
     return db;
@@ -5745,46 +5664,37 @@ namespace gstlrn
     if (flagAddSampleRank) db->_addRank(ndat);
 
     // Generate the vector of coordinates
-    VectorVectorDouble coor(ndim);
-    for (Id idim = 0; idim < ndim; idim++) coor[idim] = VectorDouble(ndat, 0.);
-    db->addColumnsByVVD(coor, "x", ELoc::X, 0, 1);
+    VectorDouble coors(ndat * ndim, 0.);
+    // In next statement, 'nechInit' must be provided as there is no possibility
+    // to know the number of samples from the size of 'coors'
+    db->addMultiColumns(
+      {"x"}, 0., coors, ERole::X, 1, false, false, 1352, ndat);
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (flagVerr)
     {
-      VectorVectorDouble varm(nvar);
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        varm[ivar] = VectorDouble(ndat, 0.);
-      db->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
+      VectorDouble varms(nvar * ndat, 0.);
+      db->addMultiColumns({"v"}, 0., varms, ERole::V);
     }
 
     // Generate the External Drift functions (optional)
     if (nfex > 0)
     {
-      VectorVectorDouble fex(nfex);
-      for (Id ifex = 0; ifex < nfex; ifex++) fex[ifex] = VectorDouble(ndat, 0.);
-      db->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
+      VectorDouble fexs(nfex * ndat, 0.);
+      db->addMultiColumns({"f"}, 0., fexs, ERole::F);
     }
 
     // Generate the selection (optional)
-    if (flagSel)
-    {
-      VectorDouble sel(ndat);
-      sel.fill(1.);
-      db->addColumns(sel, "sel", ELoc::SEL);
-    }
+    if (flagSel) db->addOneColumn("sel", 1.0, VectorDouble(), ERole::SEL);
 
     // Generate the variables
-    VectorVectorDouble vars(nvar);
-    for (Id ivar = 0; ivar < nvar; ivar++) vars[ivar] = VectorDouble(ndat, 0.);
-    db->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
+    VectorDouble vars(nvar * ndat, 0.);
+    db->addMultiColumns({"z"}, 0., vars, ERole::Z);
 
     // Generate the code (optional)
     if (ncode > 0)
     {
-      VectorDouble codes(ndat);
-      codes.fill(0.);
-      db->addColumns(codes, "code", ELoc::C, 0, 1);
+      (void)db->addOneColumn("code", 0., VectorDouble(), ERole::C);
     }
 
     return db;

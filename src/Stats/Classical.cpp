@@ -983,8 +983,8 @@ namespace gstlrn
 
     /* Create the new variables in the output file */
 
-    Id iptr = dbout->addColumnsByConstant(nfacies, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids = dbout->addEmptyColumns(VectorString(), TEST, 0, nfacies);
+    if (colids.empty()) return 1;
 
     /* Loop on the elements of the output grid */
 
@@ -1004,7 +1004,7 @@ namespace gstlrn
             indg[aux1] = i1;
             _updateProportions(dbin, indg, nfacies, prop);
           }
-          _scaleAndAffect(dbout, iptr, iech, nfacies, prop);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nfacies, prop);
         }
       }
       else
@@ -1024,7 +1024,7 @@ namespace gstlrn
               indg[aux2] = i2;
               _updateProportions(dbin, indg, nfacies, prop);
             }
-          _scaleAndAffect(dbout, iptr, iech, nfacies, prop);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nfacies, prop);
         }
       }
     }
@@ -1083,8 +1083,9 @@ namespace gstlrn
 
     /* Create the new variables in the output file */
 
-    Id iptr = dbout->addColumnsByConstant(nfacies * nfacies, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids =
+      dbout->addEmptyColumns(VectorString(), TEST, 0, nfacies * nfacies);
+    if (colids.empty()) return 1;
 
     /* Loop on the elements of the output grid */
 
@@ -1105,7 +1106,7 @@ namespace gstlrn
             indg[aux1] = i1;
             _updateTransition(dbin, pos, indg, nfacies, orient, trans);
           }
-          _scaleAndAffect(dbout, iptr, iech, nitem, trans);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nitem, trans);
         }
       }
       else
@@ -1125,7 +1126,7 @@ namespace gstlrn
               indg[aux2] = i2;
               _updateTransition(dbin, pos, indg, nfacies, orient, trans);
             }
-          _scaleAndAffect(dbout, iptr, iech, nitem, trans);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nitem, trans);
         }
       }
     }

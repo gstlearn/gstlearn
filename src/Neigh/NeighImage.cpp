@@ -239,7 +239,7 @@ namespace gstlrn
 
     dbsub = DbGrid::create(
       nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles());
-    dbsub->addColumns(tab, "Test", ELoc::Z, 0, false, TEST, nvar);
+    (void)dbsub->addMultiColumns({"Test"}, TEST, tab, ERole::Z);
 
     /* Shift the origin */
 

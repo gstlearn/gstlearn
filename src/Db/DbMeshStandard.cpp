@@ -31,8 +31,11 @@ namespace gstlrn
   {
     _mesh.resetFromVectors(ndim, napexpermesh, apices, meshes, true, verbose);
     Id napices = _mesh.getNApices();
-
-    addColumns(apices, "x", ELoc::X, 0, false, 0., ndim);
+    // We must specify explicitely the number of samples in the Db constructor,
+    // since it is not possible to deduce it from the number of apices.
+    auto nech = apices.size() / ndim;
+    (void)
+      addMultiColumns({"x"}, 0., apices, ERole::X, 1, false, false, 1234, nech);
 
     if (!tab.empty())
       (void)resetFromSamples(napices, order, tab, names, locatorNames);

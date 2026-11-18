@@ -476,8 +476,8 @@ namespace gstlrn
 
     /* Add the variables */
 
-    Id iptr = db->addColumnsByConstant(2, 1, 0.);
-    if (iptr < 0) return 1;
+    auto colids = db->addEmptyColumns(VectorString(), 0., 0, 2);
+    if (colids.empty()) return 1;
 
     /* Project the starting point */
 
@@ -493,14 +493,14 @@ namespace gstlrn
       PolyPoint2D pldist = polyline.getPLIndex(target);
       double newx = pldist.dist;
       double newy = polyline.distanceAlongPolyline(pldist0, pldist);
-      db->setValue(db->fromUID(iptr), iech, newx);
-      db->setValue(db->fromUID(iptr + 1), iech, newy);
+      db->setValue(colids[0].getUID(), iech, newx);
+      db->setValue(colids[1].getUID(), iech, newy);
     }
 
     /* Set the error return code */
 
     auto names = db->getNames(ERole::Z);
-    namconv.setOutput(names, 0, db, iptr);
+    namconv.setMultiColumns(db, colids, "", names);
     return 0;
   }
 
@@ -551,8 +551,8 @@ namespace gstlrn
     /* Add the variables */
 
     Id ncol = static_cast<Id>(cols.size());
-    Id iptr = dbout->addColumnsByConstant(ncol, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids = dbout->addEmptyColumns(VectorString(), TEST, 0, ncol);
+    if (colids.empty()) return 1;
 
     /* Project the starting point */
 
@@ -583,14 +583,14 @@ namespace gstlrn
       for (Id icol = 0; icol < ncol; icol++)
       {
         double value = dbin->getValue(dbin->fromUID(cols[icol]), iad);
-        dbout->setValue(dbout->fromUID(iptr + icol), iech, value);
+        dbout->setValue(colids[icol].getUID(), iech, value);
       }
     }
 
     /* Set the error return code */
 
     auto names = dbin->getNames(ERole::Z);
-    namconv.setOutput(names, 0, dbout, iptr);
+    namconv.setMultiColumns(dbout, colids, "", names);
 
     return 0;
   }
@@ -633,8 +633,8 @@ namespace gstlrn
 
     // Allocate the output variables
 
-    Id iptr = db->addColumnsByConstant(3, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids = db->addEmptyColumns(VectorString(), TEST, 0, 3);
+    if (colids.empty()) return 1;
 
     // Loop on the active samples of the Data Base
 
@@ -677,16 +677,14 @@ namespace gstlrn
         distinter = TEST;
         angle = TEST;
       }
-      db->setValue(db->fromUID(iptr), iech, distmin);
-      db->setValue(db->fromUID(iptr + 1), iech, distinter);
-      db->setValue(db->fromUID(iptr + 2), iech, angle);
+      db->setValue(colids[0].getUID(), iech, distmin);
+      db->setValue(colids[1].getUID(), iech, distinter);
+      db->setValue(colids[2].getUID(), iech, angle);
     }
 
     /* Set the error return code */
 
-    namconv.setOutput(VectorString(), 0, db, iptr, "DistMin");
-    namconv.setOutput(VectorString(), 0, db, iptr + 1, "DistInter");
-    namconv.setOutput(VectorString(), 0, db, iptr + 2, "Angle");
+    namconv.setMultiColumns(db, colids, "", {"DistMin", "DistInter", "Angle"});
 
     return 0;
   }

@@ -324,23 +324,6 @@ namespace gstlrn
      * The added Columns can be dedicated to numerical variables or Selections.
      *  @{
      */
-
-    void addColumnsByVVD(
-      const VectorVectorDouble& tab,
-      const String& radix,
-      const ELoc& locatorType,
-      Id locatorIndex = 0,
-      Id nversion = 1,
-      bool useSel = false);
-    Id addColumns(
-      const VectorDouble& tab,
-      const String& radix = "New",
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
-      bool useSel = false,
-      double valinit = 0.,
-      Id nvar = 1,
-      Id nversion = 1);
     Id addColumnsByConstant(
       Id nadd = 1,
       Id nversion = 1,
@@ -370,7 +353,13 @@ namespace gstlrn
       bool useSel = false,
       bool flagRandom = false,
       Id seed = 1352,
-      Id nechInit = 0);
+      Id nechInit = 0,
+      Id nvarInit = 0);
+    ColIDs addEmptyColumns(
+      const VectorString& names = VectorString(),
+      double valinit = 0.,
+      Id nechInit = 0,
+      Id nvarInit = 0);
 
     Id addSelection(
       const VectorDouble& tab = VectorDouble(),

@@ -502,7 +502,7 @@ namespace gstlrn
 
     /* Add the variables */
 
-    Id iptr = db2->addColumnsByConstant(ncol, 1, TEST);
+    auto colids = db2->addEmptyColumns(VectorString(), TEST, 0, ncol);
 
     /* Loop on the output grid Db */
 
@@ -539,8 +539,7 @@ namespace gstlrn
 
       for (Id icol = 0; icol < ncol; icol++)
         db2->setValue(
-          db2->fromUID(iptr + icol), iech,
-          db1->getValue(db1->fromUID(cols[icol]), jech));
+          colids[icol], iech, db1->getValue(db1->fromUID(cols[icol]), jech));
     }
 
     return 0;
@@ -1019,9 +1018,9 @@ namespace gstlrn
 
     /* Allocate the variables */
 
-    Id iptr = dbgrid->addColumnsByConstant(nclass, 1, 0.);
-    if (iptr < 0) return 1;
-    dbgrid->setLocatorsByUIDRange(nclass, iptr, ELoc::P, 0);
+    auto colids = dbgrid->addEmptyColumns(VectorString(), 0., 0, nclass);
+    if (colids.empty()) return 1;
+    dbgrid->setLocatorsByUIDRange(nclass, colids[0].getUID(), ELoc::P, 0);
 
     /* Loop on the samples of the input data Db */
 

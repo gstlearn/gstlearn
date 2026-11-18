@@ -91,10 +91,10 @@ Weights are stored internally
 - Total core needs       = 1000000
 - Number of zero weights = 936730
 - Percentage             =   6.33
-[1] ">>>> processing simulation #1"
-[1] ">>>> processing simulation #2"
-[1] ">>>> processing simulation #3"
-[1] ">>>> processing simulation #4"
+[1] ">>>> processing simulation #1/ 4"
+[1] ">>>> processing simulation #2/ 4"
+[1] ">>>> processing simulation #3/ 4"
+[1] ">>>> processing simulation #4/ 4"
 
 
 Table: Statistics for conditional expectation with censored data

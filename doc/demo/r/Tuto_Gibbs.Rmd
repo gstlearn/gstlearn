@@ -572,7 +572,7 @@ err = data$deleteColumns(c("cs.y.*"))
 err = grid$deleteColumns(c("sk.cs.*", "ce.cs.*"))
 # computing the conditional expectation by Monte-Carlo
 for (s in 1:nbsimu) {
-  print(paste0(">>>> processing simulation #", s))
+  print(paste0(">>>> processing simulation #", s, "/ ", nbsimu))
   s_nm = paste("cs.y", s, sep = ".")
   # simulations of the censored observations
   err = data$clearLocators(ELoc_Z())

@@ -233,7 +233,7 @@ namespace gstlrn
     Id nvar = _getNVar();
     Id nech = _ktest.nech;
     auto names = getDbin()->getNames(ERole::Z);
-    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, 1, TEST, "Weight");
+    auto colids = getDbin()->addEmptyColumns({"Weight"}, TEST, 0, nvar * nvar);
 
     // Loop on the variables
     for (Id ivar = 0; ivar < nvar; ++ivar)
@@ -251,11 +251,11 @@ namespace gstlrn
           if (FFFF(value)) continue;
 
           getDbin()->setValue(
-            getDbin()->fromUID(iuid + jvar + nvar * ivar), jech,
+            colids[jvar + nvar * ivar].getUID(), jech,
             100. * _ktest.wgt.getValue(lec++, ivar));
         }
     }
-    namconv.setOutput(names, nvar, getDbin(), iuid, String(), nvar, false);
+    namconv.setMultiColumns(getDbin(), colids, "", names);
   }
 
   /****************************************************************************/

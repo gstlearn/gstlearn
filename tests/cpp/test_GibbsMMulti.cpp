@@ -40,8 +40,6 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  Id iptr;
-
   Id nx = 50; // Number of grid mesh (in each direction)
   Id niter = 1000; // Number of Gibbs iterations
   Id nburn = 20; // Number of burning steps
@@ -80,8 +78,10 @@ int main(int argc, char* argv[])
     db->addOneColumn("Lower", TEST, VectorDouble(), ERole::L);
     db->addOneColumn("Upper", TEST, VectorDouble(), ERole::U);
   }
-  iptr = db->addColumnsByConstant(nvar, nbsimu, 0., String(), ELoc::GAUSFAC);
-  if (iptr < 0) return 1;
+  auto colids = db->addMultiColumns(
+    VectorString(), 0., VectorDouble(), ERole::GAUSFAC, nbsimu, false, false, 0,
+    0, nvar);
+  if (colids.empty()) return 1;
 
   // Model
 

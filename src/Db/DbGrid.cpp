@@ -970,7 +970,8 @@ namespace gstlrn
     }
     auto ndim = getNDim();
     VectorDouble coors(ndim);
-    (void)addColumnsByConstant(ndim, 1, 0., radix, ELoc::X);
+    (void)addMultiColumns(
+      {radix}, 0., VectorDouble(), ERole::X, 1, false, false, 0, 0, ndim);
     for (Id iech = 0; iech < getNSample(); iech++)
     {
       _grid.rankToCoordinatesInPlace(iech, coors);
@@ -1675,23 +1676,32 @@ namespace gstlrn
     }
     DbGrid* dbgrid = DbGrid::create(nx, dxloc, x0);
     Id ndat = nx.prod();
+    VectorDouble buffer;
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (varmax > 0.)
     {
-      VectorVectorDouble varm(nvar);
+      VectorDouble varms;
+      varms.reserve(nvar * ndat);
       for (Id ivar = 0; ivar < nvar; ivar++)
-        varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
-      dbgrid->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
+      {
+        buffer = VH::simulateUniform(ndat, 0., varmax);
+        varms.insert(varms.end(), buffer.begin(), buffer.end());
+      }
+      dbgrid->addMultiColumns({"v"}, 0., varms, ERole::V);
     }
 
     // Generate the External Drift functions (optional)
     if (nfex > 0)
     {
-      VectorVectorDouble fex(nfex);
+      VectorDouble fexs;
+      fexs.reserve(nfex * ndat);
       for (Id ifex = 0; ifex < nfex; ifex++)
-        fex[ifex] = VH::simulateGaussian(ndat);
-      dbgrid->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
+      {
+        buffer = VH::simulateGaussian(ndat);
+        fexs.insert(fexs.end(), buffer.begin(), buffer.end());
+      }
+      dbgrid->addMultiColumns({"f"}, 0., fexs, ERole::F);
     }
 
     // Generate the selection (optional)
@@ -1701,24 +1711,26 @@ namespace gstlrn
       VectorDouble rnd = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
-      dbgrid->addColumns(sel, "sel", ELoc::SEL);
+      dbgrid->addSelection(sel, "sel");
     }
 
     // Generate the variables
     bool flag_hetero = (static_cast<Id>(heteroRatio.size()) == nvar);
-    VectorVectorDouble vars(nvar);
+    VectorDouble vars;
+    vars.reserve(nvar * ndat);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       double mean = (means.empty()) ? 0. : means[ivar];
-      vars[ivar] = VH::simulateGaussian(ndat, mean);
+      buffer = VH::simulateGaussian(ndat, mean);
       if (flag_hetero)
       {
         VectorDouble rnd = VH::simulateUniform(ndat);
         for (Id idat = 0; idat < ndat; idat++)
-          if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
+          if (rnd[idat] <= heteroRatio[ivar]) buffer[idat] = TEST;
       }
+      vars.insert(vars.end(), buffer.begin(), buffer.end());
     }
-    dbgrid->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
+    dbgrid->addMultiColumns({"z"}, 0., vars, ERole::Z);
 
     // Generate the code (optional)
     if (ncode > 0)
@@ -1726,7 +1738,7 @@ namespace gstlrn
       VectorDouble codes = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         codes[idat] = floor(ncode * codes[idat]);
-      dbgrid->addColumns(codes, "code", ELoc::C);
+      (void)dbgrid->addOneColumn("code", 0., codes, ERole::C);
     }
 
     return dbgrid;

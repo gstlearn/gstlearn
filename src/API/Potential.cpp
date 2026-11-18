@@ -2740,7 +2740,9 @@ namespace gstlrn
 
     // Allocating the output variables
     int nvar = (flag_dist_conv) ? 4 : 2;
-    (void)_dbiso->addColumnsByConstant(nvar, 1, TEST, String(), ELoc::Z);
+    (void)_dbiso->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::Z, 1, false, false, 0, 0,
+      nvar);
 
     // Core allocation
     VectorDouble zval(_nequa);

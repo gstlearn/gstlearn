@@ -116,6 +116,14 @@ namespace gstlrn
       bool flagSetRole = true,
       Id roleIndex = 0) const;
 
+    void setMultiColumns(
+      Db* dbout,
+      const ColIDs& colids,
+      const String& radix = "",
+      const VectorString& names = VectorString(),
+      bool flagSetRole = true,
+      Id roleIndex = 0) const;
+
     void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
 
     void setLocators(

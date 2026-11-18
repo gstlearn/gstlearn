@@ -2300,8 +2300,8 @@ namespace gstlrn
 
     /* Create the variables in the Variogram Map file */
 
-    Id iptr = dbgrid->addColumnsByConstant(nv2, 1, 0.);
-    if (iptr < 0) return 1;
+    auto colids = dbgrid->addEmptyColumns(VectorString(), 0., 0, nv2);
+    if (colids.empty()) return 1;
 
     /* Loop on the grid nodes */
 
@@ -2326,12 +2326,12 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++, ecr++)
           dbgrid->setValue(
-            dbgrid->fromUID(iptr + ecr), iech, mat.getValue(ivar, jvar));
+            colids[ecr].getUID(), iech, mat.getValue(ivar, jvar));
     }
 
     /* Set the error return code */
 
-    namconv.setOutput(VectorString(), 0, dbgrid, iptr, "Model");
+    namconv.setMultiColumns(dbgrid, colids, "Model");
     return 0;
   }
 

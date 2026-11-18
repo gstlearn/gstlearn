@@ -813,7 +813,6 @@ namespace gstlrn
     const auto& DFull = V.getDFull();
     auto nd = V.getND();
     auto nt = V.getNT();
-    Id nvar = model->getNVar();
     VectorDouble D_dd(nd);
     VH::extractInPlace(DFull, D_dd, nt);
 
@@ -844,9 +843,10 @@ namespace gstlrn
     V.uncenterResultsInPlace(result);
 
     // Saving the results
-    Id iptr = dbout->addColumns(result, String(), ELoc::UNDEFINED, 0, true);
+    auto colids = dbout->addMultiColumns(
+      VectorString(), 0., result, ERole::UNDEFINED, 1, true);
     auto names = dbin->getNames(ERole::Z);
-    namconv.setOutput(names, nvar, dbout, iptr, "estim");
+    namconv.setMultiColumns(dbout, colids, "estim", names);
 
     return 0;
   }

@@ -676,25 +676,26 @@ namespace gstlrn
   Id db_upscale(DbGrid* dbgrid1, DbGrid* dbgrid2, Id orient, Id verbose)
   {
     double result1, result2, result, probtot;
-    Id error, ndim, ind0[3], nxyz[3], iech, iptr, ntot, ncol;
-    Id flag_save, iech_save;
+    Id ind0[3], nxyz[3], iech, ntot, ncol;
+    Id flag_save;
     VectorDouble numtab0;
     VectorDouble numtab1;
     VectorDouble numtab2;
     VectorDouble valtab0;
     VectorDouble valtab1;
     VectorDouble valtab2;
+    ColIDs colids_iptr;
 
     /* Initializations */
 
-    error = 1;
-    iech_save = static_cast<Id>(get_keypone("Upscale.Converge.Block", 0));
+    Id error = 1;
+    Id iech_save = static_cast<Id>(get_keypone("Upscale.Converge.Block", 0));
     Id ndim2 = dbgrid2->getNDim();
     VectorInt ixyz(ndim2);
 
     /* Preliminary checks */
 
-    ndim = dbgrid1->getNDim();
+    Id ndim = dbgrid1->getNDim();
     if (ndim < 1 || ndim > 3)
     {
       messerr("This function is limited to 2-D or 3-D input grids");
@@ -719,9 +720,11 @@ namespace gstlrn
     /* Create the new variable in the output file */
 
     ncol = 3;
-    iptr = dbgrid2->addColumnsByConstant(ncol, 1, TEST);
-    if (iptr < 0) goto label_end;
-    dbgrid2->setLocatorsByUIDRange(ncol, iptr, ELoc::Z, 0);
+    colids_iptr = dbgrid2->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::UNDEFINED, 1, false, false,
+      0, 0, ncol);
+    if (colids_iptr.empty()) goto label_end;
+    dbgrid2->setLocatorsByUIDRange(ncol, colids_iptr[0].getUID(), ELoc::Z, 0);
 
     /* Core allocation */
 

@@ -54,7 +54,7 @@ gl.mestitle(0, "Names")
 
 
 tab = gl.VH.simulateUniform(nech)
-colid = grid.OneMultiColumn("first", 0.0, tab)
+colid = grid.addOneColumn("first", 0.0, tab)
 iatt1 = colid.getUID()
 print(f"Attribute corresponding to 'first' = {iatt1}")
 
@@ -71,8 +71,12 @@ grid
 # Note the returned value: it corresponds to the attribute number assigned
 # to the first new variable.
 
-iatt2 = grid.addColumnsByConstant(3, 1, 5.0, "second", gl.ELoc.Z)
-print(f"Attribute corresponding to the first variable named 'second-x' = {iatt2}")
+colids = grid.addMultiColumns(
+    ["second"], 5.0, gl.VectorDouble(), gl.ERole.Z, 1, False, False, 0, 0, 3
+)
+print(
+    f"Attribute corresponding to the first variable named 'second-x' = {colids[0].getUID()}"
+)
 grid
 
 # Note that the newly created fields are automatically named using the provided

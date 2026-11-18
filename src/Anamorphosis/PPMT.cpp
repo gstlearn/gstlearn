@@ -15,7 +15,6 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
-#include "Enum/ELoc.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
@@ -488,9 +487,9 @@ namespace gstlrn
 
     if (flagStoreInDb)
     {
-      Id iptr =
-        db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
-      namconv.setOutput(exp_names, 0, db, iptr);
+      auto colids = db->addMultiColumns(
+        VectorString(), 0., Y.getValues(), ERole::UNDEFINED, 1, true);
+      namconv.setMultiColumns(db, colids, "", exp_names);
     }
     return 0;
   }
@@ -539,8 +538,9 @@ namespace gstlrn
     for (Id iter = 0; iter < niter; iter++) _iterationForward(&Y, N0, iter);
 
     // Add the newly created information in the Db
-    Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
-    namconv.setOutput(exp_names, 0, db, iptr);
+    auto colids = db->addMultiColumns(
+      VectorString(), 0., Y.getValues(), ERole::UNDEFINED, 1, true);
+    namconv.setMultiColumns(db, colids, "", exp_names);
 
     return 0;
   }
@@ -601,8 +601,9 @@ namespace gstlrn
     }
 
     // Add the newly created information in the Db
-    Id iptr = db->addColumns(Y.getValues(), String(), ELoc::UNDEFINED, 0, true);
-    namconv.setOutput(exp_names, 0, db, iptr);
+    auto colids = db->addMultiColumns(
+      VectorString(), 0., Y.getValues(), ERole::UNDEFINED, 1, true);
+    namconv.setMultiColumns(db, colids, "", exp_names);
 
     return 0;
   }

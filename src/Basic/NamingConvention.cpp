@@ -503,4 +503,21 @@ namespace gstlrn
     setOutput({name}, 1, dbout, iuid, radix, 1, flagSetRole, roleIndex);
   }
 
+  void NamingConvention::setMultiColumns(
+    Db* dbout,
+    const ColIDs& colids,
+    const String& radix,
+    const VectorString& names,
+    bool flagSetRole,
+    Id roleIndex) const
+  {
+    auto nvar = static_cast<Id>(colids.size());
+    if (nvar <= 0) return;
+
+    // For the time being, the variables are assumed to be allocated continuously.
+    // Then it suffices to consider the UID of the first variable to derive the whole set
+    // TODO: this should be improved to allow for non-continuous allocation of the variable
+    auto iuid0 = colids[0].getUID();
+    setOutput(names, nvar, dbout, iuid0, radix, 1, flagSetRole, roleIndex);
+  }
 } // namespace gstlrn

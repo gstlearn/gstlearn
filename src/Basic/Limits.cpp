@@ -466,10 +466,11 @@ namespace gstlrn
 
     /* Create the variables */
 
-    ColID colid_below(-1);
-    ColID colid_above(-1);
-    ColID colid_mean(-1);
-    Id iptr_indic = -1;
+    ColID colid_below;
+    ColID colid_above;
+    ColID colid_mean;
+    ColIDs colids_indic;
+
     if (flag_indic)
     {
       if (flagBelow)
@@ -477,8 +478,8 @@ namespace gstlrn
         colid_below = db->addOneColumn("Below");
         if (colid_below.empty()) return 1;
       }
-      iptr_indic = db->addColumnsByConstant(nclass, 1, 0.);
-      if (iptr_indic < 0) return 1;
+      colids_indic = db->addEmptyColumns(VectorString(), 0., 0, nclass);
+      if (colids_indic.empty()) return 1;
       if (flagAbove)
       {
         colid_above = db->addOneColumn("Above");
@@ -523,8 +524,7 @@ namespace gstlrn
 
         if (flag_indic)
           db->setValue(
-            db->fromUID(iptr_indic + iclass), iech,
-            static_cast<double>(belong));
+            colids_indic[iclass].getUID(), iech, static_cast<double>(belong));
 
         if (belong)
         {
@@ -612,7 +612,7 @@ namespace gstlrn
     if (flag_indic == 1)
     {
       if (flagBelow) namconv.setOneColumn(db, colid_below, "Below", name);
-      namconv.setOutput({name}, 0, db, iptr_indic, "Class", nclass);
+      namconv.setMultiColumns(db, colids_indic, "Class", {name});
       if (flagAbove) namconv.setOneColumn(db, colid_above, "Above", name);
     }
     else

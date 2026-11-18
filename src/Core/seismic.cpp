@@ -1529,9 +1529,7 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_z2t_convert(DbGrid* db_z, Id iatt_v, DbGrid* db_t)
   {
-    DbGrid* db_v;
-    double z0, z1, t0, t1, dz, dt;
-    Id nz, nt, ndim, natt, iatt_t, iatt_z, error;
+    Id iatt_z;
     VectorDouble zt;
     VectorDouble tz;
     VectorDouble az;
@@ -1540,23 +1538,23 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db_z, db_t)) return (1);
-    error = 1;
-    db_v = db_z;
-    ndim = db_z->getNDim();
-    natt = db_z->getNLoc(ELoc::Z);
-    nz = db_z->getNX(ndim - 1);
-    nt = db_t->getNX(ndim - 1);
-    z0 = db_z->getX0(ndim - 1);
-    t0 = db_t->getX0(ndim - 1);
-    dz = db_z->getDX(ndim - 1);
-    dt = db_t->getDX(ndim - 1);
-    t1 = t0 + (nt - 1) * dt;
-    z1 = z0 + (nz - 1) * dz;
+    Id error = 1;
+    DbGrid* db_v = db_z;
+    Id ndim = db_z->getNDim();
+    Id natt = db_z->getNLoc(ELoc::Z);
+    Id nz = db_z->getNX(ndim - 1);
+    Id nt = db_t->getNX(ndim - 1);
+    double z0 = db_z->getX0(ndim - 1);
+    double t0 = db_t->getX0(ndim - 1);
+    double dz = db_z->getDX(ndim - 1);
+    double dt = db_t->getDX(ndim - 1);
+    double t1 = t0 + (nt - 1) * dt;
+    double z1 = z0 + (nz - 1) * dz;
 
     /* Create the output variables */
 
-    iatt_t = db_t->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_t < 0) goto label_end;
+    auto colids_t = db_t->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_t.empty()) goto label_end;
     iatt_z = db_z->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
@@ -1569,8 +1567,8 @@ namespace gstlrn
     /* Perform the conversion from Depth to Time */
 
     st_seismic_z2t_convert(
-      db_z, iatt_z, nz, z0, z1, dz, db_t, iatt_t, nt, t0, t1, dt, db_v, iatt_v,
-      natt, tz.data(), zt.data(), at.data(), az.data());
+      db_z, iatt_z, nz, z0, z1, dz, db_t, colids_t[0].getUID(), nt, t0, t1, dt,
+      db_v, iatt_v, natt, tz.data(), zt.data(), at.data(), az.data());
 
     /* Set the error return code */
 
@@ -1597,9 +1595,7 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_t2z_convert(DbGrid* db_t, Id iatt_v, DbGrid* db_z)
   {
-    DbGrid* db_v;
-    double z0, z1, t0, t1, dz, dt;
-    Id nz, nt, ndim, natt, iatt_z, iatt_t, error;
+    Id iatt_t;
     VectorDouble zt;
     VectorDouble tz;
     VectorDouble az;
@@ -1608,23 +1604,23 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db_z, db_t)) return (1);
-    error = 1;
-    db_v = db_t;
-    ndim = db_t->getNDim();
-    natt = db_t->getNLoc(ELoc::Z);
-    nz = db_z->getNX(ndim - 1);
-    nt = db_t->getNX(ndim - 1);
-    z0 = db_z->getX0(ndim - 1);
-    t0 = db_t->getX0(ndim - 1);
-    dz = db_z->getDX(ndim - 1);
-    dt = db_t->getDX(ndim - 1);
-    t1 = t0 + (nt - 1) * dt;
-    z1 = z0 + (nz - 1) * dz;
+    Id error = 1;
+    DbGrid* db_v = db_t;
+    Id natt = db_t->getNLoc(ELoc::Z);
+    Id ndim = db_t->getNDim();
+    Id nz = db_z->getNX(ndim - 1);
+    Id nt = db_t->getNX(ndim - 1);
+    double z0 = db_z->getX0(ndim - 1);
+    double t0 = db_t->getX0(ndim - 1);
+    double dz = db_z->getDX(ndim - 1);
+    double dt = db_t->getDX(ndim - 1);
+    double t1 = t0 + (nt - 1) * dt;
+    double z1 = z0 + (nz - 1) * dz;
 
     /* Create the output variables */
 
-    iatt_z = db_z->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_z < 0) goto label_end;
+    auto colids_z = db_t->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_z.empty()) goto label_end;
     iatt_t = db_t->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
@@ -1637,8 +1633,8 @@ namespace gstlrn
     /* Perform the conversion from Time to Depth */
 
     st_seismic_t2z_convert(
-      db_t, iatt_t, nt, t0, t1, dt, db_z, iatt_z, nz, z0, z1, dz, db_v, iatt_v,
-      natt, tz.data(), zt.data(), at.data(), az.data());
+      db_t, iatt_t, nt, t0, t1, dt, db_z, colids_z[0].getUID(), nz, z0, z1, dz,
+      db_v, iatt_v, natt, tz.data(), zt.data(), at.data(), az.data());
 
     /* Set the error return code */
 
@@ -1663,25 +1659,27 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_operate(DbGrid* db, Id oper)
   {
-    Id ndim, natt, nt, iatt_in, iatt_out;
-    double dt;
+    Id iatt_in;
 
     /* Initializations */
 
     if (st_match(db, nullptr)) return (1);
-    ndim = db->getNDim();
-    natt = db->getNLoc(ELoc::Z);
-    nt = db->getNX(ndim - 1);
-    dt = db->getDX(ndim - 1);
+    Id ndim = db->getNDim();
+    Id natt = db->getNLoc(ELoc::Z);
+    Id nt = db->getNX(ndim - 1);
+    double dt = db->getDX(ndim - 1);
 
     /* Create the output variables */
 
     iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_out < 0) return (1);
+    auto colids_out = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::UNDEFINED, 1, false, false, 0,
+      0, natt);
+    if (colids_out.empty()) return 1;
 
-    if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt))
+    if (st_seismic_operate(
+          db, oper, natt, nt, iatt_in, colids_out[0].getUID(), dt))
       return (1);
 
     return (0);
@@ -1819,8 +1817,7 @@ namespace gstlrn
     double val_after,
     VectorDouble& wavelet)
   {
-    Id ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
-    double dz;
+    Id iatt, itrace, iz, iatt_in, size, shift;
     VectorDouble tab0;
     VectorDouble tab1;
     VectorDouble tab2;
@@ -1828,11 +1825,12 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db, nullptr)) return (1);
-    ndim = db->getNDim();
-    natt = db->getNLoc(ELoc::Z);
-    nz = db->getNX(ndim - 1);
-    dz = db->getDX(ndim - 1);
-    error = 0;
+    Id ndim = db->getNDim();
+    Id natt = db->getNLoc(ELoc::Z);
+    Id nz = db->getNX(ndim - 1);
+    double dz = db->getDX(ndim - 1);
+    Id error = 0;
+    ColIDs colids_out;
 
     /* Generation of the wavelet */
 
@@ -1850,8 +1848,8 @@ namespace gstlrn
     error = 1;
     iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_out < 0) return (1);
+    colids_out = db->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_out.empty()) return 1;
 
     /* Core allocation */
 
@@ -1904,7 +1902,7 @@ namespace gstlrn
 
         for (iz = 0; iz < nz; iz++)
           TR_OUT(
-            db, iatt_out, iatt, itrace, iz,
+            db, colids_out[0].getUID(), iatt, itrace, iz,
             (FFFF(TR_IN(db, iatt_in, iatt, itrace, iz))) ? TEST
                                                          : tab2[iz + shift]);
       }

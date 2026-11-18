@@ -666,8 +666,8 @@ namespace gstlrn
 
     /* Create the variables */
 
-    Id iptr = db->addColumnsByConstant(ncut, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids = db->addEmptyColumns(VectorString(), TEST, 0, ncut);
+    if (colids.empty()) return 1;
 
     /* Loop on the samples */
 
@@ -688,7 +688,7 @@ namespace gstlrn
         double ton_cut0 = tonnage[icut];
         double ton_cut1 = (icut > 0) ? tonnage[icut - 1] : 1.;
         Id ir = ind_cut0 / ton_cut0 - ind_cut1 / ton_cut1;
-        db->setValue(db->fromUID(iptr + icut), iech, ir);
+        db->setValue(colids[icut].getUID(), iech, ir);
       }
     }
 
@@ -1720,17 +1720,15 @@ namespace gstlrn
 
     // Loading the resulting results in the output 'dbout'
 
-    Id iptr0 = -1;
     VectorDouble propout(dbout->getNSample(true));
-    for (Id i = 0; i < ncat; i++)
+    ColIDs colids(ncat);
+    for (Id icat = 0; icat < ncat; icat++)
     {
-      AprojOut.mesh2point(props[i], propout);
-      Id iptr = dbout->addColumns(propout, String(), ELoc::UNDEFINED, 0, true);
-      if (i == 0) iptr0 = iptr;
-      namconv.setOutput(
-        VectorString(), 0, dbout, iptr, concatenateStrings("-", toStr(i + 1)));
+      AprojOut.mesh2point(props[icat], propout);
+      colids[icat] = dbout->addOneColumn(
+        String(), 0., propout, ERole::UNDEFINED, 0, 1, true);
     }
-    namconv.setLocators(dbout, iptr0, 1, ncat);
+    namconv.setMultiColumns(dbout, colids);
 
     return 0;
   }

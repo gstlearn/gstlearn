@@ -558,10 +558,11 @@ namespace gstlrn
 
     // Creating the output Db and loading the coordinate vectors
     Db* newdb = Db::create();
-    newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNDEFINED);
-    newdb->addColumns(lags, "Lag", ELoc::UNDEFINED);
-    newdb->addColumns(dirs, "Direction", ELoc::UNDEFINED);
-    newdb->addColumns(dists, "Distance", ELoc::UNDEFINED);
+    (void)newdb->addOneColumn("Sample-1", 0., ranks[0]);
+    (void)newdb->addOneColumn("Sample-2", 0., ranks[1]);
+    (void)newdb->addOneColumn("Lag", 0., lags);
+    (void)newdb->addOneColumn("Direction", 0., dirs);
+    (void)newdb->addOneColumn("Distance", 0., dists);
 
     return newdb;
   }

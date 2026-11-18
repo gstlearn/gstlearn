@@ -704,7 +704,7 @@ namespace gstlrn
     double center,
     double stdv)
   {
-    Id jcol, ndef, iptr;
+    Id jcol, ndef;
     double proptot, value;
     VectorDouble num;
     VectorDouble mm;
@@ -769,8 +769,8 @@ namespace gstlrn
 
     /* Creation of the new attributes */
 
-    iptr = db->addColumnsByConstant(ncol, 1, TEST);
-    if (iptr < 0) return (1);
+    auto colids = db->addEmptyColumns(VectorString(), TEST, 0, ncol);
+    if (colids.empty()) return 1;
 
     /* Loop on the samples */
 
@@ -806,7 +806,7 @@ namespace gstlrn
           value = db->getValue(db->fromUID(cols[icol]), iech);
           value = MIN(1., MAX(0., value));
           if (ndef == ncol && proptot > 0.)
-            db->setValue(db->fromUID(iptr + icol), iech, value / proptot);
+            db->setValue(colids[icol].getUID(), iech, value / proptot);
         }
       }
     }
@@ -842,19 +842,19 @@ namespace gstlrn
           {
             if (!FFFF(mm[icol]))
               db->setValue(
-                db->fromUID(iptr + icol), iech, value + center - mm[icol]);
+                colids[icol].getUID(), iech, value - mm[icol] + center);
           }
           else if (!strcmp(oper, "stdv"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0.)
               db->setValue(
-                db->fromUID(iptr + icol), iech, value * stdv / sqrt(vv[icol]));
+                colids[icol].getUID(), iech, value * stdv / sqrt(vv[icol]));
           }
           else if (!strcmp(oper, "scal"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0. && !FFFF(mm[icol]))
               db->setValue(
-                db->fromUID(iptr + icol), iech,
+                colids[icol].getUID(), iech,
                 center + (value - mm[icol]) * stdv / sqrt(vv[icol]));
           }
         }
@@ -1034,7 +1034,7 @@ namespace gstlrn
       return 1;
 
     // Add the variable to the Db
-    Id iatt = db->addColumns(sel);
+    Id iatt = db->addSelection(sel);
 
     // Setting the output variable
     namconv.setOutput(VectorString(), 1, db, iatt);
