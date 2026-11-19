@@ -1711,17 +1711,17 @@ namespace gstlrn
 
   /**
    * Add the contents of the 'tab' as a Selection
-   * @param tab Input array
    * @param name Name given to the newly created Selection variable
+   * @param tab Input array (optional)
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
-   * @return Rank of the newly created Column within the Data Base
+   * @return Descriptor of the newly created Column within the Data Base
    * @remark The Selection is set to True if tab is not zero and to False otherwise.
    * @remark If the dimension of 'tab' does not match the number of samples in the Db
    * @remark the action is cancelled (a message is issued)
    */
-  Id Db::addSelection(
-    const VectorDouble& tab,
+  ColID Db::addOneSelection(
     const String& name,
+    const VectorDouble& tab,
     const String& combine)
   {
     auto nech = getNSample();
@@ -1735,44 +1735,44 @@ namespace gstlrn
           "Dimension of 'tab' (%d) does not match the number of samples (%d)",
           static_cast<Id>(tab.size()), nech);
         messerr("Action is cancelled");
-        return -1;
+        return ColID();
       }
 
+      // Convert the input array into a selection (0 or 1)
       for (Id iech = 0; iech < nech; iech++)
       {
         sel[iech] = (!isZero(tab[iech])) ? 1. : 0.;
       }
     }
 
-    // Convert the input array into a selection (0 or 1)
-
+    // Combine with previously existing selection (if any)
     _combineSelection(sel, combine);
-    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
-    return colid.getUID();
+
+    return addOneColumn(name, 0., sel, ERole::SEL);
   }
 
   /**
    * @brief Create a selection by testing a target variable against 'lower' and 'upper'
    *
+   * @param name  Name given to the newly created selection
    * @param varname Name of the target variable
    * @param lower Lower bound (included) or TEST for no lower bound
    * @param upper Upper bound (included) or TEST for no upper bound
-   * @param name  Name given to the newly created selection
    * @param combine How to combine with an already existing selection (see _combineSelection() for details)
    * @return Id
    */
-  Id Db::addSelectionByVariable(
+  ColID Db::addOneSelectionByVariable(
+    const String& name,
     const String& varname,
     double lower,
     double upper,
-    const String& name,
     const String& combine)
   {
     VectorDouble var = getColumn(varname, false);
     if (var.empty())
     {
       messerr("The variable '%s' does not exist", varname.c_str());
-      return 1;
+      return ColID();
     }
 
     auto nech = getNSample(false);
@@ -1793,49 +1793,24 @@ namespace gstlrn
       sel[iech] = answer;
     }
 
-    // Store the newly createed selection
+    // Combine with previously existing selection (if any)
     _combineSelection(sel, combine);
-    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
-    return colid.getUID();
-  }
 
-  /**
-   * Add a Selection by considering the input 'ranks' vector which give the ranks
-   * of the active samples (starting from 0)
-   * @param ranks   Vector of ranks of active samples
-   * @param name    Name given to the newly created Selection variable
-   * @param combine How to combine with an already existing selection (see combineSelection() for details)
-   * @return
-   */
-  Id Db::addSelectionByRanks(
-    const VectorInt& ranks,
-    const String& name,
-    const String& combine)
-  {
-    auto nech = getNSample();
-    VectorDouble sel(nech, 0.);
-
-    for (Id i = 0; i < static_cast<Id>(ranks.size()); i++) sel[ranks[i]] = 1.;
-
-    // Convert the input array into a selection (0 or 1)
-
-    _combineSelection(sel, combine);
-    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
-    return colid.getUID();
+    return addOneColumn(name, 0., sel, ERole::SEL);
   }
 
   /**
    * Create a selection around the only defined values of the target variable
+   * @param name    Name of the newly created selection
    * @param testvar Name of the target variable
    * @param limits  Limits defining the Definition Domain to be tested (optional)
-   * @param name    Name of the newly created selection
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
    * @return The rank of the newly created selection variable within the Db
    */
-  Id Db::addSelectionByLimit(
+  ColID Db::addOneSelectionByLimit(
+    const String& name,
     const String& testvar,
     const Limits& limits,
-    const String& name,
     const String& combine)
   {
     auto nech = getNSample();
@@ -1855,9 +1830,53 @@ namespace gstlrn
       }
       sel[iech] = answer;
     }
+
+    // Combine with previously existing selection (if any)
     _combineSelection(sel, combine);
-    auto colid = addOneColumn(name, 0., sel, ERole::SEL);
-    return colid.getUID();
+
+    return addOneColumn(name, 0., sel, ERole::SEL);
+  }
+
+  /**
+   * Add a Selection by considering the input 'ranks' vector which give the ranks
+   * of the active samples (starting from 0)
+   * @param name    Name given to the newly created Selection variable
+   * @param ranks   Vector of ranks of active samples
+   * @param combine How to combine with an already existing selection (see combineSelection() for details)
+   * @return
+   */
+  ColID Db::addOneSelectionByRanks(
+    const String& name,
+    const VectorInt& ranks,
+    const String& combine)
+  {
+    auto nech = getNSample();
+    VectorDouble sel(nech, 0.);
+
+    for (Id i = 0; i < static_cast<Id>(ranks.size()); i++) sel[ranks[i]] = 1.;
+
+    // Combine with previously existing selection (if any)
+    _combineSelection(sel, combine);
+
+    return addOneColumn(name, 0., sel, ERole::SEL);
+  }
+
+  /**
+   * Create a Selection based on a proportion of active samples
+   * @param name   Name of the newly created selection
+   * @param prop   Proportion of active samples (between 0 and 1)
+   * @param seed   Seed for the random number generator
+   * @param combine How to combine with an already existing selection (see combineSelection() for details)
+   * @return
+   */
+  ColID Db::addOneSelectionRandom(
+    const String& name,
+    double prop,
+    Id seed,
+    const String& combine)
+  {
+    VectorInt ranks = VH::sampleRanks(getNSample(false), prop, -1, seed, 1);
+    return addOneSelectionByRanks(name, ranks, combine);
   }
 
   /**
@@ -1868,7 +1887,7 @@ namespace gstlrn
    * @param namconv  Naming Convention
    * @return
    */
-  Id Db::addSelectionFromDbByConvexHull(
+  Id Db::buildSelectionFromConvexHull(
     Db* db,
     double dilate,
     bool verbose,
@@ -1881,24 +1900,6 @@ namespace gstlrn
     }
 
     return db_selhull(db, this, dilate, verbose, namconv);
-  }
-
-  /**
-   * Create a Selection based on a proportion of active samples
-   * @param prop   Proportion of active samples (between 0 and 1)
-   * @param seed   Seed for the random number generator
-   * @param name   Name of the newly created selection
-   * @param combine How to combine with an already existing selection (see combineSelection() for details)
-   * @return
-   */
-  Id Db::addSelectionRandom(
-    double prop,
-    Id seed,
-    const String& name,
-    const String& combine)
-  {
-    VectorInt ranks = VH::sampleRanks(getNSample(false), prop, -1, seed, 1);
-    return addSelectionByRanks(ranks, name, combine);
   }
 
   /**
@@ -5615,7 +5616,7 @@ namespace gstlrn
       VectorDouble rnd = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
-      db->addSelection(sel, "sel");
+      (void)db->addOneSelection("sel", sel);
     }
 
     // Generate the variables
@@ -5838,14 +5839,14 @@ namespace gstlrn
       if (isNA(catValue)) continue;
 
       // Create a selection based on the current category
-      Id iuid = addSelectionByVariable(
-        category, catValue - eps, catValue + eps, "catSel");
+      auto colid_sel = addOneSelectionByVariable(
+        "catSel", category, catValue - eps, catValue + eps);
 
       // Get the statisics for the current category
       Table tabloc = getStatsAsTable({name}, opers);
 
       // Delete the selection
-      deleteColumn(fromUID(iuid));
+      deleteColumn(colid_sel);
 
       // Copy the Column Names
       if (irow == 0)

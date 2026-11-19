@@ -361,36 +361,37 @@ namespace gstlrn
       Id nechInit = 0,
       Id nvarInit = 0);
 
-    Id addSelection(
-      const VectorDouble& tab = VectorDouble(),
+    ColID addOneSelection(
       const String& name = "NewSel",
+      const VectorDouble& tab = VectorDouble(),
       const String& combine = "set");
-    Id addSelectionByVariable(
+    ColID addOneSelectionByVariable(
+      const String& name,
       const String& varname,
       double lower = TEST,
       double upper = TEST,
-      const String& name = "NewSel",
       const String& combine = "set");
-    Id addSelectionByRanks(
-      const VectorInt& ranks,
-      const String& name = "NewSel",
-      const String& combine = "set");
-    Id addSelectionByLimit(
+    ColID addOneSelectionByLimit(
+      const String& name,
       const String& testvar,
       const Limits& limits = Limits(),
-      const String& name = "NewSel",
       const String& combine = "set");
-    Id addSelectionFromDbByConvexHull(
+    ColID addOneSelectionByRanks(
+      const String& name,
+      const VectorInt& ranks,
+      const String& combine = "set");
+    ColID addOneSelectionRandom(
+      const String& name,
+      double prop,
+      Id seed = 138213,
+      const String& combine = "set");
+
+    Id buildSelectionFromConvexHull(
       Db* db,
       double dilate = 0.,
       bool verbose = false,
       const NamingConvention& namconv =
         NamingConvention("Hull", true, true, true, ELoc::fromKey("SEL")));
-    Id addSelectionRandom(
-      double prop,
-      Id seed = 138213,
-      const String& name = "NewSel",
-      const String& combine = "set");
 
     /**@}*/
 

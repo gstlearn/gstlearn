@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 
   auto* model = Model::createFromParam(ECov::SPHERICAL, 10, 0.05);
   model->setDriftIRF(0);
-  (void)db->addSelectionByVariable("layer", 4, 4);
+  (void)db->addOneSelectionByVariable("NewSel", "layer", 4, 4);
   (void)simtub(db, grid, model, neigh, 1, 0, nbtuba);
   grid->setName("Simu.z1", "bottom");
   db->clearSelection();

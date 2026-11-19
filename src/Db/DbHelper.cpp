@@ -1032,10 +1032,10 @@ namespace gstlrn
       return 1;
 
     // Add the variable to the Db
-    Id iatt = db->addSelection(sel);
+    auto colid_sel = db->addOneSelection("sel", sel);
 
     // Setting the output variable
-    namconv.setOutput(VectorString(), 1, db, iatt);
+    namconv.setOneColumn(db, colid_sel);
 
     return 0;
   }

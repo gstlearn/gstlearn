@@ -120,7 +120,7 @@ estimate()
 
 
 grid = gl.DbGrid.create([100, 100], [0.01, 0.01])
-grid.addSelectionRandom(0.9)
+grid.addOneSelectionRandom("NewSel", 0.9)
 
 data = gl.Db.createFillRandom(ndat=10, selRatio=0.3)
 data[2, "z"] = np.nan
