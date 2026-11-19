@@ -17,7 +17,8 @@
   ESpaceType, RN,                                                      \
   COMPOSITE, 0, "Composite Space",                                     \
   RN, 1, "Euclidean Space",                                            \
-  SN, 2, "Geometry on Sphere"
+  SN, 2, "Geometry on Sphere",                                         \
+  CYL, 3, "Geometry on Cylinder"
 // clang-format on
 
 ENUM_DECLARE(ENUM_SPACETYPE)
