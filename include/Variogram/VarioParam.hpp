@@ -318,6 +318,10 @@ namespace gstlrn
           double w1 = hasWeight ? db->getWeight(iech) : 1.0;
           processOuterEnd(iech, w1);
         }
+        else
+        {
+          DECLARE_UNUSED(processOuterEnd)
+        }
       }
     }
     // -------------------------------------------------------------------------

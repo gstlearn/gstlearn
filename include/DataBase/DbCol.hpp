@@ -19,7 +19,6 @@
 #include "gstlearn_export.hpp"
 
 #include <optional>
-#include <span>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -30,7 +29,7 @@ namespace gstlrn
    * @brief The DbCol class represents a single column in the DbData class:
    *        - it is a heterogeneous container that can hold data of different types
    *        (e.g., double, int, string) and supports multiple versions of the data
-   *        - it may contain one or several versions of the data (e.g. outcomes for simulations)²
+   *        - it may contain one or several versions of the data (e.g. outcomes for simulations)
    *
    *        Each column is identified by its name, and it provides methods to get and set values,
    *        add samples, and retrieve the underlying data as a specific type.
@@ -110,11 +109,11 @@ namespace gstlrn
     std::optional<std::reference_wrapper<const VectorType>> getVector() const;
 
     template<typename VectorType>
-    std::optional<std::span<typename VectorType::value_type>>
+    std::optional<span<typename VectorType::value_type>>
       getVersion(Id iversion = 0);
 
     template<typename VectorType>
-    std::optional<std::span<const typename VectorType::value_type>>
+    std::optional<span<const typename VectorType::value_type>>
       getVersion(Id iversion = 0) const;
 
     template<typename VectorType>
@@ -335,7 +334,7 @@ namespace gstlrn
   }
 
   template<typename VectorType>
-  std::optional<std::span<typename VectorType::value_type>>
+  std::optional<span<typename VectorType::value_type>>
     DbCol::getVersion(Id iversion)
   {
     auto* pv = _getArray<VectorType>();
@@ -345,12 +344,12 @@ namespace gstlrn
 
     auto& buffer = pv->getBuffer();
 
-    return std::span<typename VectorType::value_type>(
+    return span<typename VectorType::value_type>(
       buffer.data() + iversion * pv->inner(), pv->inner());
   }
 
   template<typename VectorType>
-  std::optional<std::span<const typename VectorType::value_type>>
+  std::optional<span<const typename VectorType::value_type>>
     DbCol::getVersion(Id iversion) const
   {
     auto* pv = _getArray<VectorType>();
@@ -360,7 +359,7 @@ namespace gstlrn
 
     const auto& buffer = pv->getBuffer();
 
-    return std::span<const typename VectorType::value_type>(
+    return span<const typename VectorType::value_type>(
       buffer.data() + iversion * pv->inner(), pv->inner());
   }
 

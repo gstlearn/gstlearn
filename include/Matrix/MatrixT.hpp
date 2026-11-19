@@ -1,10 +1,6 @@
 #pragma once
 
-#ifdef USE_BOOST_SPAN
-#include <boost/core/span.hpp>
-#else
-#include <span>
-#endif
+#include "geoslib_define.h"
 
 #include <algorithm>
 #include <vector>
@@ -44,17 +40,12 @@ namespace gstlrn
       _data.clear();
     }
 
-#ifdef USE_BOOST_SPAN
-    using span = boost::span<T>;
-    using constspan = boost::span<const T>;
-#else
-    using span = std::span<T>;
-    using constspan = std::span<const T>;
-#endif
+    span<T> getRow(size_t row)
+    {
+      return {getRowPtr(row), getRowPtr(row) + _ncol};
+    }
 
-    span getRow(size_t row) { return {getRowPtr(row), getRowPtr(row) + _ncol}; }
-
-    constspan getRow(size_t row) const
+    span<const T> getRow(size_t row) const
     {
       return {getRowPtr(row), getRowPtr(row) + _ncol};
     }

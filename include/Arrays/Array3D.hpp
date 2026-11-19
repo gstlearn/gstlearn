@@ -10,12 +10,9 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
+
 #include <array>
-#ifdef USE_BOOST_SPAN
-#include <boost/core/span.hpp>
-#else
-#include <span>
-#endif
 
 namespace gstlrn
 {
@@ -67,22 +64,15 @@ namespace gstlrn
     }
 
 #ifndef SWIG
-#ifdef USE_BOOST_SPAN
-    using span = boost::span<T>;
-    using constspan = boost::span<const T>;
-#else
-    using span = std::span<T>;
-    using constspan = std::span<const T>;
-#endif
     // Vue sur la "colonne k" (dernier indice) pour i,j fixes
-    span row(size_t i, size_t j) noexcept
+    span<T> row(size_t i, size_t j) noexcept
     {
-      return span(data.data() + i * NY * NZ + j * NZ, NZ);
+      return {data.data() + i * NY * NZ + j * NZ, NZ};
     }
 
-    constspan row(size_t i, size_t j) const noexcept
+    span<const T> row(size_t i, size_t j) const noexcept
     {
-      return constspan(data.data() + i * NY * NZ + j * NZ, NZ);
+      return {data.data() + i * NY * NZ + j * NZ, NZ};
     }
 #endif
   };
