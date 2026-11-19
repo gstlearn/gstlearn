@@ -380,6 +380,7 @@ namespace gstlrn
         px[i] += _coeffs[ib] * tx[i];
         tm2[i] = tm1[i];
         tm1[i] = tx[i];
+        tx[i] = 0.;
       }
     }
 

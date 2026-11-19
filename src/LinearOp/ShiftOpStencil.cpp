@@ -30,7 +30,6 @@ namespace gstlrn
     bool verbose)
     : AShiftOp()
     , _stencil()
-    , _isInside()
     , _useLambdaSingleVal(true)
     , _mesh()
   {
@@ -45,58 +44,106 @@ namespace gstlrn
     Id size = static_cast<Id>(inv.size());
     const Indirection& indirect = _mesh->getGridIndirect();
 
+    const VectorVectorInt& relativeShifts = _stencil.relativeShifts();
+    const Grid& grid = _mesh->getGrid();
+    Id ndim = _mesh->getNDim();
+    VectorInt NXs = grid.getNXs();
+
     auto nbthread = static_cast<I32>(OptCustom::query("ompthreads", 1));
+
+    VectorInt center(ndim);
+    VectorInt local(ndim);
 
     if (!indirect.isDefined())
     {
       const VectorInt& absoluteShifts = _stencil.absoluteShifts();
+
       // Use the fast option when no selection is defined on the Grid
-#pragma omp parallel for num_threads(nbthread)
+#pragma omp parallel for firstprivate(center, local) num_threads(nbthread)
       for (Id ic = 0; ic < size; ic++)
       {
         double total = 0.;
-        if (_isInside[ic])
+
+        // To check border the decomposition to indexes cannot (easily) be
+        // avoided, hopefully it's not too slow. By using relative shifts
+        // later we can avoid decomposing/recomposing shifted nodes.
+        // Also nodes at more than 2 from the border are guaranteed to have
+        // all neighbors valid.
+        grid.rankToIndice(ic, center);
+
+        bool deep = true, isInside = true;
+        for (Id d = 0; d < ndim && isInside; d++)
+        {
+          Id v = center[d];
+          if (v <= 1 || v >= NXs[d] - 2)
+          {
+            deep = false;
+            if (v == 0 || v == NXs[d] - 1) isInside = false;
+          }
+        }
+
+        if (!isInside) continue;
+
+        if (deep)
         {
           for (Id iw = 0; iw < nw; iw++)
           {
-            Id iabs = ic + absoluteShifts[iw];
-            if (_isInside[iabs])
+            total += currentWeights[iw] * inv[ic + absoluteShifts[iw]];
+          }
+        }
+        else
+        {
+          for (Id iw = 0; iw < nw; iw++)
+          {
+            VH::add(local, center, relativeShifts[iw]);
+            isInside = true;
+            for (Id d = 0; d < ndim && isInside; d++)
             {
-              total += currentWeights[iw] * inv[iabs];
+              Id v = local[d];
+              if (v == 0 || v == NXs[d] - 1) isInside = false;
+            }
+            if (isInside)
+            {
+              total += currentWeights[iw] * inv[ic + absoluteShifts[iw]];
             }
           }
         }
-        outv[ic] = total;
+
+        outv[ic] += total;
       }
     }
     else
     {
-      const Grid& grid = _mesh->getGrid();
-      Id ndim = _mesh->getNDim();
-      const VectorVectorInt& relativeShifts = _stencil.relativeShifts();
-
-      VectorInt center(ndim);
-      VectorInt local(ndim);
-
 #pragma omp parallel for firstprivate(center, local) num_threads(nbthread)
       for (Id ic = 0; ic < size; ic++)
       {
         double total = 0.;
 
         // Check if the target point is not on the edge and not masked
-        if (_isInside[ic])
+        Id rank = indirect.getRToA(ic);
+        grid.rankToIndice(rank, center);
+
+        // The 'deep' trick above cannot be used, indirect must be checked
+        // for all nodes, so only check the border.
+        bool isInside = true;
+        for (Id d = 0; d < ndim && isInside; d++)
         {
-          Id rank = indirect.getRToA(ic);
-          grid.rankToIndice(rank, center);
-          for (Id iw = 0; iw < nw; iw++)
-          {
-            VH::add(local, center, relativeShifts[iw]);
-            Id ie = grid.indiceToRank(local);
-            rank = indirect.getAToR(ie);
-            if (rank >= 0) total += currentWeights[iw] * inv[rank];
-          }
+          Id v = center[d];
+          if (v == 0 || v == NXs[d] - 1) isInside = false;
         }
-        outv[ic] = total;
+
+        if (!isInside) continue;
+
+        for (Id iw = 0; iw < nw; iw++)
+        {
+          VH::add(local, center, relativeShifts[iw]);
+          Id ie = grid.indiceToRank(local);
+          rank = indirect.getAToR(ie);
+          if (rank >= 0) total += currentWeights[iw] * inv[rank];
+          // note: shifted nodes on the border are accepted here but not
+          // when there is no indirection, is this intended?
+        }
+        outv[ic] += total;
       }
     }
     return 0;
@@ -184,36 +231,31 @@ namespace gstlrn
 
     _stencil = ShiftStencil(_mesh, _cova.get(), verbose);
 
-    const Grid& grid = mesh->getGrid();
-    VectorInt center(ndim);
-    VectorInt NXs = grid.getNXs();
-
-    // Delineate the border of the grid (not to be treated)
-    Id size = _mesh->getNApices();
-    _isInside.fill(true, size);
-
-    const Indirection& indirect = _mesh->getGridIndirect();
-    for (Id i = 0; i < size; i++)
-    {
-      Id rank = indirect.isDefined() ? indirect.getRToA(i) : i;
-      grid.rankToIndice(rank, center);
-      bool flagInside = true;
-      for (Id idim = 0; idim < ndim && flagInside; idim++)
-      {
-        Id ival = center[idim];
-        if (ival <= 0 || ival >= NXs[idim] - 1) flagInside = false;
-      }
-      _isInside[i] = flagInside;
-    }
-
     if (verbose)
     {
+      // Count the number of pixels on the border of the grid (not to be treated)
+      const Grid& grid = _mesh->getGrid();
+      VectorInt NXs = grid.getNXs();
+
+      const Indirection& indirect = _mesh->getGridIndirect();
       Id ntreated = 0;
-      for (Id i = 0; i < size; i++)
-        if (_isInside[i]) ntreated++;
+      VectorInt center(ndim);
+      for (Id i = 0; i < _napices; i++)
+      {
+        Id rank = indirect.isDefined() ? indirect.getRToA(i) : i;
+        grid.rankToIndice(rank, center);
+
+        bool isInside = true;
+        for (Id d = 0; d < ndim && isInside; d++)
+        {
+          Id v = center[d];
+          if (v == 0 || v == NXs[d] - 1) isInside = false;
+        }
+        if (isInside) ntreated++;
+      }
       message(
         "Number of pixels inside the grid (no edge effect) = %d/%d\n", ntreated,
-        size);
+        _napices);
     }
 
     return 0;

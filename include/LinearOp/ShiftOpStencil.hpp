@@ -70,8 +70,6 @@ namespace gstlrn
    *                 calculated on the global target grid.
    *                 This can only be used if the grid has no selection
    * _weights        Vector of weights (only significant ones are kept)
-   * _isInside       Vector telling if each node of the grid is located on its edge
-   *                 and should be bypassed for matrix calculations, or not
    */
   class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
   {
@@ -107,7 +105,6 @@ namespace gstlrn
 
   private:
     ShiftStencil _stencil;
-    VectorBool _isInside;
     bool _useLambdaSingleVal;
     const MeshETurbo* _mesh; // not to be deleted
   };
