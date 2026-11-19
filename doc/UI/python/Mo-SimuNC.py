@@ -110,7 +110,8 @@ def define_action(
                         gmo.plotGrid(
                             axes[i],
                             grid,
-                            name="Simu" if nbsimu == 1 else f"Simu.S{isimu}",
+                            name="Simu",
+                            version=isimu - 1,
                             title=f"Simulation #{isimu}/{nbsimu}",
                             flagLegend=False,
                             flagBinary=flagDisplayBinary,
