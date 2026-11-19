@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
   {
     // ====================== Simulation (FFT) ====================
     message("\n<----- Simulation using FFT Method ----->\n");
-    auto simparam = SimuFFTParam(true, 0.1);
+    auto simparam = SimuFFTParam(false, 1.);
     simuFFT(
       dbin, grid, model, simparam, nbsimu, 425631, false,
       NamingConvention("SimuFFT"));

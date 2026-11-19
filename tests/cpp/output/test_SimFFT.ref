@@ -1,4 +1,7 @@
 
+2D case
+=======
+
 Data Base Grid Characteristics
 ==============================
 
@@ -33,36 +36,74 @@ Covariance Part
 ---------------
 Spherical
 - Sill         =       1.000
-- Range        =      10.000
+- Range        =      20.000
 Total Sill     =       1.000
 Known Mean(s)      0.000
-
-<----- Creating Parameter File ----->
-Perform intermediate mesh discretization in order to reduce aliasing
-Percentage of Covariance used for field extension
-
-<----- Perform FFT Simulation ----->
 Grid Dilation parameters :
-- Number of Nodes along X = 10
-- Number of Nodes along Y = 10
+- Number of Nodes along X = 19
+- Number of Nodes along Y = 19
 Grid parameters after Optimal Dilation :
-- Number of Nodes along X = 110
-- Number of Nodes along Y = 110
-- Total count of grid nodes = 12100
+- Number of Nodes along X = 120
+- Number of Nodes along Y = 120
+- Total count of grid nodes = 14400
 Statistics on the Discrete Periodic Covariance
-- Anti-aliasing switched ON (Iteration=1)
 - Total of positive frequencies = 1.000000
 - Total of negative frequencies = 0.000000
 
+>>> computing simulation 1
+
+3D case
+=======
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 3
+Number of Columns            = 4
+Total number of samples      = 262144
+
+Grid characteristics:
+---------------------
+Origin :       0.000      0.000      0.000
+Mesh   :       1.000      1.000      1.000
+Number :          64         64         64
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+
+Model characteristics
+=====================
+Space dimension              = 3
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =       1.000
+- Ranges       =      20.000     10.000      5.000
+- Theo. Ranges =       6.676      3.338      1.669
+Total Sill     =       1.000
+Known Mean(s)      0.000
 Grid Dilation parameters :
-- Number of Nodes along X = 10
-- Number of Nodes along Y = 10
+- Number of Nodes along X = 31
+- Number of Nodes along Y = 16
+- Number of Nodes along Z = 8
 Grid parameters after Optimal Dilation :
-- Number of Nodes along X = 110
-- Number of Nodes along Y = 110
-- Total count of grid nodes = 12100
+- Number of Nodes along X = 96
+- Number of Nodes along Y = 80
+- Number of Nodes along Z = 72
+- Total count of grid nodes = 552960
 Statistics on the Discrete Periodic Covariance
-- Anti-aliasing switched ON (Iteration=1)
 - Total of positive frequencies = 1.000000
 - Total of negative frequencies = 0.000000
 

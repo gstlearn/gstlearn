@@ -2341,44 +2341,31 @@ namespace gstlrn
    **
    ** \return  The model value
    **
+   ** \param[in]  d1         Vector of increments
    ** \param[in]  ivar       Rank of the first variable
    ** \param[in]  jvar       Rank of the second variable
    ** \param[in]  mode       CovCalcMode structure
-   ** \param[in]  codir      Array giving the direction coefficients (optional)
-   ** \param[in]  hh         Vector of increments
    **
    *****************************************************************************/
   double ACov::evaluateOneIncr(
-    double hh,
-    const VectorDouble& codir,
+    const VectorDouble& d1,
     Id ivar,
     Id jvar,
     const CovCalcMode* mode) const
   {
-    auto ndim = getNDim();
     auto nvar = getNVar();
-
-    /* Core allocation */
-
-    VectorDouble d1(ndim);
     MatrixSquare covtab(nvar);
 
-    /* Normalize the direction vector codir */
-
-    /* Get the normalized direction vector */
-
-    VectorDouble codir_loc = codir;
-    if (codir_loc.empty())
+    if (d1.empty())
     {
-      (void)GH::rotationGetDirectionDefault(ndim, codir_loc);
+      auto ndim = getNDim();
+      VectorDouble d0(ndim, 0.);
+      evaluateMatInPlace(nullptr, d0, covtab, true, 1., mode);
     }
     else
     {
-      VH::normalizeCodir(ndim, codir_loc);
+      evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
     }
-
-    for (Id idim = 0; idim < ndim; idim++) d1[idim] = hh * codir_loc[idim];
-    evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
     return covtab.getValue(ivar, jvar);
   }
 

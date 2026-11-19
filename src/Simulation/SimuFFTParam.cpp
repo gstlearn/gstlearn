@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Simulation/SimuFFTParam.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Message.hpp"
 
 #include <cmath>
 
@@ -17,9 +18,10 @@ namespace gstlrn
 {
   SimuFFTParam::SimuFFTParam(bool flag_aliasing, double percent)
     : AStringable()
-    , _flagAliasing(flag_aliasing)
+    , _flagAliasing()
     , _percent(percent)
   {
+    _checkAliasing(flag_aliasing);
   }
 
   SimuFFTParam::SimuFFTParam(const SimuFFTParam& r)
@@ -48,10 +50,19 @@ namespace gstlrn
 
     if (_flagAliasing)
       sstr << "Perform intermediate mesh discretization in order to reduce "
-              "aliasing"
+              "aliasing (OBSOLETE)"
            << std::endl;
-    sstr << "Percentage of Covariance used for field extension" << std::endl;
+    sstr << "Percentage of Covariance used for field extension (1% minimum)"
+         << std::endl;
 
     return sstr.str();
+  }
+
+  void SimuFFTParam::_checkAliasing(bool aliasing)
+  {
+    if (!aliasing) return;
+    messerr(
+      "The 'aliasing' feature is now OBSOLETE for the Simulation by FFT "
+      "method");
   }
 } // namespace gstlrn
