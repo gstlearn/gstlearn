@@ -120,7 +120,7 @@ grd["sel"]  <- (sqrt((grd["x1"] - 0.5)^2 + (grd["x2"] - 0.5)^2) < 0.5)
 # defining the observations
 np <- 100
 data = Db_createSamplingDb(grd, number = np, names = c("x1", "x2", "N", "Z"))
-colid_sel = data$addOneSelectionRandom("sel", prop = 0.8, seed = 13167)
+colid_sel = data$addSelectionRandom("sel", prop = 0.8, seed = 13167)
 
 # setting the roles
 # on the grid

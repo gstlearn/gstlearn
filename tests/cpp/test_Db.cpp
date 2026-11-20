@@ -55,12 +55,12 @@ int main(int argc, char* argv[])
     // First selection generated with Bernoulli (proba=0.6)
     VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
     printVector(sel1, "sel1", true, true);
-    (void)grid->addOneSelection("Sel1", sel1);
+    (void)grid->addSelection("Sel1", sel1);
 
     // Second selection generated with Bernoulli (proba=0.4) combined with previous one
     VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
     printVector(sel2, "sel2", true, true);
-    (void)grid->addOneSelection("Sel2", sel2, "and");
+    (void)grid->addSelection("Sel2", sel2, "and");
 
     // Retrieve resulting selection for check
     VectorDouble sel3 = grid->getSelections();
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     // Creating a Selection by setting individual values
     OptCst::define(ECst::NTROW, -1);
     DbStringFormat dbfmt2(FLAG_VARS | FLAG_ARRAY);
-    (void)grid->addOneSelection("mySel");
+    (void)grid->addSelection("mySel");
     grid->setValue("mySel", 12, 0.);
     grid->setValue("mySel", 19, 0.);
     grid->display(&dbfmt2);

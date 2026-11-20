@@ -1719,7 +1719,7 @@ namespace gstlrn
    * @remark If the dimension of 'tab' does not match the number of samples in the Db
    * @remark the action is cancelled (a message is issued)
    */
-  ColID Db::addOneSelection(
+  ColID Db::addSelection(
     const String& name,
     const VectorDouble& tab,
     const String& combine)
@@ -1761,7 +1761,7 @@ namespace gstlrn
    * @param combine How to combine with an already existing selection (see _combineSelection() for details)
    * @return Id
    */
-  ColID Db::addOneSelectionByVariable(
+  ColID Db::addSelectionByVariable(
     const String& name,
     const String& varname,
     double lower,
@@ -1807,7 +1807,7 @@ namespace gstlrn
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
    * @return The rank of the newly created selection variable within the Db
    */
-  ColID Db::addOneSelectionByLimit(
+  ColID Db::addSelectionByLimit(
     const String& name,
     const String& testvar,
     const Limits& limits,
@@ -1845,7 +1845,7 @@ namespace gstlrn
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
    * @return
    */
-  ColID Db::addOneSelectionByRanks(
+  ColID Db::addSelectionByRanks(
     const String& name,
     const VectorInt& ranks,
     const String& combine)
@@ -1869,14 +1869,14 @@ namespace gstlrn
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
    * @return
    */
-  ColID Db::addOneSelectionRandom(
+  ColID Db::addSelectionRandom(
     const String& name,
     double prop,
     Id seed,
     const String& combine)
   {
     VectorInt ranks = VH::sampleRanks(getNSample(false), prop, -1, seed, 1);
-    return addOneSelectionByRanks(name, ranks, combine);
+    return addSelectionByRanks(name, ranks, combine);
   }
 
   /**
@@ -5616,7 +5616,7 @@ namespace gstlrn
       VectorDouble rnd = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
-      (void)db->addOneSelection("sel", sel);
+      (void)db->addSelection("sel", sel);
     }
 
     // Generate the variables
@@ -5839,7 +5839,7 @@ namespace gstlrn
       if (isNA(catValue)) continue;
 
       // Create a selection based on the current category
-      auto colid_sel = addOneSelectionByVariable(
+      auto colid_sel = addSelectionByVariable(
         "catSel", category, catValue - eps, catValue + eps);
 
       // Get the statisics for the current category

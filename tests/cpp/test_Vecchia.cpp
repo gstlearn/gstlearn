@@ -38,7 +38,7 @@ static Db* _createDb(Id nvar = 1, Id ndat = 5, Id seed = 4243)
     ndat, ndim, nvar, 0, 0, 0., 0., VectorDouble(), VectorDouble(),
     VectorDouble(), seed);
   VectorDouble sel(ndat, 1.);
-  (void)db->addOneSelection("sel", sel);
+  (void)db->addSelection("sel", sel);
   return db;
 }
 

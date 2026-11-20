@@ -90,7 +90,7 @@ neigh$attach(data, grid)
 ranks = VectorInt()
 neigh$select(node, ranks)
 dataSel = data$clone()
-dum = dataSel$addOneSelectionByRanks("NewSel", ranks)
+dum = dataSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -169,7 +169,7 @@ ranks = VectorInt()
 neigh$select(node, ranks)
 
 dataSel = data$clone()
-dum = dataSel$addOneSelectionByRanks("NewSel", ranks)
+dum = dataSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting (TODO: this currently generates a warning message)
@@ -200,7 +200,7 @@ neigh$attach(data, grid)
 ranks = VectorInt()
 neigh$select(node, ranks)
 dataSel = data$clone()
-dum = dataSel$addOneSelectionByRanks("NewSel", ranks)
+dum = dataSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -253,7 +253,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addOneSelectionByRanks("NewSel", ranks)
+dum = pointSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 plotting the result
@@ -287,7 +287,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addOneSelectionByRanks("NewSel", ranks)
+dum = pointSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -320,7 +320,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addOneSelectionByRanks("NewSel", ranks)
+dum = pointSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -364,7 +364,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addOneSelectionByRanks("NewSel", ranks)   #adding selection on these samples
+dum = pointSel$addSelectionByRanks("NewSel", ranks)   #adding selection on these samples
 ```
 
 Plotting the result

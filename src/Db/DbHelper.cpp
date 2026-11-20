@@ -1032,7 +1032,7 @@ namespace gstlrn
       return 1;
 
     // Add the variable to the Db
-    auto colid_sel = db->addOneSelection("sel", sel);
+    auto colid_sel = db->addSelection("sel", sel);
 
     // Setting the output variable
     namconv.setOneColumn(db, colid_sel);

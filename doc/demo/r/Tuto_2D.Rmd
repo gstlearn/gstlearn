@@ -68,7 +68,7 @@ Extracting the vector containing the Zn variable in order to perform a selection
 tabZn = mydb$getColumn("Zn")
 selZn = as.numeric(tabZn < 20)
 colid = mydb$getColumnId("Zn")
-mydb$addOneSelection("sel", selZn)
+mydb$addSelection("sel", selZn)
 mydb$setLocator('Pb',ELoc_Z())
 if (verbose)
     mydb$display()

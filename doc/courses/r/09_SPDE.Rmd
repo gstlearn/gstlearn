@@ -39,7 +39,7 @@ fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 temperatures = Db_createFromNF(fileNF)
 
 temperatures$setLocator("Elevation", ELoc_F())
-colid_sel = temperatures$addOneSelection("NewSel", as.numeric(! is.na(temperatures["J*"])))
+colid_sel = temperatures$addSelection("NewSel", as.numeric(! is.na(temperatures["J*"])))
 temperatures$display()
 ```
 

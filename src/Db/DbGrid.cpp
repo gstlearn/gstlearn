@@ -1711,7 +1711,7 @@ namespace gstlrn
       VectorDouble rnd = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
-      (void)dbgrid->addOneSelection("sel", sel);
+      (void)dbgrid->addSelection("sel", sel);
     }
 
     // Generate the variables

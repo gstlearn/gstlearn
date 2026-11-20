@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   // Generate the input data base
   Id nall = 100;
   Db* dbin = Db::createFillRandom(nall, ndim);
-  (void)dbin->addOneSelectionRandom("NewSel", 0.9);
+  (void)dbin->addSelectionRandom("NewSel", 0.9);
   Id ndat = dbin->getNSample(true);
   if (verbose) dbin->display();
 
