@@ -195,9 +195,7 @@ int main(int argc, char* argv[])
     _thirdTest(cov1, cov2, models, rule);
     ruleprop.resetFromRule(&rule, props);
     ruleprop.display();
-
     (void)simPGSSPDE(dat, grid, models[0], ruleprop, nbsimu);
-
     _clearModels(models);
   }
 
