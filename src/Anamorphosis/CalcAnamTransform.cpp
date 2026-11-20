@@ -31,9 +31,9 @@ namespace gstlrn
 
   CalcAnamTransform::CalcAnamTransform(AAnam* anam)
     : ACalcDbVarCreator()
-    , _iattVar(-1)
-    , _iattFac(-1)
-    , _iattSel(-1)
+    , _colids_Var()
+    , _colids_Fac()
+    , _colids_Sel()
     , _flagVars(false)
     , _flagToFactors(false)
     , _flagDisjKrig(false)
@@ -225,45 +225,39 @@ namespace gstlrn
     if (_flagVars)
     {
       auto nvar = _getNVar();
-      // Add the output variable(s) (with the same number of 'versions' as the input variable(s))
-      for (Id ivar = 0; ivar < nvar; ivar++)
-      {
-        Id nversion = getDb()->getNVersions(RoleID(ERole::Z, ivar));
-        auto iatt = getDb()->addColumnsByConstant(1, nversion);
-        if (_iattVar < 0) _iattVar = iatt;
-      }
-      return (_iattVar >= 0);
+      // Add the output variable(s) (with the same number of 'versions' as the first input variable(s))
+      Id nversion = getDb()->getNVersions(RoleID(ERole::Z, 0));
+      _colids_Var =
+        getDb()->addEmptyColumns(VectorString(), 0., 0, nvar, nversion);
+      return (!_colids_Var.empty());
     }
 
     if (_flagToFactors)
     {
       auto nfact = _getNfact();
-      _iattFac = getDb()->addColumnsByConstant(nfact);
-      return (_iattFac >= 0);
+      _colids_Fac = getDb()->addEmptyColumns(VectorString(), 0., 0, nfact);
+      return (!_colids_Fac.empty());
     }
 
     if (_flagDisjKrig)
     {
       auto nvarout = _getNSel();
-      _iattSel = getDb()->addColumnsByConstant(nvarout, 1, TEST);
-      if (_iattSel < 0) return 1;
-      return true;
+      _colids_Sel = getDb()->addEmptyColumns(VectorString(), TEST, 0, nvarout);
+      return (!_colids_Sel.empty());
     }
 
     if (_flagCondExp)
     {
       auto nvarout = _getNSel();
-      _iattSel = getDb()->addColumnsByConstant(nvarout, 1, TEST);
-      if (_iattSel < 0) return 1;
-      return true;
+      _colids_Sel = getDb()->addEmptyColumns(VectorString(), TEST, 0, nvarout);
+      return (!_colids_Sel.empty());
     }
 
     if (_flagUniCond)
     {
       auto nvarout = _getNSel();
-      _iattSel = getDb()->addColumnsByConstant(nvarout, 1, TEST);
-      if (_iattSel < 0) return 1;
-      return true;
+      _colids_Sel = getDb()->addEmptyColumns(VectorString(), TEST, 0, nvarout);
+      return (!_colids_Sel.empty());
     }
 
     return false;
@@ -277,14 +271,14 @@ namespace gstlrn
     if (_flagVars)
     {
       auto nvar = _getNVar();
-      _renameVariable(nvar, _iattVar, ELoc::Z, String(), 1);
+      _renameVariable(nvar, _colids_Var[0].getUID(), ELoc::Z, String(), 1);
       return true;
     }
 
     if (_flagToFactors)
     {
       auto nfact = _getNfact();
-      _renameVariable(1, _iattFac, ELoc::Z, String(), nfact);
+      _renameVariable(1, _colids_Fac[0].getUID(), ELoc::Z, String(), nfact);
       return true;
     }
 
@@ -293,8 +287,8 @@ namespace gstlrn
       auto nsel = _getNSel();
       for (Id i = 0; i < nsel; i++)
         _renameVariable(
-          1, _iattSel + i, ELoc::UNDEFINED, _selectivity->getVariableName(i),
-          1);
+          1, _colids_Sel[i].getUID(), ELoc::UNDEFINED,
+          _selectivity->getVariableName(i), 1);
       return true;
     }
 
@@ -303,7 +297,8 @@ namespace gstlrn
       auto nsel = _getNSel();
       for (Id i = 0; i < nsel; i++)
         _renameVariable(
-          1, _iattSel + i, ELoc::Z, _selectivity->getVariableName(i), 1);
+          1, _colids_Sel[i].getUID(), ELoc::Z, _selectivity->getVariableName(i),
+          1);
       return true;
     }
 
@@ -312,7 +307,8 @@ namespace gstlrn
       auto nsel = _getNSel();
       for (Id i = 0; i < nsel; i++)
         _renameVariable(
-          1, _iattSel + i, ELoc::Z, _selectivity->getVariableName(i), 1);
+          1, _colids_Sel[i].getUID(), ELoc::Z, _selectivity->getVariableName(i),
+          1);
       return true;
     }
 
@@ -366,16 +362,16 @@ namespace gstlrn
     if (_flagCondExp)
     {
       return (!_conditionalExpectation(
-        getDb(), _anam, _selectivity, _iattSel, _iptrEst[0], _iptrStd[0],
-        _flagOK, _proba, _nbsimu));
+        getDb(), _anam, _selectivity, _colids_Sel[0].getUID(), _iptrEst[0],
+        _iptrStd[0], _flagOK, _proba, _nbsimu));
     }
 
     if (_flagUniCond)
     {
       auto* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
       return (!_uniformConditioning(
-        getDb(), anam_hermite, _selectivity, _iattSel, _iptrEst[0],
-        _iptrStd[0]));
+        getDb(), anam_hermite, _selectivity, _colids_Sel[0].getUID(),
+        _iptrEst[0], _iptrStd[0]));
     }
 
     return false;
@@ -406,8 +402,10 @@ namespace gstlrn
           getDb()->getColumn(ColID(roleid, ivers), false, true);
         VectorDouble vec = VH::normalScore(data, wt);
         if (!vec.empty())
-          getDb()->setColumn(
-            getDb()->fromUID(_iattVar + ivar, ivers), vec, false);
+        {
+          _colids_Var[ivar].setVersion(ivers);
+          getDb()->setColumn(_colids_Var[ivar], vec, false);
+        }
       }
     }
     return true;
@@ -427,7 +425,8 @@ namespace gstlrn
         VectorDouble z = getDb()->getColumn(ColID(roleid, ivers), true, true);
         if (z.size() <= 0) continue;
         VectorDouble y = anamC->rawToGaussianVector(z);
-        getDb()->setColumn(getDb()->fromUID(_iattVar + ivar, ivers), y, true);
+        _colids_Var[ivar].setVersion(ivers);
+        getDb()->setColumn(_colids_Var[ivar], y, true);
       }
     }
     return true;
@@ -447,7 +446,8 @@ namespace gstlrn
         VectorDouble y = getDb()->getColumn(ColID(roleid, ivers), true, true);
         if (y.size() <= 0) continue;
         VectorDouble z = anamC->gaussianToRawVector(y);
-        getDb()->setColumn(getDb()->fromUID(_iattVar + ivar, ivers), z, true);
+        _colids_Var[ivar].setVersion(ivers);
+        getDb()->setColumn(_colids_Var[ivar], z, true);
       }
     }
     return true;
@@ -465,8 +465,7 @@ namespace gstlrn
       VectorDouble factors = _anam->z2factor(zval, _ifacs);
       if (factors.empty()) continue;
       for (Id ifac = 0; ifac < nfact; ifac++)
-        getDb()->setValue(
-          getDb()->fromUID(_iattFac + ifac), iech, factors[ifac]);
+        getDb()->setValue(_colids_Fac[ifac], iech, factors[ifac]);
     }
     return true;
   }
@@ -483,17 +482,17 @@ namespace gstlrn
     {
       case EAnam::E_HERMITIAN:
         anam_hermite->factor2Selectivity(
-          getDb(), _selectivity, _iptrEst, _iptrStd, _iattSel);
+          getDb(), _selectivity, _iptrEst, _iptrStd, _colids_Sel[0].getUID());
         return true;
 
       case EAnam::E_DISCRETE_DD:
         anam_discrete_DD->factor2Selectivity(
-          getDb(), _selectivity, _iptrEst, _iptrStd, _iattSel);
+          getDb(), _selectivity, _iptrEst, _iptrStd, _colids_Sel[0].getUID());
         return true;
 
       case EAnam::E_DISCRETE_IR:
         anam_discrete_IR->factor2Selectivity(
-          getDb(), _selectivity, _iptrEst, _iptrStd, _iattSel);
+          getDb(), _selectivity, _iptrEst, _iptrStd, _colids_Sel[0].getUID());
         return true;
 
       default:

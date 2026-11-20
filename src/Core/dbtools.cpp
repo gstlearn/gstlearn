@@ -746,42 +746,44 @@ namespace gstlrn
    ** \param[in]  dbgrid  Db structure (grid organized)
    **
    *****************************************************************************/
-  Id db_gradient_components(DbGrid* dbgrid)
+  ColIDs db_gradient_components(DbGrid* dbgrid)
 
   {
-    Id iptrz, iptr, nx, ny, nz, nmax, error, ndim, j1, j2, number;
-    double dinc, v1, v2, delta;
-    VectorInt indg;
+    Id j1, j2;
+    double v1, v2, delta;
+    ColIDs colids;
 
     /* Preliminary check */
 
-    error = number = 1;
-    iptr = -1;
-    ndim = dbgrid->getNDim();
+    Id number = 1;
+    Id ndim = dbgrid->getNDim();
     if (!dbgrid->isGrid())
     {
       messerr("The Db should be organized as a Grid");
-      goto label_end;
+      return colids;
     }
-    if (!dbgrid->isNVarComparedTo(1)) goto label_end;
+    if (!dbgrid->isNVarComparedTo(1)) return colids;
     if (ndim > 3)
     {
       messerr("This function is limited to Space Dimension <= 3");
-      goto label_end;
+      return colids;
     }
 
     /* Initializations */
 
-    nx = dbgrid->getNX(0);
-    ny = dbgrid->getNX(1);
-    nz = dbgrid->getNX(2);
-    indg.resize(ndim, 0);
+    Id nx = dbgrid->getNX(0);
+    Id ny = dbgrid->getNX(1);
+    Id nz = dbgrid->getNX(2);
+    VectorInt indg(ndim, 0);
 
     /* Create the new variable */
 
-    iptrz = dbgrid->getColumnIndex(RoleID(ERole::Z, 0));
-    if (iptrz < 0) goto label_end;
-    iptr = dbgrid->addColumnsByConstant(ndim, 1, TEST, String(), ELoc::G);
+    Id iptrz = dbgrid->getColumnIndex(RoleID(ERole::Z, 0));
+    if (iptrz < 0) return colids;
+    colids = dbgrid->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::G, 1, false, false, 0, 0,
+      ndim);
+    auto iptr = colids[0].getUID();
 
     /* Calculate the Gradient components */
 
@@ -791,8 +793,8 @@ namespace gstlrn
         {
           for (Id idim = 0; idim < ndim; idim++)
           {
-            nmax = dbgrid->getNX(idim);
-            dinc = dbgrid->getDX(idim);
+            Id nmax = dbgrid->getNX(idim);
+            double dinc = dbgrid->getDX(idim);
 
             v1 = v2 = 0.;
             if (idim == 0)
@@ -833,17 +835,7 @@ namespace gstlrn
           }
         }
 
-    /* Set the error return code */
-
-    error = 0;
-
-  label_end:
-    if (error)
-    {
-      dbgrid->deleteColumnsByUIDRange(iptr, ndim);
-      iptr = -1;
-    }
-    return (iptr);
+    return colids;
   }
 
   /****************************************************************************/
@@ -1020,7 +1012,8 @@ namespace gstlrn
     }
     else
     {
-      iptr_grad = db_gradient_components(dbgrid);
+      auto colid_grad = db_gradient_components(dbgrid);
+      iptr_grad = colid_grad[0].getUID();
     }
     if (iptr_grad < 0) goto label_end;
 

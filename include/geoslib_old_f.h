@@ -227,7 +227,7 @@ namespace gstlrn
     double* coor);
   GSTLEARN_EXPORT Id point_to_point(Db* db, const double* coor);
   GSTLEARN_EXPORT Id point_inside_grid(Db* db, Id iech, const DbGrid* dbgrid);
-  GSTLEARN_EXPORT Id db_gradient_components(DbGrid* dbgrid);
+  GSTLEARN_EXPORT ColIDs db_gradient_components(DbGrid* dbgrid);
   GSTLEARN_EXPORT Id db_streamline(
     DbGrid* dbgrid,
     Db* dbpoint,

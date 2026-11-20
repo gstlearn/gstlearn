@@ -1463,11 +1463,12 @@ namespace gstlrn
     const VectorString& names,
     double valinit,
     Id nechInit,
-    Id nvarInit)
+    Id nvarInit,
+    Id nversion)
   {
     return addMultiColumns(
-      names, valinit, VectorDouble(), ERole::UNDEFINED, 1, false, false, 0,
-      nechInit, nvarInit);
+      names, valinit, VectorDouble(), ERole::UNDEFINED, nversion, false, false,
+      0, nechInit, nvarInit);
   }
 
   /**

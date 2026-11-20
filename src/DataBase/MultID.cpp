@@ -16,6 +16,7 @@ namespace gstlrn
     : _icols()
     , _names()
     , _role(ERole::UNDEFINED)
+    , _colids()
   {
     _names.push_back(name);
   }
@@ -24,6 +25,7 @@ namespace gstlrn
     : _icols(icols)
     , _names()
     , _role(ERole::UNDEFINED)
+    , _colids()
   {
   }
 
@@ -31,6 +33,7 @@ namespace gstlrn
     : _icols()
     , _names(names)
     , _role(ERole::UNDEFINED)
+    , _colids()
   {
   }
 
@@ -38,6 +41,7 @@ namespace gstlrn
     : _icols()
     , _names()
     , _role(role)
+    , _colids()
   {
   }
 
@@ -45,8 +49,22 @@ namespace gstlrn
     : _icols()
     , _names()
     , _role(ERole::UNDEFINED)
+    , _colids()
   {
     _icols.push_back(icol);
+  }
+
+  MultID::MultID(const ColIDs& colids)
+    : _icols()
+    , _names()
+    , _role(ERole::UNDEFINED)
+    , _colids(colids)
+  {
+  }
+
+  MultID MultID::create(const ColIDs& colids)
+  {
+    return MultID(colids);
   }
 
   MultID::MultID(std::initializer_list<const char*> names)

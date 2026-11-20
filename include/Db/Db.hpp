@@ -359,7 +359,8 @@ namespace gstlrn
       const VectorString& names = VectorString(),
       double valinit = 0.,
       Id nechInit = 0,
-      Id nvarInit = 0);
+      Id nvarInit = 0,
+      Id nversion = 1);
 
     ColID addSelection(
       const String& name = "NewSel",

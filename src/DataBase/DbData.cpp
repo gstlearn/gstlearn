@@ -888,6 +888,13 @@ namespace gstlrn
    */
   ColIDs DbData::getColumnIndices(const MultID& multid) const
   {
+    // If ColIDs are already provided directly, return them as-is
+    const ColIDs& directColIDs = multid.getColIDs();
+    if (!directColIDs.empty())
+    {
+      return directColIDs;
+    }
+
     auto ncols = getNColumns();
     VectorInt found;
     std::unordered_set<Id> seen;
