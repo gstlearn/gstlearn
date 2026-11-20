@@ -483,7 +483,7 @@ namespace gstlrn
       double range = 1.,
       const NamingConvention& namconv = NamingConvention("Smooth"));
 
-    Id addSelectionFromDbByMorpho(
+    Id buildSelectionByMorpho(
       Db* db,
       Id nmin = 0,
       Id radius = 0,

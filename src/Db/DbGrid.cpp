@@ -2486,7 +2486,7 @@ namespace gstlrn
    * @param namconv Naming convention
    * @return
    */
-  Id DbGrid::addSelectionFromDbByMorpho(
+  Id DbGrid::buildSelectionByMorpho(
     Db* db,
     Id nmin,
     Id radius,
