@@ -1060,7 +1060,7 @@ namespace gstlrn
 
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
-    auto colids = dbout->addEmptyColumns(VectorString(), 0., 0, nvar, nbsimu);
+    Id iuid0 = dbout->addColumnsByConstant(nvar * nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -1074,14 +1074,15 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        colids[ivar].setVersion(isimu);
-        dbout->setColumn(colids[ivar], local, true);
+        Id juid = iuid0 + ivar * nbsimu + isimu;
+        dbout->setColumn(dbout->fromUID(juid), local, true);
+        iuids.push_back(juid);
       }
 
       // Convert the resulting simulation into categories
-      dbout->setLocators(colids, ELoc::SIMU);
+      dbout->setLocators(dbout->fromUIDs(iuids), ELoc::SIMU);
       ruleprop.gaussToCategory(dbout, namconv);
-      dbout->deleteColumns(colids);
+      dbout->deleteColumns(dbout->fromUIDs(iuids));
     }
 
     return 0;
