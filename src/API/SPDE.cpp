@@ -949,7 +949,7 @@ namespace gstlrn
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
 
-    Id iuid = dbout->addColumnsByConstant(nvar, nbsimu);
+    auto colids = dbout->addEmptyColumns(VectorString(), 0., 0, nvar, nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -960,11 +960,12 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        dbout->setColumn(dbout->fromUID(iuid + ivar, isimu), local, true);
+        colids[ivar].setVersion(isimu);
+        dbout->setColumn(colids[ivar], local, true);
       }
     }
     auto names = (dbin != nullptr) ? dbin->getNames(ERole::Z) : VectorString();
-    namconv.setOutput(names, 0, dbout, iuid, "", 1);
+    namconv.setMultiColumns(dbout, colids, "", names);
 
     return 0;
   }
@@ -1059,7 +1060,7 @@ namespace gstlrn
 
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
-    Id iuid0 = dbout->addColumnsByConstant(nvar * nbsimu);
+    auto colids = dbout->addEmptyColumns(VectorString(), 0., 0, nvar, nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -1073,15 +1074,14 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        Id juid = iuid0 + ivar * nbsimu + isimu;
-        dbout->setColumn(dbout->fromUID(juid), local, true);
-        iuids.push_back(juid);
+        colids[ivar].setVersion(isimu);
+        dbout->setColumn(colids[ivar], local, true);
       }
 
       // Convert the resulting simulation into categories
-      dbout->setLocators(dbout->fromUIDs(iuids), ELoc::SIMU);
+      dbout->setLocators(colids, ELoc::SIMU);
       ruleprop.gaussToCategory(dbout, namconv);
-      dbout->deleteColumns(dbout->fromUIDs(iuids));
+      dbout->deleteColumns(colids);
     }
 
     return 0;
