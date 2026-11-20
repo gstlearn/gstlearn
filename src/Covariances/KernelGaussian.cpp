@@ -121,7 +121,7 @@ namespace gstlrn
     for (size_t icol = 0; icol < ndim; icol++)
     {
       auto view = mat.getViewOnColumnModify(icol);
-      for (size_t irow = 0; irow < static_cast<size_t>(nb); irow++)
+      for (size_t irow = 0, nrow = static_cast<size_t>(nb); irow < nrow; irow++)
         view[irow] = sqrt2 * law_gaussian();
     }
     return mat;
