@@ -576,7 +576,7 @@ namespace gstlrn
     VectorInt uids = getUIDsDefined();
     vals.resize(uids.size());
     for (Id iuid = 0; iuid < static_cast<Id>(uids.size()); iuid++)
-      vals[iuid] = getValue(uids[iuid], iech);
+      vals[iuid] = getValue(fromUID(uids[iuid]), iech);
   }
 
   void Db::setArrayBySample(Id iech, const VectorDouble& vec)

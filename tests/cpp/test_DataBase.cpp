@@ -63,6 +63,8 @@ int main(int argc, char* argv[])
   data.printContents();
 
   // Checking the use of Neutral Files
+  // DbData does not implement _serializeAscii() so this requires HDF5.
+#ifdef HDF5
   mestitle(1, "Saving and recovering a DbData from a Neutral File");
   data.printContents("Before Saving in a Neutral File");
   std::cout << "VD: " << data.getColumn<VectorDouble>("VD");
@@ -84,6 +86,7 @@ int main(int argc, char* argv[])
   std::cout << "VIS: " << data2->getColumn<VectorInt>("VIS");
   std::cout << "VC: " << data2->getColumn<VectorCategory>("VC");
   delete data2;
+#endif
 
   // Particular test for the case of Categorical variable
   mestitle(1, "Checking the use of a Categorical Variable");

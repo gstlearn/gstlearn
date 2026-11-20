@@ -763,6 +763,18 @@ namespace gstlrn
         ret = ret && _recordRead<Id>(is, "Rule Node Definition", nodes[lec++]);
     if (ret) setMainNodeFromNodNames(nodes);
 
+    // The rest is optional (to cope with old versions of Rule class)
+    bool ret2 = ret;
+    Id size = 0;
+    ret2 = ret2 && _recordRead<Id>(is, "NFacies", size);
+    if (ret2 && size > 0)
+    {
+      ret2 = ret2 && _recordReadVec<String>(is, "FaciesNames", _facnames, size);
+      ret2 = ret2 && _recordReadVec<Id>(is, "FaciesColors", _faccols, size);
+      ret2 = ret2 && _recordReadVec<Id>(is, "FaciesValues", _facvalues, size);
+      return ret2;
+    }
+
     return ret;
   }
 
@@ -790,6 +802,11 @@ namespace gstlrn
 
     rank = 0;
     if (ret) _ruleDefine(os, getMainNode(), 0, 0, 0, &rank);
+
+    ret = ret && _recordWrite<Id>(os, "NFacies", _facnames.size());
+    ret = ret && _recordWriteVec<String>(os, "FaciesNames", _facnames);
+    ret = ret && _recordWriteVec<Id>(os, "FaciesColors", _faccols);
+    ret = ret && _recordWriteVec<Id>(os, "FaciesValues", _facvalues);
 
     return ret;
   }
