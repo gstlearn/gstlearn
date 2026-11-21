@@ -1221,8 +1221,8 @@ namespace gstlrn
       messerr("argument 'zcuts' must have some cutoffs defined");
       return 1;
     }
-    Id iuid = db->getUID(name);
-    if (iuid < 0)
+    auto colid = db->getColID(name);
+    if (colid.empty())
     {
       messerr("The variable does not seem to exist");
       return 1;
@@ -1230,31 +1230,31 @@ namespace gstlrn
 
     // Variable allocations
 
-    Id iuidT = db->addColumnsByConstant(ncuts, 1, TEST);
-    if (iuidT < 0) return -1;
-    Id iuidQ = db->addColumnsByConstant(ncuts, 1, TEST);
-    if (iuidQ < 0) return -1;
+    auto colids_T = db->addEmptyColumns(VectorString(), TEST, 0, ncuts);
+    if (colids_T.empty()) return -1;
+    auto colids_Q = db->addEmptyColumns(VectorString(), TEST, 0, ncuts);
+    if (colids_Q.empty()) return -1;
 
     // Loop on the samples
 
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      double value = db->getValue(db->fromUID(iuid), iech);
+      double value = db->getValue(colid, iech);
 
       for (Id icut = 0; icut < ncuts; icut++)
       {
         double tonnage = (value >= zcuts[icut]);
-        db->setValue(db->fromUID(iuidT + icut), iech, tonnage);
+        db->setValue(colids_T[icut], iech, tonnage);
         double metal = tonnage * value;
-        db->setValue(db->fromUID(iuidQ + icut), iech, metal);
+        db->setValue(colids_Q[icut], iech, metal);
       }
     }
 
     // Set the names
 
-    namconv.setOutput(VectorString(), 0, db, iuidT, "T");
-    namconv.setOutput(VectorString(), 0, db, iuidQ, "Q");
+    namconv.setMultiColumns(db, colids_T, "T");
+    namconv.setMultiColumns(db, colids_Q, "Q");
     return 0;
   }
 

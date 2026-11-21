@@ -2041,11 +2041,14 @@ namespace gstlrn
    ** \param[in]  verbose    Verbose option
    **
    *****************************************************************************/
-  Id MLayers::kriging(bool verbose)
+  ColIDs MLayers::kriging(bool verbose)
   {
     Id nvar = _nlayers;
     if (_flagStd) nvar += _nlayers;
-    Id iptr = _dbout->addColumnsByConstant(nvar, 1, TEST, String(), ELoc::Z);
+    auto colids = _dbout->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::Z, 1, false, false, 0, 0,
+      nvar);
+    if (colids.empty()) return ColIDs();
 
     /* Core allocation */
 
@@ -2115,10 +2118,10 @@ namespace gstlrn
 
     if (_flagBayes)
     {
-      if (_fillDriftData(seltab, prop1, drift, fftab)) return -1;
+      if (_fillDriftData(seltab, prop1, drift, fftab)) return ColIDs();
       if (_calculateDriftBayes(
             verbose, a, zval, fftab, a0, cc, ss, gs, postMean, postVars))
-        return -1;
+        return ColIDs();
     }
     else
     {
@@ -2137,7 +2140,7 @@ namespace gstlrn
 
     _convertResults();
 
-    return iptr;
+    return colids;
   }
 
   /****************************************************************************/
@@ -2289,11 +2292,9 @@ namespace gstlrn
 
     if (!lmlayers.checkValid()) return 1;
 
-    Id iptr = lmlayers.kriging(verbose);
+    auto colids = lmlayers.kriging(verbose);
 
-    Id nvar = dbout->getNLoc(ELoc::Z);
-
-    namconv.setOutput(VectorString(), nvar, dbout, iptr, "estim");
+    namconv.setMultiColumns(dbout, colids, "estim");
 
     return 0;
   }

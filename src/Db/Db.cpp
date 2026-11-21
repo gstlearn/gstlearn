@@ -4422,18 +4422,19 @@ namespace gstlrn
     Id noper = static_cast<Id>(opers.size());
 
     // Add the variables for PointWise statistics
-    Id iuidn = addColumnsByConstant(noper);
-    if (iuidn < 0) return;
+    auto colids = addEmptyColumns(VectorString(), 0., 0, noper);
+    if (colids.empty()) return;
 
     VectorString nameloc = getNames(fromUIDs(iuids));
-    dbStatisticsVariables(this, nameloc, opers, iuidn, proba, vmin, vmax);
+    dbStatisticsVariables(
+      this, nameloc, opers, colids[0].getUID(), proba, vmin, vmax);
 
-    namconv.setOutput(VectorString(), 0, this, iuidn);
+    namconv.setOutput(VectorString(), 0, this, colids[0].getUID());
     for (Id i = 0; i < noper; i++)
     {
       const EStatOption& oper = opers[i];
       namconv.setOutput(
-        VectorString(), 0, this, iuidn + i, String{oper.getKey()});
+        VectorString(), 0, this, colids[i].getUID(), String{oper.getKey()});
     }
   }
 
