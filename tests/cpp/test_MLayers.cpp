@@ -60,11 +60,11 @@ int main(int argc, char* argv[])
   auto* grid = DbGrid::create({100, 100});
 
   VectorDouble gadd = (grid->getColumn("x1") + grid->getColumn("x2")) / 200.;
-  (void)grid->addColumns(gadd, "reference");
+  (void)grid->addOneColumn("reference", 0., gadd);
 
   auto* model = Model::createFromParam(ECov::SPHERICAL, 10, 0.05);
   model->setDriftIRF(0);
-  (void)db->addSelectionByVariable("layer", 4, 4);
+  (void)db->addSelectionByVariable("NewSel", "layer", 4, 4);
   (void)simtub(db, grid, model, neigh, 1, 0, nbtuba);
   grid->setName("Simu.z1", "bottom");
   db->clearSelection();

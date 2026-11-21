@@ -469,24 +469,24 @@ namespace gstlrn
     double value,
     const ELoc& loctype_pot,
     const ELoc& loctype_grad,
-    VectorInt& uid_pot,
-    VectorInt& uid_grad) const
+    ColIDs& colids_pot,
+    ColIDs& colids_grad) const
   {
-    uid_pot.clear();
-    uid_grad.clear();
+    colids_pot.clear();
+    colids_grad.clear();
     if (db == nullptr) return;
 
     if (_flagPot)
     {
-      Id uid =
-        db->addColumnsByConstant(nvar, 1, value, "Potential", loctype_pot);
-      uid_pot.push_back(uid);
+      colids_pot = db->addMultiColumns(
+        {"Potential"}, value, VectorDouble(), toERole(loctype_pot), 1, false,
+        false, 0, 0, nvar);
     }
     if (_flagGrad)
     {
-      Id uid = db->addColumnsByConstant(
-        nvar * _ndim, 1, value, "Gradients", loctype_grad);
-      for (Id idim = 0; idim < _ndim; idim++) uid_grad.push_back(uid + idim);
+      colids_grad = db->addMultiColumns(
+        {"Gradients"}, value, VectorDouble(), toERole(loctype_grad), 1, false,
+        false, 0, 0, nvar * _ndim);
     }
   }
 
@@ -1336,7 +1336,7 @@ namespace gstlrn
 
     /* Add the selection */
 
-    _dbExt->addColumnsByConstant(1, 1, 0., String(), ELoc::SEL);
+    (void)_dbExt->addOneColumn("Selection", 0., VectorDouble(), ERole::SEL);
 
     /* Complementary core allocation */
 
@@ -1533,7 +1533,7 @@ namespace gstlrn
    *****************************************************************************/
   void Potential::_fillDualSimulation(Id nbsimu, MatrixDense& zvals)
   {
-    auto colid = ColID(0);
+    ColID colid;
     zvals.fill(0.);
 
     // Loop on the simulations */
@@ -1723,8 +1723,8 @@ namespace gstlrn
     VectorDouble& zdual,
     MatrixDense& rhs,
     Db* db_target,
-    VectorInt& uid_pot,
-    VectorInt& uid_grad)
+    const ColIDs& colids_pot,
+    const ColIDs& colids_grad)
   {
     if (db_target == nullptr) return;
     VectorDouble result(4);
@@ -1743,17 +1743,16 @@ namespace gstlrn
 
       // Store the results
 
-      if (!uid_pot.empty())
+      if (!colids_pot.empty())
       {
-        db_target->setValue(db_target->fromUID(uid_pot[0]), iech, result[0]);
-        db_target->setLocators(uid_pot, ELoc::Z, 0);
+        db_target->setValue(colids_pot[0], iech, result[0]);
+        db_target->setLocators(colids_pot, ELoc::Z, 0);
       }
-      if (!uid_grad.empty())
+      if (!colids_grad.empty())
       {
         for (Id idim = 0; idim < _ndim; idim++)
-          db_target->setValue(
-            db_target->fromUID(uid_grad[idim]), iech, result[idim + 1]);
-        db_target->setLocators(uid_grad, ELoc::G, 0);
+          db_target->setValue(colids_grad[idim], iech, result[idim + 1]);
+        db_target->setLocators(colids_grad, ELoc::G, 0);
       }
     }
   }
@@ -2490,10 +2489,14 @@ namespace gstlrn
     bool flag_save_data,
     Id option_part)
   {
-    VectorInt uid_iso_pot, uid_iso_grad;
-    VectorInt uid_grd_pot, uid_grd_grad;
-    VectorInt uid_tgt_pot, uid_tgt_grad;
-    VectorInt uid_out_pot, uid_out_grad;
+    ColIDs colids_out_pot;
+    ColIDs colids_iso_pot;
+    ColIDs colids_iso_grad;
+    ColIDs colids_out_grad;
+    ColIDs colids_tgt_pot;
+    ColIDs colids_tgt_grad;
+    ColIDs colids_grd_pot;
+    ColIDs colids_grd_grad;
 
     // Initialization
     _environmentManage(flag_pot, flag_grad, flag_trans, option_part);
@@ -2509,18 +2512,18 @@ namespace gstlrn
     // Allocating the output variables
 
     _saveResultData(
-      dbout, 1, TEST, ELoc::Z, ELoc::G, uid_out_pot, uid_out_grad);
+      dbout, 1, TEST, ELoc::Z, ELoc::G, colids_out_pot, colids_out_grad);
     if (flag_save_data)
     {
       _saveResultData(
-        _dbiso, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, uid_iso_pot,
-        uid_iso_grad);
+        _dbiso, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, colids_iso_pot,
+        colids_iso_grad);
       _saveResultData(
-        _dbgrd, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, uid_grd_pot,
-        uid_grd_grad);
+        _dbgrd, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, colids_grd_pot,
+        colids_grd_grad);
       _saveResultData(
-        _dbtgt, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, uid_tgt_pot,
-        uid_tgt_grad);
+        _dbtgt, 1, TEST, ELoc::UNDEFINED, ELoc::UNDEFINED, colids_tgt_pot,
+        colids_tgt_grad);
     }
 
     // Core allocation
@@ -2560,11 +2563,11 @@ namespace gstlrn
     if (flag_save_data)
     {
       _estimateData(
-        dbout, refpot, zdual, rhs, _dbiso, uid_iso_pot, uid_iso_grad);
+        dbout, refpot, zdual, rhs, _dbiso, colids_iso_pot, colids_iso_grad);
       _estimateData(
-        dbout, refpot, zdual, rhs, _dbgrd, uid_grd_pot, uid_grd_grad);
+        dbout, refpot, zdual, rhs, _dbgrd, colids_grd_pot, colids_grd_grad);
       _estimateData(
-        dbout, refpot, zdual, rhs, _dbtgt, uid_tgt_pot, uid_tgt_grad);
+        dbout, refpot, zdual, rhs, _dbtgt, colids_tgt_pot, colids_tgt_grad);
     }
 
     return 0;
@@ -2595,10 +2598,14 @@ namespace gstlrn
     Id nbsimu,
     Id nbtuba)
   {
-    VectorInt uid_out_pot, uid_out_grad;
-    VectorInt uid_iso_pot, uid_iso_grad;
-    VectorInt uid_grd_pot, uid_grd_grad;
-    VectorInt uid_tgt_pot, uid_tgt_grad;
+    ColIDs colids_out_pot;
+    ColIDs colids_iso_pot;
+    ColIDs colids_iso_grad;
+    ColIDs colids_out_grad;
+    ColIDs colids_tgt_pot;
+    ColIDs colids_tgt_grad;
+    ColIDs colids_grd_pot;
+    ColIDs colids_grd_grad;
 
     // Initialization
     _environmentManage(true, false, flag_trans, 0);
@@ -2618,19 +2625,19 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
     _saveResultData(
-      dbout, nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, uid_out_pot,
-      uid_out_grad);
+      dbout, nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, colids_out_pot,
+      colids_out_grad);
     _saveResultData(
-      _dbiso, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, uid_iso_pot,
-      uid_iso_grad);
+      _dbiso, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, colids_iso_pot,
+      colids_iso_grad);
     _saveResultData(
-      _dbgrd, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, uid_grd_pot,
-      uid_grd_grad);
+      _dbgrd, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, colids_grd_pot,
+      colids_grd_grad);
     _saveResultData(
-      _dbtgt, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, uid_tgt_pot,
-      uid_tgt_grad);
+      _dbtgt, 2 * nbsimu, 0., ELoc::SIMU, ELoc::UNDEFINED, colids_tgt_pot,
+      colids_tgt_grad);
     if (flag_tempere)
-      (void)dbout->addColumnsByConstant(1, 1, TEST, String(), ELoc::Z);
+      (void)dbout->addOneColumn("Tempere", TEST, VectorDouble(), ERole::Z);
 
     /* Processing the non-conditional simulation over the iso-values */
     {
@@ -2740,7 +2747,9 @@ namespace gstlrn
 
     // Allocating the output variables
     int nvar = (flag_dist_conv) ? 4 : 2;
-    (void)_dbiso->addColumnsByConstant(nvar, 1, TEST, String(), ELoc::Z);
+    (void)_dbiso->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::Z, 1, false, false, 0, 0,
+      nvar);
 
     // Core allocation
     VectorDouble zval(_nequa);

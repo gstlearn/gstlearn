@@ -101,7 +101,7 @@ namespace gstlrn
   private:
     DbGrid* _dbcloud; // Pointer to DbGrid (not to be deleted)
     const VarioParam* _varioparam; // Pointer (not to be deleted)
-    Id _IPTR;
+    ColID _colid_ptr;
     VectorInt _samples;
     bool _flagSelection;
     VectorInt _IDS;

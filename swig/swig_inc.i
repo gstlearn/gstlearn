@@ -484,6 +484,7 @@
 %template(VecMeshes)               std::vector< const gstlrn::AMesh*>;
 %template(VectorMatrixSquare)      std::vector< gstlrn::MatrixSquare >;
 %template(VectorRule)              std::vector< gstlrn::Rule>;
+%template(VectorColID)             std::vector< gstlrn::ColID>;
 
 ///////////////////////////////////////
 // Conversion Target language => C++ //

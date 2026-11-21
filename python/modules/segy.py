@@ -301,7 +301,7 @@ def create3DGrid(
     nx[1] = limitY[1] - limitY[0]
 
     # Get the grid of maximum extension (even if variables are not defined)
-    iuidSel = dbsegy2D.setSelectionFromVariableExtend(topName, botName)
+    dbsegy2D.setSelectionFromVariableExtend(topName, botName)
 
     # Calculating the vertical extension (if not specified in input)
     if limitZ is None:

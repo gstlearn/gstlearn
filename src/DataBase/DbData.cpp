@@ -217,11 +217,13 @@ namespace gstlrn
   ColID DbData::getColID(const ColID& colid) const
   {
     const auto icol = _getColumnIndex(colid, false);
-    if (!icol || !isValidColumn(*icol)) return ColID(-1);
+    if (!icol || !isValidColumn(*icol)) return ColID();
 
     ColID colIDout(*icol);
     colIDout._setName(_cols[*icol].getName());
     colIDout._setRoleID(_roleIDs[*icol]);
+    colIDout.setVersion(colid.getVersion());
+    colIDout._setUID(_cols[*icol].getUniqueIndex());
     return colIDout;
   }
 
@@ -246,14 +248,14 @@ namespace gstlrn
   ColID DbData::fromUID(Id iuid, Id version) const
   {
     const auto ncol = getNColumns();
-    if (ncol <= 0 || iuid < 0) return ColID(-1);
+    if (ncol <= 0 || iuid < 0) return ColID();
 
     Id jcol = _searchColumnByUID(iuid);
     if (jcol >= 0)
     {
       return ColID(jcol, version);
     }
-    return ColID(-1);
+    return ColID();
   }
 
   MultID DbData::fromUIDs(const VectorInt& iuids) const
@@ -301,59 +303,59 @@ namespace gstlrn
    * @brief Return a set of Column Identifiers starting from a Column Name
    *
    * @param name Column Name (with regexp facility)
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const String& name) const
+  ColIDs DbData::getColIDs(const String& name) const
   {
     // Looking for matching names
     VectorString matchNames = expandList(getNames(), name);
 
     // Loop to create the list of Column Identifiers
-    std::vector<ColID> colIDs;
+    ColIDs colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
-      if (colID.getICol() >= 0) colIDs.push_back(colID);
+      if (colID.getICol() >= 0) colids.push_back(colID);
     }
-    return colIDs;
+    return colids;
   }
 
   /**
    * @brief Return a set of Column Identifiers starting from a set of Column Names
    *
    * @param names Column Names (with regexp facility)
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const VectorString& names) const
+  ColIDs DbData::getColIDs(const VectorString& names) const
   {
     VectorString matchNames = expandList(getNames(), names);
-    std::vector<ColID> colIDs;
+    ColIDs colids;
     for (const auto& matchName: matchNames)
     {
       const auto colID = getColID(ColID(matchName));
-      if (colID.getICol() >= 0) colIDs.push_back(colID);
+      if (colID.getICol() >= 0) colids.push_back(colID);
     }
-    return colIDs;
+    return colids;
   }
 
   /**
    * @brief Returns a set of Column Identifiers matching a given Role
    *
    * @param role Target Role to be searched
-   * @return std::vector<ColID>
+   * @return ColIDs
    */
-  std::vector<ColID> DbData::getColIDs(const ERole& role) const
+  ColIDs DbData::getColIDs(const ERole& role) const
   {
-    std::vector<ColID> colIDs;
+    ColIDs colids;
     for (const auto& id: this->_roleIDs)
     {
       if (id.getRole().isEqual(role))
       {
         const auto colID = getColID(ColID(id));
-        if (colID.getICol() >= 0) colIDs.push_back(colID);
+        if (colID.getICol() >= 0) colids.push_back(colID);
       }
     }
-    return colIDs;
+    return colids;
   }
 
   Id DbData::getNSamples() const
@@ -411,8 +413,8 @@ namespace gstlrn
    */
   void DbData::clearRole(const ERole& role)
   {
-    std::vector<ColID> colIDs = getColIDs(role);
-    for (const auto& colID: colIDs) _roleIDs[colID.getICol()].removeRole();
+    ColIDs colids = getColIDs(role);
+    for (const auto& colID: colids) _roleIDs[colID.getICol()].removeRole();
   }
 
   void DbData::clearAllRoles()
@@ -613,7 +615,7 @@ namespace gstlrn
     }
   }
 
-  Id DbData::getColMatchUniqueIndex(Id uniqueIndex) const
+  Id DbData::searchByUID(Id uniqueIndex) const
   {
     const Id ncol = getNColumns();
     if (ncol <= 0) return -1;
@@ -659,12 +661,12 @@ namespace gstlrn
     {
       const auto& role = *it;
 
-      auto colIDs = getColIDs(role);
-      if (!colIDs.empty())
+      auto colids = getColIDs(role);
+      if (!colids.empty())
       {
         sstr << "Role: " << role.getKey() << " (" << getNRoles(role) << ")";
         sstr << " - Columns = ";
-        for (const auto& colID: colIDs) sstr << colID.getICol() << " ";
+        for (const auto& colID: colids) sstr << colID.getICol() << " ";
         sstr << std::endl;
       }
       it.toNext();
@@ -674,26 +676,25 @@ namespace gstlrn
 
   void DbData::_unknownName(const String& name)
   {
-    messerr("Column '%s' does not exist.", name.c_str());
+    messerr("Column Name '%s' does not exist.", name.c_str());
   }
 
-  void DbData::_unknownRoleID(const RoleID& roleID)
+  void DbData::_unknownRoleID(const ColID& colID)
   {
-    messerr("Role '%s' does not exist.", roleID.getName().c_str());
+    messerr(
+      "Column Role '%s' does not exist.", colID.getRoleID().getName().c_str());
   }
 
   void DbData::_unknownICol(Id icol, Id ncol)
   {
-    messerr("Column index (%d) is out of range.", icol);
-    messerr("It should be between 0 and %d", ncol - 1);
+    (void)checkArg("Column Index", icol, ncol - 1);
   }
 
   void DbData::_invalidUID(Id uidCol, Id uidRef)
   {
     messerr(
       "Column Identifier has a Unique Index (%d) that does not match "
-      "the "
-      "targeted Column (%d).",
+      "the targeted Column (%d).",
       uidCol, uidRef);
     messerr("The 'UID' information prevails");
   }
@@ -750,61 +751,26 @@ namespace gstlrn
     DbData::_getColumnIndex(const ColID& colid, bool verbose) const
   {
     Id icol0 = -1;
-    auto ncol = getNColumns();
 
     // 1. Identification by Index
     auto icol = colid.getICol();
     if (icol >= 0)
     {
-      if (icol < ncol)
-      {
-        icol0 = icol;
-      }
-      else
-      {
-        if (verbose) _unknownICol(icol, ncol);
-        return std::nullopt;
-      }
+      icol0 = icol;
     }
+
     // 2. Identification By Name (with regexp matching)
     else if (!colid.getName().empty())
     {
-      const String& localName = colid.getName();
-      bool found = false;
-      for (Id jcol = 0; jcol < ncol; ++jcol)
-      {
-        if (matchRegexp(_cols[jcol].getName(), localName))
-        {
-          icol0 = jcol;
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        if (verbose) _unknownName(localName);
-        return std::nullopt;
-      }
+      icol0 = _searchByName(colid, verbose);
+      if (icol0 < 0) return std::nullopt;
     }
+
     // 3. Identification by Role
     else if (colid.getRole().isDifferent(ERole::UNDEFINED))
     {
-      const RoleID& roleID = colid.getRoleID();
-      bool found = false;
-      for (Id jcol = 0; jcol < ncol; ++jcol)
-      {
-        if (_roleIDs[jcol].isEqual(roleID, true))
-        {
-          icol0 = jcol;
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-      {
-        if (verbose) _unknownRoleID(roleID);
-        return std::nullopt;
-      }
+      icol0 = _searchByRole(colid, verbose);
+      if (icol0 < 0) return std::nullopt;
     }
 
     // 4. No valid identifier provided
@@ -819,30 +785,90 @@ namespace gstlrn
       return std::nullopt;
     }
 
-    // Check the Unique Identifier (UID)
-    auto uidCol = colid.getUniqueIndex();
-    if (uidCol >= 0)
-    {
-      auto uidRef = _cols[icol0].getUniqueIndex();
-      if (uidRef != uidCol)
-      {
-        if (verbose) _invalidUID(uidCol, uidRef);
-        icol0 = getColMatchUniqueIndex(uidCol);
-      }
-    }
+    // Check if the UID information (if any) is consistent with the found Column
+    icol0 = _checkUID(colid, icol0, verbose);
+    if (icol0 < 0) return std::nullopt;
 
     // Check the version number
+    if (!_checkVersion(colid, icol0)) return std::nullopt;
+
+    return icol0;
+  }
+
+  /**
+   * @brief The Column 'icol0' has been identified.
+   * Check if its UID contents is valid and consistent with the one provided in 'colid' (if any).
+   * If the match is not correct, launch a search by UID to find the correct Column.
+   *
+   * @param colid Column Identifier
+   * @param icol0 Index of the Column initially identified
+   * @param verbose Whether to print error messages if the UID does not match (default = true)
+   * @return Resulting rank of the column identified
+   */
+  Id DbData::_checkUID(const ColID& colid, Id icol0, bool verbose) const
+  {
+    auto uidCol = colid.getUID();
+    auto ncol = getNColumns();
+    bool validColIndex = (icol0 >= 0 && icol0 < ncol);
+
+    // No UID information provided in ColID. Simply check against the number of columns in the DataBase.
+    if (uidCol < 0)
+    {
+      if (validColIndex) return icol0;
+      _unknownICol(icol0, ncol);
+      return -1;
+    }
+
+    if (validColIndex)
+    {
+      // Read the UID information from ColID
+      auto uidRef = _cols[icol0].getUniqueIndex();
+      if (uidRef == uidCol) return icol0;
+
+      // In case of mismatch the Column is searched by UID instead of RoleID
+      if (verbose) _invalidUID(uidCol, uidRef);
+    }
+
+    icol0 = searchByUID(uidCol);
+    return icol0;
+  }
+
+  bool DbData::_checkVersion(const ColID& colid, Id icol0) const
+  {
     auto version = colid.getVersion();
     if (version > 0)
     {
       auto nversion = _cols[icol0].getNVersions();
       if (!_cols[icol0].checkVersion(version, nversion))
       {
-        return std::nullopt;
+        return false;
       }
     }
+    return true;
+  }
 
-    return icol0;
+  Id DbData::_searchByRole(const ColID& colid, bool verbose) const
+  {
+    auto ncol = getNColumns();
+    const RoleID& roleID = colid.getRoleID();
+    for (Id jcol = 0; jcol < ncol; ++jcol)
+    {
+      if (_roleIDs[jcol].isEqual(roleID, true)) return jcol;
+    }
+    if (verbose) _unknownRoleID(roleID);
+    return -1;
+  }
+
+  Id DbData::_searchByName(const ColID& colid, bool verbose) const
+  {
+    auto ncol = getNColumns();
+    const String& localName = colid.getName();
+    for (Id jcol = 0; jcol < ncol; ++jcol)
+    {
+      if (matchRegexp(_cols[jcol].getName(), localName)) return jcol;
+    }
+    if (verbose) _unknownName(localName);
+    return -1;
   }
 
   /**
@@ -860,8 +886,15 @@ namespace gstlrn
    * (as long as duplicate column references are suppressed).
    * - the invalid column references are ignored
    */
-  std::vector<ColID> DbData::getColumnIndices(const MultID& multid) const
+  ColIDs DbData::getColumnIndices(const MultID& multid) const
   {
+    // If ColIDs are already provided directly, return them as-is
+    const ColIDs& directColIDs = multid.getColIDs();
+    if (!directColIDs.empty())
+    {
+      return directColIDs;
+    }
+
     auto ncols = getNColumns();
     VectorInt found;
     std::unordered_set<Id> seen;
@@ -928,7 +961,7 @@ namespace gstlrn
     }
 
     // Create the list of ColIDs corresponding to the found columns
-    std::vector<ColID> colids;
+    ColIDs colids;
     colids.reserve(found.size());
     for (Id icol: found)
     {

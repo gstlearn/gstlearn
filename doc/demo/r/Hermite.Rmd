@@ -196,7 +196,7 @@ calculate.matrix <- function(type,calcul,flag.est,params)
   else
     stop("Wrong value for 'type'")
 
-  uid = db$addColumns(as.numeric(psi),"psi")
+  colid = db$addOneColumn("psi", 0., as.numeric(psi))
   db
 }
 

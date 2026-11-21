@@ -474,7 +474,7 @@ We can compute this predictor by directly manipulating the variables of the `tar
 ROK_estim =  b + a * target["Elevation"] + target["ROK*estim"]
 
 ## Add it to data base
-uid = target$addColumns(ROK_estim,"KR.Temperature.estim")
+colid = target$addOneColumn("KR.Temperature.estim", 0., ROK_estim)
 ```
 
 Let us plot the resulting temperature predictions.

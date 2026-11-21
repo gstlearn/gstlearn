@@ -704,7 +704,7 @@ namespace gstlrn
     double center,
     double stdv)
   {
-    Id jcol, ndef, iptr;
+    Id jcol, ndef;
     double proptot, value;
     VectorDouble num;
     VectorDouble mm;
@@ -769,8 +769,8 @@ namespace gstlrn
 
     /* Creation of the new attributes */
 
-    iptr = db->addColumnsByConstant(ncol, 1, TEST);
-    if (iptr < 0) return (1);
+    auto colids = db->addEmptyColumns(VectorString(), TEST, 0, ncol);
+    if (colids.empty()) return 1;
 
     /* Loop on the samples */
 
@@ -806,7 +806,7 @@ namespace gstlrn
           value = db->getValue(db->fromUID(cols[icol]), iech);
           value = MIN(1., MAX(0., value));
           if (ndef == ncol && proptot > 0.)
-            db->setValue(db->fromUID(iptr + icol), iech, value / proptot);
+            db->setValue(colids[icol], iech, value / proptot);
         }
       }
     }
@@ -841,20 +841,18 @@ namespace gstlrn
           if (!strcmp(oper, "mean"))
           {
             if (!FFFF(mm[icol]))
-              db->setValue(
-                db->fromUID(iptr + icol), iech, value + center - mm[icol]);
+              db->setValue(colids[icol], iech, value - mm[icol] + center);
           }
           else if (!strcmp(oper, "stdv"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0.)
-              db->setValue(
-                db->fromUID(iptr + icol), iech, value * stdv / sqrt(vv[icol]));
+              db->setValue(colids[icol], iech, value * stdv / sqrt(vv[icol]));
           }
           else if (!strcmp(oper, "scal"))
           {
             if (!FFFF(vv[icol]) && vv[icol] > 0. && !FFFF(mm[icol]))
               db->setValue(
-                db->fromUID(iptr + icol), iech,
+                colids[icol], iech,
                 center + (value - mm[icol]) * stdv / sqrt(vv[icol]));
           }
         }
@@ -926,10 +924,10 @@ namespace gstlrn
 
     // Create the new variable and duplicate the Z-locator variable
 
-    Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, 0));
-    Id iatt_out = dbgrid->addColumnsByConstant(1, 1);
-    dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
-    dbgrid->setLocator(dbgrid->fromUID(iatt_out), ELoc::Z, 0);
+    auto colid_in = dbgrid->getColID(ERole::Z);
+    ColID colid_out = dbgrid->addOneColumn();
+    dbgrid->duplicateColumnByUID(colid_in.getUID(), colid_out.getUID());
+    dbgrid->setLocator(colid_out, ELoc::Z, 0);
 
     /* Global variables */
 
@@ -984,8 +982,8 @@ namespace gstlrn
     /* Set the error return code */
 
     error = 0;
-    namconv.setOutput(
-      dbgrid->getNames(dbgrid->fromUIDs({iatt_in})), 0, dbgrid, iatt_out);
+
+    namconv.setOneColumn(dbgrid, colid_out, "", colid_in.getName());
 
   label_end:
     delete skin;
@@ -1034,10 +1032,10 @@ namespace gstlrn
       return 1;
 
     // Add the variable to the Db
-    Id iatt = db->addColumns(sel);
+    auto colid_sel = db->addSelection("sel", sel);
 
     // Setting the output variable
-    namconv.setOutput(VectorString(), 1, db, iatt);
+    namconv.setOneColumn(db, colid_sel);
 
     return 0;
   }
@@ -1305,36 +1303,38 @@ namespace gstlrn
    *****************************************************************************/
   DbGrid* DbHelper::dbgrid_sampling(DbGrid* dbin, const VectorInt& nmult)
   {
-    DbGrid* dbout;
-    VectorDouble coor;
-    Id ncol, icol, iech, iad, item, rank, ndim, mult;
+    Id iad, locatorIndex, mult;
     ELoc locatorType;
 
     /* Initializations */
 
-    dbout = nullptr;
-    ncol = dbin->getNColumn();
-    ndim = dbin->getNDim();
-
-    /* Core allocation */
-
-    coor.resize(ndim);
+    Id ncol = dbin->getNColumn();
+    Id ndim = dbin->getNDim();
+    VectorDouble coor(ndim);
 
     /* Create the subgrid */
 
-    dbout = DbGrid::createMultiple(dbin, nmult, 1);
-    if (dbout == nullptr) goto label_end;
-    rank = dbout->addColumnsByConstant(ncol, 1, TEST);
-    if (rank < 0) goto label_end;
-    for (icol = 0; icol < ncol; icol++)
+    DbGrid* dbout = DbGrid::createMultiple(dbin, nmult, 1);
+    if (dbout == nullptr) return dbout;
+
+    ColIDs colids_in;
+    for (Id icol = 0; icol < ncol; icol++)
     {
-      (void)dbin->getLocator(icol, &locatorType, &item, &mult);
-      dbout->setLocator(icol, locatorType, item);
+      colids_in.push_back(dbin->getColID(icol));
+    }
+    auto colids_out = dbout->addEmptyColumns(VectorString(), TEST, 0, ncol);
+    if (colids_out.empty()) return dbout;
+
+    for (Id icol = 0; icol < ncol; icol++)
+    {
+      (void)
+        dbin->getLocator(colids_in[icol], &locatorType, &locatorIndex, &mult);
+      dbout->setLocator(colids_out[icol], locatorType, locatorIndex);
     }
 
     /* Loop on the samples of the output grid */
 
-    for (iech = 0; iech < dbout->getNSample(); iech++)
+    for (Id iech = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
       dbout->getCoordinatesInPlace(coor, iech);
@@ -1343,12 +1343,12 @@ namespace gstlrn
 
       /* Loop on the variables of the input grid */
 
-      for (icol = 0; icol < ncol; icol++)
-        dbout->setValue(icol, iech, dbin->getValue(icol, iad));
+      for (Id icol = 0; icol < ncol; icol++)
+        dbout->setValue(
+          colids_out[icol], iech, dbin->getValue(colids_in[icol], iad));
     }
 
-  label_end:
-    return (dbout);
+    return dbout;
   }
 
   /****************************************************************************/
@@ -1398,11 +1398,12 @@ namespace gstlrn
 
     // Add the variables (they must be defined as ELoc::Z) for following functions
 
-    Id iatt_out = dbgrid->addColumnsByConstant(nvar);
+    auto colids = dbgrid->addEmptyColumns(VectorString(), 0., 0, nvar);
+    if (colids.empty()) return 1;
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
       Id iatt_in = dbgrid->getUID(RoleID(ERole::Z, ivar));
-      dbgrid->duplicateColumnByUID(iatt_in, iatt_out + ivar);
+      dbgrid->duplicateColumnByUID(iatt_in, colids[ivar].getUID());
     }
 
     Id nech = dbgrid->getNSample();
@@ -1447,7 +1448,7 @@ namespace gstlrn
     /* Set the error return code */
 
     auto names = dbgrid->getNames(ERole::Z);
-    namconv.setOutput(names, 0, dbgrid, iatt_out);
+    namconv.setMultiColumns(dbgrid, colids, "", names);
     return 0;
   }
 

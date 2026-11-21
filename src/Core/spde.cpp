@@ -3661,7 +3661,7 @@ namespace gstlrn
    ** \param[in]  icol_pinch  Pointer to the pinchout variabe
    **
    *****************************************************************************/
-  static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
+  static ColID st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
   {
     VectorInt iuids(1);
     iuids[0] = icol_pinch;
@@ -3674,8 +3674,8 @@ namespace gstlrn
 
     // Add an attribute
 
-    Id iptr = dbc->addColumnsByConstant(1, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colid_iptr = dbc->addOneColumn(String(), TEST);
+    if (colid_iptr.empty()) return colid_iptr;
 
     // Core allocation
 
@@ -3685,17 +3685,17 @@ namespace gstlrn
 
     if (migrateByAttribute(dbout, dbc, iuids, 0, VectorDouble(), false, false))
     {
-      dbc->deleteColumn(dbc->fromUID(iptr));
+      dbc->deleteColumn(colid_iptr);
       return 1;
     }
 
     // Store the resulting array in the file
 
-    dbc->setColumn(dbc->fromUID(iptr), tab);
+    dbc->setColumn(colid_iptr, tab);
 
     // Set the error returned code
 
-    return (iptr);
+    return colid_iptr;
   }
 
   /****************************************************************************/
@@ -3722,12 +3722,10 @@ namespace gstlrn
     Db* dbout)
   {
     double M, S;
-    Id iptr;
 
     /* Initializations */
 
     if (m2denv == nullptr) return (1);
-    iptr = -1;
 
     /* Dispatch */
 
@@ -3737,13 +3735,14 @@ namespace gstlrn
       /* Identify the drift at the constraining samples */
 
       m2denv->iatt_fd = dbc->addColumnsByConstant(nlayer, 1, TEST);
-      if (m2denv->iatt_fd < 0) return (1);
+      if (m2denv->iatt_fd < 0) return 1;
 
       /* If pinch-out is defined, interpolate it at well data */
 
-      iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, icol_pinch);
-      st_m2d_set_M(m2denv, nlayer, iptr, dbc, m2denv->iatt_fd);
-      if (iptr >= 0) dbc->deleteColumn(dbc->fromUID(iptr));
+      auto colid_iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, icol_pinch);
+      if (colid_iptr.empty()) return 1;
+      st_m2d_set_M(m2denv, nlayer, colid_iptr.getUID(), dbc, m2denv->iatt_fd);
+      dbc->deleteColumn(colid_iptr);
 
       /* Check validity of drift at data points */
 

@@ -159,18 +159,18 @@ int main(int argc, char* argv[])
   auto nsample = workingDbc->getNSample();
   // Adding a first variable (filled completely)
   VectorDouble rnd1 = VH::simulateGaussian(nsample);
-  workingDbc->addColumns(rnd1, "Z1");
+  workingDbc->addOneColumn("Z1", 0., rnd1);
   // Adding a second variable (with one TEST values)
   VectorDouble rnd2 = VH::simulateGaussian(nsample);
   rnd2[1] = TEST;
-  workingDbc->addColumns(rnd2, "Z2");
+  workingDbc->addOneColumn("Z2", 0., rnd2);
   VectorDouble verr1(nsample, 0.1);
   verr1[3] = TEST;
-  workingDbc->addColumns(verr1, "V1");
+  workingDbc->addOneColumn("V1", 0., verr1);
   VectorDouble verr2(nsample, 0.25);
-  workingDbc->addColumns(verr2, "V2");
+  workingDbc->addOneColumn("V2", 0., verr2);
   // Adding a Selection
-  workingDbc->addColumns({1, 1, 1, 0, 1, 0}, "Sel");
+  workingDbc->addOneColumn("Sel", 0., {1, 1, 1, 0, 1, 0});
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
   DbStringFormat* dbfmt =

@@ -55,12 +55,12 @@ int main(int argc, char* argv[])
     // First selection generated with Bernoulli (proba=0.6)
     VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
     printVector(sel1, "sel1", true, true);
-    grid->addSelection(sel1, "Sel1");
+    (void)grid->addSelection("Sel1", sel1);
 
     // Second selection generated with Bernoulli (proba=0.4) combined with previous one
     VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
     printVector(sel2, "sel2", true, true);
-    grid->addSelection(sel2, "Sel2", "and");
+    (void)grid->addSelection("Sel2", sel2, "and");
 
     // Retrieve resulting selection for check
     VectorDouble sel3 = grid->getSelections();
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     // Creating a Selection by setting individual values
     OptCst::define(ECst::NTROW, -1);
     DbStringFormat dbfmt2(FLAG_VARS | FLAG_ARRAY);
-    grid->addSelection(VectorDouble(), "mySel");
+    (void)grid->addSelection("mySel");
     grid->setValue("mySel", 12, 0.);
     grid->setValue("mySel", 19, 0.);
     grid->display(&dbfmt2);
@@ -202,6 +202,46 @@ int main(int argc, char* argv[])
     auto* db = Db::createFillRandom(ndat, 2, 1, 0, 3);
 
     db->getStatsByCategoryAsTable("z", "code").display();
+  }
+
+  ///////////////////////////////////////////////
+  // Testing the managment of Db through ColID //
+  ///////////////////////////////////////////////
+  if (mode == 0 || mode == 6)
+  {
+    mestitle(0, "Testing the managment of Db through ColID");
+    auto namconv = NamingConvention("NamConv");
+
+    auto ndat = 6;
+    auto* db = Db::createFillRandom(ndat, 2, 1, 1);
+    auto colid = db->addOneColumn("toto", 3.);
+    // Next display gives the status right after the creation
+    db->display();
+    // Clearly the column named "toto" is located in position 5 (0-based)
+    auto icol = db->getColumnIndex("toto");
+    message("Variable 'toto' is located in Column %d (0-based)\n", icol);
+    // We now delete the column named 'f'
+    db->deleteColumn("f");
+    // This changes the column order as shown below
+    db->display();
+
+    // Modification of the contents of Column 'toto' in the Data Base
+    db->setValue(colid, 2, -200.); // using ColID directly
+    db->setValue("toto", 3, -300.); // By name
+
+    // Let us check the result
+    db->getContentsAsTable().display();
+
+    // Checking messages in case of wrong usages
+    messerr("--> Error must be issued: unknown sample index");
+    db->setValue(colid, ndat, -5.);
+    messerr("--> Error must be issued: unknown column name");
+    db->setValue("titi", 0, -6);
+    messerr("--> Error must be issued: unknown column index");
+    db->setValue(100, 0, -7.);
+
+    namconv.setOneColumn(db, colid, String());
+    db->display();
   }
 
   return 0;

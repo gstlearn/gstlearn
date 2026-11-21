@@ -137,9 +137,9 @@ namespace gstlrn
     void removeAllRoles();
     ColID fromUID(Id iuid, Id version = 0) const;
     MultID fromUIDs(const VectorInt& iuids) const;
-    std::vector<ColID> getColIDs(const String& name) const;
-    std::vector<ColID> getColIDs(const VectorString& name) const;
-    std::vector<ColID> getColIDs(const ERole& role) const;
+    ColIDs getColIDs(const String& name) const;
+    ColIDs getColIDs(const VectorString& name) const;
+    ColIDs getColIDs(const ERole& role) const;
 
     Id getNColumns() const { return static_cast<Id>(_cols.size()); }
 
@@ -156,14 +156,14 @@ namespace gstlrn
     void deleteSample(Id idel);
     void deleteVersion(ColID&& colid, Id version);
 
-    Id getColMatchUniqueIndex(Id uniqueIndex) const;
+    Id searchByUID(Id uniqueIndex) const;
 
     Id getUniqueIndexCounter() const { return _uniqueIndexCounter; }
 
     String summaryRoles(void) const;
 
     bool isValidColumn(Id icol) const;
-    std::vector<ColID> getColumnIndices(const MultID& multid) const;
+    ColIDs getColumnIndices(const MultID& multid) const;
 
   private:
     std::optional<std::reference_wrapper<DbCol>> _identifyColumn(ColID&& colid);
@@ -193,9 +193,14 @@ namespace gstlrn
     static bool _checkForbidNA(const VectorCategory& tab);
     static void _checkNVersion(Id& nversion);
     static void _unknownName(const String& name);
-    static void _unknownRoleID(const RoleID& roleID);
+    static void _unknownRoleID(const ColID& colID);
     static void _unknownICol(Id icol, Id ncol);
     static void _invalidUID(Id uidCol, Id uidRef);
+
+    bool _checkVersion(const ColID& colid, Id icol0) const;
+    Id _checkUID(const ColID& colid, Id icol0, bool verbose) const;
+    Id _searchByRole(const ColID& colid, bool verbose) const;
+    Id _searchByName(const ColID& colid, bool verbose) const;
 
   private:
     // Private section of DbData
@@ -316,7 +321,7 @@ namespace gstlrn
         for (Id v = 0; v < nversions; ++v)
         {
           ColID copy = _colid;
-          copy._setVersion(v);
+          copy.setVersion(v);
           auto val = _db.getValue<double>(std::move(copy), _targetIdx);
           result[v] = val ? *val : getNA<double>();
         }
@@ -330,7 +335,7 @@ namespace gstlrn
       for (Id v = 0; v < nversions; ++v)
       {
         ColID colIDref = _colid;
-        colIDref._setVersion(v);
+        colIDref.setVersion(v);
         for (Id i = 0; i < nsamples; ++i)
         {
           ColID colIDsample = colIDref;
@@ -378,7 +383,7 @@ namespace gstlrn
         for (Id i = 0; i < nsamples; ++i)
         {
           ColID copy = _colid;
-          copy._setVersion(_targetIdx);
+          copy.setVersion(_targetIdx);
           _db.setValue<T>(std::move(copy), i, value);
         }
       }
@@ -388,7 +393,7 @@ namespace gstlrn
         for (Id v = 0; v < nversions; ++v)
         {
           ColID copy = _colid;
-          copy._setVersion(v);
+          copy.setVersion(v);
           _db.setValue<T>(std::move(copy), _targetIdx, value);
         }
       }
@@ -401,7 +406,7 @@ namespace gstlrn
           for (Id i = 0; i < nsamples; ++i)
           {
             ColID copy = _colid;
-            copy._setVersion(v);
+            copy.setVersion(v);
             _db.setValue<T>(std::move(copy), i, value);
           }
         }
@@ -427,7 +432,7 @@ namespace gstlrn
         for (Id v = 0; v < nversions && v < static_cast<Id>(values.size()); ++v)
         {
           ColID copy = _colid;
-          copy._setVersion(v);
+          copy.setVersion(v);
           _db.setValue(std::move(copy), _targetIdx, values[v]);
         }
       }
@@ -484,28 +489,28 @@ namespace gstlrn
     ValueProxy operator()(Id isample)
     {
       ColID copy = _colid;
-      copy._setVersion(0);
+      copy.setVersion(0);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample) const
     {
       ColID copy = _colid;
-      copy._setVersion(0);
+      copy.setVersion(0);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample, Id version)
     {
       ColID copy = _colid;
-      copy._setVersion(version);
+      copy.setVersion(version);
       return ValueProxy(_db, copy, isample);
     }
 
     ValueProxy operator()(Id isample, Id version) const
     {
       ColID copy = _colid;
-      copy._setVersion(version);
+      copy.setVersion(version);
       return ValueProxy(_db, copy, isample);
     }
 
@@ -585,7 +590,7 @@ namespace gstlrn
         for (Id i = 0; i < nsamples; ++i)
         {
           ColID copy = _colid;
-          copy._setVersion(v);
+          copy.setVersion(v);
           _db.setValue<T>(std::move(copy), i, value);
         }
       }

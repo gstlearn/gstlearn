@@ -635,7 +635,7 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    Id iptr_est = dbout->getColIdx(RoleID(ERole::SIMU, 0));
+    Id iptr_est = dbout->getColumnIndex(RoleID(ERole::SIMU, 0));
     if (iptr_est < 0) return 1;
 
     /* Setting options */

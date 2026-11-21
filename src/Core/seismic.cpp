@@ -1529,9 +1529,7 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_z2t_convert(DbGrid* db_z, Id iatt_v, DbGrid* db_t)
   {
-    DbGrid* db_v;
-    double z0, z1, t0, t1, dz, dt;
-    Id nz, nt, ndim, natt, iatt_t, iatt_z, error;
+    Id iatt_z;
     VectorDouble zt;
     VectorDouble tz;
     VectorDouble az;
@@ -1540,23 +1538,23 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db_z, db_t)) return (1);
-    error = 1;
-    db_v = db_z;
-    ndim = db_z->getNDim();
-    natt = db_z->getNLoc(ELoc::Z);
-    nz = db_z->getNX(ndim - 1);
-    nt = db_t->getNX(ndim - 1);
-    z0 = db_z->getX0(ndim - 1);
-    t0 = db_t->getX0(ndim - 1);
-    dz = db_z->getDX(ndim - 1);
-    dt = db_t->getDX(ndim - 1);
-    t1 = t0 + (nt - 1) * dt;
-    z1 = z0 + (nz - 1) * dz;
+    Id error = 1;
+    DbGrid* db_v = db_z;
+    Id ndim = db_z->getNDim();
+    Id natt = db_z->getNLoc(ELoc::Z);
+    Id nz = db_z->getNX(ndim - 1);
+    Id nt = db_t->getNX(ndim - 1);
+    double z0 = db_z->getX0(ndim - 1);
+    double t0 = db_t->getX0(ndim - 1);
+    double dz = db_z->getDX(ndim - 1);
+    double dt = db_t->getDX(ndim - 1);
+    double t1 = t0 + (nt - 1) * dt;
+    double z1 = z0 + (nz - 1) * dz;
 
     /* Create the output variables */
 
-    iatt_t = db_t->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_t < 0) goto label_end;
+    auto colids_t = db_t->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_t.empty()) goto label_end;
     iatt_z = db_z->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
@@ -1569,8 +1567,8 @@ namespace gstlrn
     /* Perform the conversion from Depth to Time */
 
     st_seismic_z2t_convert(
-      db_z, iatt_z, nz, z0, z1, dz, db_t, iatt_t, nt, t0, t1, dt, db_v, iatt_v,
-      natt, tz.data(), zt.data(), at.data(), az.data());
+      db_z, iatt_z, nz, z0, z1, dz, db_t, colids_t[0].getUID(), nt, t0, t1, dt,
+      db_v, iatt_v, natt, tz.data(), zt.data(), at.data(), az.data());
 
     /* Set the error return code */
 
@@ -1597,9 +1595,7 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_t2z_convert(DbGrid* db_t, Id iatt_v, DbGrid* db_z)
   {
-    DbGrid* db_v;
-    double z0, z1, t0, t1, dz, dt;
-    Id nz, nt, ndim, natt, iatt_z, iatt_t, error;
+    Id iatt_t;
     VectorDouble zt;
     VectorDouble tz;
     VectorDouble az;
@@ -1608,23 +1604,23 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db_z, db_t)) return (1);
-    error = 1;
-    db_v = db_t;
-    ndim = db_t->getNDim();
-    natt = db_t->getNLoc(ELoc::Z);
-    nz = db_z->getNX(ndim - 1);
-    nt = db_t->getNX(ndim - 1);
-    z0 = db_z->getX0(ndim - 1);
-    t0 = db_t->getX0(ndim - 1);
-    dz = db_z->getDX(ndim - 1);
-    dt = db_t->getDX(ndim - 1);
-    t1 = t0 + (nt - 1) * dt;
-    z1 = z0 + (nz - 1) * dz;
+    Id error = 1;
+    DbGrid* db_v = db_t;
+    Id natt = db_t->getNLoc(ELoc::Z);
+    Id ndim = db_t->getNDim();
+    Id nz = db_z->getNX(ndim - 1);
+    Id nt = db_t->getNX(ndim - 1);
+    double z0 = db_z->getX0(ndim - 1);
+    double t0 = db_t->getX0(ndim - 1);
+    double dz = db_z->getDX(ndim - 1);
+    double dt = db_t->getDX(ndim - 1);
+    double t1 = t0 + (nt - 1) * dt;
+    double z1 = z0 + (nz - 1) * dz;
 
     /* Create the output variables */
 
-    iatt_z = db_z->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_z < 0) goto label_end;
+    auto colids_z = db_t->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_z.empty()) goto label_end;
     iatt_t = db_t->getUID(RoleID(ERole::Z, 0));
 
     /* Core allocation */
@@ -1637,8 +1633,8 @@ namespace gstlrn
     /* Perform the conversion from Time to Depth */
 
     st_seismic_t2z_convert(
-      db_t, iatt_t, nt, t0, t1, dt, db_z, iatt_z, nz, z0, z1, dz, db_v, iatt_v,
-      natt, tz.data(), zt.data(), at.data(), az.data());
+      db_t, iatt_t, nt, t0, t1, dt, db_z, colids_z[0].getUID(), nz, z0, z1, dz,
+      db_v, iatt_v, natt, tz.data(), zt.data(), at.data(), az.data());
 
     /* Set the error return code */
 
@@ -1663,25 +1659,27 @@ namespace gstlrn
    *****************************************************************************/
   Id seismic_operate(DbGrid* db, Id oper)
   {
-    Id ndim, natt, nt, iatt_in, iatt_out;
-    double dt;
+    Id iatt_in;
 
     /* Initializations */
 
     if (st_match(db, nullptr)) return (1);
-    ndim = db->getNDim();
-    natt = db->getNLoc(ELoc::Z);
-    nt = db->getNX(ndim - 1);
-    dt = db->getDX(ndim - 1);
+    Id ndim = db->getNDim();
+    Id natt = db->getNLoc(ELoc::Z);
+    Id nt = db->getNX(ndim - 1);
+    double dt = db->getDX(ndim - 1);
 
     /* Create the output variables */
 
     iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_out < 0) return (1);
+    auto colids_out = db->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::UNDEFINED, 1, false, false, 0,
+      0, natt);
+    if (colids_out.empty()) return 1;
 
-    if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt))
+    if (st_seismic_operate(
+          db, oper, natt, nt, iatt_in, colids_out[0].getUID(), dt))
       return (1);
 
     return (0);
@@ -1819,8 +1817,7 @@ namespace gstlrn
     double val_after,
     VectorDouble& wavelet)
   {
-    Id ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
-    double dz;
+    Id iatt, itrace, iz, iatt_in, size, shift;
     VectorDouble tab0;
     VectorDouble tab1;
     VectorDouble tab2;
@@ -1828,11 +1825,12 @@ namespace gstlrn
     /* Initializations */
 
     if (st_match(db, nullptr)) return (1);
-    ndim = db->getNDim();
-    natt = db->getNLoc(ELoc::Z);
-    nz = db->getNX(ndim - 1);
-    dz = db->getDX(ndim - 1);
-    error = 0;
+    Id ndim = db->getNDim();
+    Id natt = db->getNLoc(ELoc::Z);
+    Id nz = db->getNX(ndim - 1);
+    double dz = db->getDX(ndim - 1);
+    Id error = 0;
+    ColIDs colids_out;
 
     /* Generation of the wavelet */
 
@@ -1850,8 +1848,8 @@ namespace gstlrn
     error = 1;
     iatt_in = db->getUID(RoleID(ERole::Z, 0));
     if (iatt_in < 0) return (1);
-    iatt_out = db->addColumnsByConstant(natt, 1, 0.);
-    if (iatt_out < 0) return (1);
+    colids_out = db->addEmptyColumns(VectorString(), 0., 0, natt);
+    if (colids_out.empty()) return 1;
 
     /* Core allocation */
 
@@ -1904,7 +1902,7 @@ namespace gstlrn
 
         for (iz = 0; iz < nz; iz++)
           TR_OUT(
-            db, iatt_out, iatt, itrace, iz,
+            db, colids_out[0].getUID(), iatt, itrace, iz,
             (FFFF(TR_IN(db, iatt_in, iatt, itrace, iz))) ? TEST
                                                          : tab2[iz + shift]);
       }
@@ -2751,8 +2749,8 @@ namespace gstlrn
   ** \param[in]  wgt       Array containing the Kriging weights
   ** \param[in]  rhs       Array containing the R.H.S. member
   ** \param[in]  var0      Array containing the C00 terms
-  ** \param[in]  iatt_est  Array of pointers to the kriged result
-  ** \param[in]  iatt_std  Array of pointers to the variance of estimation
+  ** \param[in]  colid_est  Array of pointers to the kriged result
+  ** \param[in]  colid_std  Array of pointers to the variance of estimation
   **
   *****************************************************************************/
   static void st_estimate_result(
@@ -2765,8 +2763,8 @@ namespace gstlrn
     const MatrixDense& wgt,
     const MatrixDense& rhs,
     const VectorDouble& var0,
-    Id* iatt_est,
-    Id* iatt_std)
+    const ColIDs& colid_est,
+    const ColIDs& colid_std)
   {
     Id i, ivar, jvar, nech, lec;
     double result, value, stdev;
@@ -2792,7 +2790,7 @@ namespace gstlrn
           value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
           result += wgt.getValue(lec++, ivar) * value;
         }
-      db->setValue(db->fromUID(iatt_est[ivar]), IECH_OUT, result);
+      db->setValue(colid_est[ivar], IECH_OUT, result);
 
       /* Variance of estimation */
 
@@ -2803,7 +2801,7 @@ namespace gstlrn
         for (i = 0; i < nred; i++)
           stdev -= rhs.getValue(lec + i, ivar) * wgt.getValue(lec + i, ivar);
         stdev = (stdev > 0) ? sqrt(stdev) : 0.;
-        db->setValue(db->fromUID(iatt_std[ivar]), IECH_OUT, stdev);
+        db->setValue(colid_std[ivar], IECH_OUT, stdev);
       }
 
       if (OptDbg::query(EDbg::RESULTS))
@@ -2990,7 +2988,7 @@ namespace gstlrn
     Id flag_sort,
     Id flag_stat)
   {
-    Id npres[2], iatt_est[2], iatt_std[2];
+    Id npres[2];
     Id i, ix0, jx0, iz0, nvois, size, error, nred, nfeq, iatt_z1, iatt_z2;
     Id nb_total, nb_process, nb_calcul;
     ST_Seismic_Neigh *ngh_cur, *ngh_old;
@@ -3001,6 +2999,8 @@ namespace gstlrn
     VectorInt flag;
     VectorInt rank;
     VectorVectorInt presence(2);
+    ColIDs colid_est(2, ColID());
+    ColIDs colid_std(2, ColID());
 
     /* Initializations */
 
@@ -3008,10 +3008,9 @@ namespace gstlrn
     nvois = nred = nb_total = nb_process = nb_calcul = 0;
     nfeq = (flag_ks) ? 0 : 1;
     ngh_cur = ngh_old = nullptr;
+
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = -1;
-      iatt_std[i] = -1;
       presence[i].clear();
       npres[i] = 0;
     }
@@ -3080,14 +3079,14 @@ namespace gstlrn
 
     for (i = 0; i < 2; i++)
     {
-      iatt_est[i] = db->addColumnsByConstant(1, 1, TEST);
-      if (iatt_est[i] < 0) goto label_end;
+      colid_est[i] = db->addOneColumn("Estimate", TEST);
+      if (colid_est[i].empty()) goto label_end;
     }
     if (flag_std)
       for (i = 0; i < 2; i++)
       {
-        iatt_std[i] = db->addColumnsByConstant(1, 1, TEST);
-        if (iatt_std[i] < 0) goto label_end;
+        colid_std[i] = db->addOneColumn("Standard Deviation", TEST);
+        if (colid_std[i].empty()) goto label_end;
       }
 
     /* Calculate the constant terms for the variances */
@@ -3144,8 +3143,8 @@ namespace gstlrn
         /* Perform the estimation */
 
         st_estimate_result(
-          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, iatt_est,
-          iatt_std);
+          db, ngh_cur, flag_std, nfeq, nred, flag, wgt, rhs, var0, colid_est,
+          colid_std);
 
         /* Save the neighborhood */
 
@@ -3170,8 +3169,8 @@ namespace gstlrn
     for (i = 0; i < 2; i++)
     {
       presence[i].clear();
-      if (error && iatt_est[i] >= 0) db->deleteColumn(db->fromUID(iatt_est[i]));
-      if (error && iatt_std[i] >= 0) db->deleteColumn(db->fromUID(iatt_std[i]));
+      if (error && !colid_est[i].empty()) db->deleteColumn(colid_est[i]);
+      if (error && !colid_std[i].empty()) db->deleteColumn(colid_std[i]);
     }
     (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
     st_estimate_neigh_management(-1, nvois, ngh_cur);

@@ -129,8 +129,8 @@ namespace gstlrn
   private:
     DbGrid*
       _dbmap; // Pointer to the already existing output DbGrid (not to be deleted)
-    Id _IPTV;
-    Id _IPTW;
+    ColIDs _colids_V;
+    ColIDs _colids_W;
   };
 
 } // namespace gstlrn

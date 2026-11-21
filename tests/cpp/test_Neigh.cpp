@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
   VectorDouble coormax = {100., 100.};
   Db* db = Db::createFromBox(nech, coormin, coormax, 12345);
   VectorDouble tab = VH::simulateGaussian(nech);
-  db->addColumns(tab, "Variable", ELoc::Z);
+  db->addOneColumn("Variable", 0., tab, ERole::Z);
   db->display();
 
   // Creating the target data base

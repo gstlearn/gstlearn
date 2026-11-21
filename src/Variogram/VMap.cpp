@@ -29,16 +29,16 @@ namespace gstlrn
   VMap::VMap(DbGrid* dbmap)
     : AVario()
     , _dbmap(dbmap)
-    , _IPTV(-1)
-    , _IPTW(-1)
+    , _colids_V()
+    , _colids_W()
   {
   }
 
   VMap::VMap(const VMap& r)
     : AVario(r)
     , _dbmap(r._dbmap)
-    , _IPTV(r._IPTV)
-    , _IPTW(r._IPTW)
+    , _colids_V(r._colids_V)
+    , _colids_W(r._colids_W)
   {
   }
 
@@ -48,8 +48,8 @@ namespace gstlrn
     {
       AVario::operator=(r);
       _dbmap = r._dbmap;
-      _IPTV = r._IPTV;
-      _IPTW = r._IPTW;
+      _colids_V = r._colids_V;
+      _colids_W = r._colids_W;
     }
     return *this;
   }
@@ -107,9 +107,8 @@ namespace gstlrn
     DECLARE_UNUSED(z1);
     DECLARE_UNUSED(z2);
     auto ijvar = _get_variable_order(nvar, ivar, jvar);
-    _dbmap->updValue(
-      _dbmap->fromUID(_IPTV + ijvar), ilag, EOperator::ADD, ww * value);
-    _dbmap->updValue(_dbmap->fromUID(_IPTW + ijvar), ilag, EOperator::ADD, ww);
+    _dbmap->updValue(_colids_V[ijvar], ilag, EOperator::ADD, ww * value);
+    _dbmap->updValue(_colids_W[ijvar], ilag, EOperator::ADD, ww);
     _storage(iech1, iech2, dist, value);
   }
 
@@ -149,10 +148,10 @@ namespace gstlrn
 
     Id nvar = db->getNLoc(ELoc::Z);
     Id nvs2 = nvar * (nvar + 1) / 2;
-    _IPTV = _dbmap->addColumnsByConstant(nvs2, 1, 0.);
-    if (_IPTV < 0) return 1;
-    _IPTW = _dbmap->addColumnsByConstant(nvs2, 1, 0.);
-    if (_IPTW < 0) return 1;
+    _colids_V = _dbmap->addEmptyColumns(VectorString(), 0., 0, nvs2);
+    if (_colids_V.empty()) return 1;
+    _colids_W = _dbmap->addEmptyColumns(VectorString(), 0., 0, nvs2);
+    if (_colids_W.empty()) return 1;
 
     // Calculating the variogram map in different ways
 
@@ -178,13 +177,13 @@ namespace gstlrn
     }
 
     auto names = db->getNames(ERole::Z);
-    if (_IPTW >= 0)
+    if (!_colids_W.empty())
     {
-      namconv.setOutput(names, 1, _dbmap, _IPTW, "Nb", 1, false);
+      namconv.setMultiColumns(_dbmap, _colids_W, "Nb", names, 1, false);
     }
-    if (_IPTV >= 0)
+    if (!_colids_V.empty())
     {
-      namconv.setOutput(names, 1, _dbmap, _IPTV, "Var", 1, true);
+      namconv.setMultiColumns(_dbmap, _colids_V, "Var", names, 1, true);
     }
     return 0;
   }
@@ -411,8 +410,8 @@ namespace gstlrn
         }
 
         /* Store the results */
-        _vmap_store(res_nn, _IPTW + ijvar);
-        _vmap_store(res_gg, _IPTV + ijvar);
+        _vmap_store(res_nn, _colids_W[ijvar].getUID());
+        _vmap_store(res_gg, _colids_V[ijvar].getUID());
       }
 
     return 0;
@@ -1124,12 +1123,11 @@ namespace gstlrn
     {
       for (Id ijvar = 0; ijvar < nv2; ijvar++)
       {
-        double value = _dbmap->getValue(_dbmap->fromUID(_IPTW + ijvar), iech);
+        double value = _dbmap->getValue(_colids_W[ijvar], iech);
         if (value <= 0.)
-          _dbmap->setValue(_dbmap->fromUID(_IPTV + ijvar), iech, TEST);
+          _dbmap->setValue(_colids_V[ijvar], iech, TEST);
         else
-          _dbmap->updValue(
-            _dbmap->fromUID(_IPTV + ijvar), iech, EOperator::DIVIDE, value);
+          _dbmap->updValue(_colids_V[ijvar], iech, EOperator::DIVIDE, value);
       }
     }
   }

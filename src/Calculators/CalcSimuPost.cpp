@@ -570,8 +570,6 @@ namespace gstlrn
         local = _samplesInCellDifferentSpaceDimension();
       if (local.empty()) continue;
 
-      // Modif DR
-
       if (_mustBeChecked(0))
       {
         if (_flagUpscale)

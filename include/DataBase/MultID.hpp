@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+#include "DataBase/ColID.hpp"
 #include "Enum/ERole.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -23,7 +24,7 @@ namespace gstlrn
    * @brief This class describes a set of Columns in a DbData. They can be described by:
    * - their column index
    * - their name (unique in the Data Base)
-   * - their Role (name and rank)
+   * - their Role (name and index)
    * Note that the Column Name(s) can take the regexp syntax into account,
    * allowing to select a set of Columns by their name(s) adding the '*' special symbol.
    *
@@ -43,6 +44,7 @@ namespace gstlrn
     MultID(const VectorInt& icols);
     MultID(const ERole& role);
     MultID(Id icol);
+    MultID(const ColIDs& colids);
 
 #ifndef SWIG
     template<int N>
@@ -62,6 +64,8 @@ namespace gstlrn
 
     const ERole& getRole() const { return _role; }
 
+    const ColIDs& getColIDs() const { return _colids; }
+
     String getDescr() const;
 
     bool hasRoleDefined() const;
@@ -74,6 +78,7 @@ namespace gstlrn
     static MultID create(const VectorString& names);
     static MultID create(const VectorInt& icols);
     static MultID create(const ERole& role);
+    static MultID create(const ColIDs& colids);
     static MultID create(const MultID& MultID);
 #endif
 
@@ -84,10 +89,13 @@ namespace gstlrn
 
     void _setERole(const ERole& role) { _role = role; }
 
+    void _setColIDs(const ColIDs& colids) { _colids = colids; }
+
   private:
     VectorInt _icols{};
     VectorString _names{};
     ERole _role{ERole::UNDEFINED};
+    ColIDs _colids{};
 
     friend class DbData;
   };

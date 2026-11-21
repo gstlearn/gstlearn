@@ -1064,7 +1064,7 @@ namespace gstlrn
       VectorDouble vec = dbgrid->getVecCoordinate(idim, false);
       for (Id i = 0; i < static_cast<Id>(vec.size()); i++)
         vec[i] += taille * law_uniform(-0.5, 0.5);
-      db->addColumns(vec, names[idim], ELoc::X, idim);
+      db->addOneColumn(names[idim], 0., vec, ERole::X, idim);
     }
     return db;
   }
@@ -1598,7 +1598,7 @@ namespace gstlrn
     for (Id ivar1 = 0, nvar1 = static_cast<Id>(index1.size()); ivar1 < nvar1;
          ivar1++)
     {
-      Id icolVerr = db1->getColIdx(RoleID(ERole::V, ivar1));
+      Id icolVerr = db1->getColumnIndex(RoleID(ERole::V, ivar1));
       const VectorInt& index1i = index1[ivar1];
       for (const auto iabs1: index1i.getVector())
       {
@@ -2300,8 +2300,8 @@ namespace gstlrn
 
     /* Create the variables in the Variogram Map file */
 
-    Id iptr = dbgrid->addColumnsByConstant(nv2, 1, 0.);
-    if (iptr < 0) return 1;
+    auto colids = dbgrid->addEmptyColumns(VectorString(), 0., 0, nv2);
+    if (colids.empty()) return 1;
 
     /* Loop on the grid nodes */
 
@@ -2325,13 +2325,12 @@ namespace gstlrn
       Id ecr = 0;
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar <= ivar; jvar++, ecr++)
-          dbgrid->setValue(
-            dbgrid->fromUID(iptr + ecr), iech, mat.getValue(ivar, jvar));
+          dbgrid->setValue(colids[ecr], iech, mat.getValue(ivar, jvar));
     }
 
     /* Set the error return code */
 
-    namconv.setOutput(VectorString(), 0, dbgrid, iptr, "Model");
+    namconv.setMultiColumns(dbgrid, colids, "Model");
     return 0;
   }
 

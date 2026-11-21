@@ -838,9 +838,6 @@ namespace gstlrn
     // Set the SPDE class ready
     if (spde.makeReady(verbose)) return 1;
 
-    // Local variables
-    Id nvar = model->getNVar();
-
     // Read information from the input Db and center it
     VectorDouble Z = spde.getData(true, verbose);
     if (Z.empty()) return 1;
@@ -851,15 +848,16 @@ namespace gstlrn
     if (flag_est)
     {
       VectorDouble result = spde.kriging(Z);
-      Id iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
-      namconv.setOutput(dbin->getNames(ERole::Z), 0, dbout, iuid, "estim");
+      auto colids =
+        dbout->addMultiColumns({"estim"}, 0., result, ERole::Z, 1, true);
+      namconv.setMultiColumns(dbout, colids, "estim", dbin->getNames(ERole::Z));
     }
     if (flag_std)
     {
       VectorDouble result = spde.stdev(Z);
-      Id iuid =
-        dbout->addColumns(result, "stdev", ELoc::UNDEFINED, 0, true, 0., nvar);
-      namconv.setOutput(dbin->getNames(ERole::Z), 0, dbout, iuid, "stdev");
+      auto colids =
+        dbout->addMultiColumns({"stdev"}, 0., result, ERole::Z, 1, true);
+      namconv.setMultiColumns(dbout, colids, "stdev", dbin->getNames(ERole::Z));
     }
 
     return 0;
@@ -951,7 +949,7 @@ namespace gstlrn
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
 
-    Id iuid = dbout->addColumnsByConstant(nvar, nbsimu);
+    auto colids = dbout->addEmptyColumns(VectorString(), 0., 0, nvar, nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -962,11 +960,12 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        dbout->setColumn(dbout->fromUID(iuid + ivar, isimu), local, true);
+        colids[ivar].setVersion(isimu);
+        dbout->setColumn(colids[ivar], local, true);
       }
     }
     auto names = (dbin != nullptr) ? dbin->getNames(ERole::Z) : VectorString();
-    namconv.setOutput(names, 0, dbout, iuid, "", 1);
+    namconv.setMultiColumns(dbout, colids, "", names);
 
     return 0;
   }

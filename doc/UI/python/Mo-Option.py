@@ -104,7 +104,7 @@ def define_action(
         if ndim != 2:
             print("The 'db' should be 2-D (", ndim, ")")
             return None
-        if db.getColIdx(targetName) < 0:
+        if db.getColumnIndex(targetName) < 0:
             print("The 'db' should contain the target variable")
             return None
 

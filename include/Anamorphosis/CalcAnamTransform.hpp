@@ -172,9 +172,9 @@ namespace gstlrn
       bool flag_OK);
 
   private:
-    Id _iattVar;
-    Id _iattFac;
-    Id _iattSel;
+    ColIDs _colids_Var;
+    ColIDs _colids_Fac;
+    ColIDs _colids_Sel;
     bool _flagVars;
     bool _flagToFactors;
     bool _flagDisjKrig;

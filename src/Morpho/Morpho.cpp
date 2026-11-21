@@ -870,7 +870,7 @@ namespace gstlrn
     _st_morpho_image_radius_define(radius);
     Id ndim = dbgrid->getNDim();
     VectorInt indg(ndim);
-    Id icolz = dbgrid->getColIdx(RoleID(ERole::Z, 0));
+    Id icolz = dbgrid->getColumnIndex(RoleID(ERole::Z, 0));
 
     /* Processing */
 
@@ -938,7 +938,7 @@ namespace gstlrn
     VectorInt NX = dbgrid->getNXsExt(3);
     Id ndim = dbgrid->getNDim();
     VectorInt indg(ndim);
-    Id iptrz = dbgrid->getColIdx(RoleID(ERole::Z, 0));
+    Id iptrz = dbgrid->getColumnIndex(RoleID(ERole::Z, 0));
 
     /* Calculate the Gradient components */
 

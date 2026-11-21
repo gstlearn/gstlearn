@@ -263,7 +263,7 @@ namespace gstlrn
    */
   bool Db::isUIDValid(Id iuid) const
   {
-    Id icol = _data.getColMatchUniqueIndex(iuid);
+    Id icol = _data.searchByUID(iuid);
     return icol >= 0;
   }
 
@@ -307,8 +307,8 @@ namespace gstlrn
 
   Id Db::_findUIDInLocator(const ELoc& locatorType, Id iuid) const
   {
-    auto colIDs = _data.getColIDs(toERole(locatorType));
-    for (const auto& colID: colIDs)
+    auto colids = _data.getColIDs(toERole(locatorType));
+    for (const auto& colID: colids)
     {
       if (getUID(colID.getICol()) == iuid) return colID.getIndex();
     }
@@ -364,7 +364,7 @@ namespace gstlrn
   {
     VectorInt iuids = _ids(name, true);
     if (iuids.empty()) return false;
-    auto icol = getColIdx(fromUID(iuids[0]));
+    auto icol = getColumnIndex(fromUID(iuids[0]));
     if (icol < 0) return false;
     ELoc ret_locatorType;
     Id ret_locatorIndex;
@@ -471,7 +471,7 @@ namespace gstlrn
   void
     Db::setArrayVec(const VectorInt& iechs, Id iuid, const VectorDouble& values)
   {
-    auto icol = getColIdx(fromUID(iuid));
+    auto icol = getColumnIndex(fromUID(iuid));
     if (!isColIdxValid(icol)) return;
     for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
       _data.setValue(icol, iechs[i], values[i]);
@@ -543,7 +543,7 @@ namespace gstlrn
   void
     Db::getArrayVec(const VectorInt& iechs, Id iuid, VectorDouble& values) const
   {
-    auto icol = getColIdx(fromUID(iuid));
+    auto icol = getColumnIndex(fromUID(iuid));
     if (!isColIdxValid(icol)) return;
     for (Id i = 0, n = static_cast<Id>(iechs.size()); i < n; i++)
     {
@@ -799,7 +799,7 @@ namespace gstlrn
     Id ndim = MIN(nsize, getNDim());
     for (Id idim = 0; idim < ndim; idim++)
     {
-      auto icol = getColIdx(RoleID(ERole::X, idim));
+      auto icol = getColumnIndex(RoleID(ERole::X, idim));
       if (icol < 0) continue;
       coor[idim] = *_data.getValue<double>(icol, iech);
     }
@@ -950,14 +950,14 @@ namespace gstlrn
   void Db::setCoordinate(Id iech, Id idim, double value)
   {
     if (!isSampleIndexValid(iech)) return;
-    auto icol = getColIdx(RoleID(ERole::X, idim));
+    auto icol = getColumnIndex(RoleID(ERole::X, idim));
     if (!isColIdxValid(icol)) return;
     _data.setValue(icol, iech, value);
   }
 
   void Db::setCoordinates(Id idim, const VectorDouble& coor, bool useSel)
   {
-    auto icol = getColIdx(RoleID(ERole::X, idim));
+    auto icol = getColumnIndex(RoleID(ERole::X, idim));
     if (!isColIdxValid(icol)) return;
     setColumn(icol, coor, useSel);
   }
@@ -979,7 +979,7 @@ namespace gstlrn
 
   const double* Db::getColumnPtrUnprotected(const ColID& colid) const
   {
-    auto icol = getColIdx(colid);
+    auto icol = getColumnIndex(colid);
     if (!isColIdxValid(icol)) return nullptr;
     return _data.getColumn<VectorDouble>(icol).data();
   }
@@ -1120,6 +1120,357 @@ namespace gstlrn
       setLocator(fromUID(iuid + i), locatorType, locatorIndex + i);
   }
 
+  VectorDouble Db::_expandUseSel(
+    const VectorDouble& tabin,
+    Id ivar,
+    Id nversion,
+    bool useSel) const
+  {
+    Id nechtot = getNSample();
+
+    // If useSel is not used, the data for a given 'ivar' is contiguous.
+    // We can extract the exact slice without looping, using iterators.
+    if (!useSel || getNLoc(ELoc::SEL) == 0)
+    {
+      Id blockSize = nversion * nechtot;
+      auto startIt = tabin.begin() + ivar * blockSize;
+      auto endIt = startIt + blockSize;
+
+      // Returns a sub-vector copy of the contiguous block for this ivar
+      return VectorDouble(startIt, endIt);
+    }
+
+    // If useSel is active, filtering sample by sample is required
+    VectorDouble tabout(nechtot * nversion);
+    VectorDouble sel = getSelections();
+    Id lec = ivar * (nversion * nechtot); // Start reading from the ivar block
+    Id ecr = 0;
+
+    for (Id version = 0; version < nversion; version++)
+    {
+      for (Id iech = 0; iech < nechtot; iech++)
+      {
+        tabout[ecr++] = (isOne(sel[iech])) ? tabin[lec++] : TEST;
+      }
+    }
+
+    return tabout;
+  }
+
+  /**
+   * Create a new variable in a Db and initialize its contents to a constant value
+   * @param name     Name of the new variable
+   * @param valinit  Value to be used for variable initialization
+   * @param tab      Vector of values to be used for variable initialization
+   * @param roleType Generic Role assigned to new variables
+   * @param roleIndex Role index (starting from 0)
+   * @param nversion Number of versions for the new variables (default is 1)
+   * @param useSel true if the Selection must be taken into account when using 'tab'
+   * @param flagRandom If true, the variable is initialized with random values
+   * @param seed     Seed value (used only when 'flagRandom' is true)
+   * @param nechInit Number of samples (used only if the Db is initially empty)
+   * @return The corresponding ColID
+   *
+   * @remark Naming:
+   * @remark If 'name' is not provided, the default name is set to "tempVar"
+   * @remark unless a 'role' is defined (then the default name is constructed from this role)
+   *
+   * @remark Filling:
+   * @remark If 'tab' is provided, its values are used for initialization.
+   * @remark Otherwise, if 'flagRandom' is true, the variable is initialized with random values
+   * @remark Otherwise, the variable is initialized with the value 'valinit'
+   * @remark Note that when 'tab' is provided and 'useSel' is true, 'tab' is a compressed version (through selection)
+   *
+   * @remark The random values are generated using a normal distribution with mean 0 and standard deviation 1
+   */
+  ColID Db::addOneColumn(
+    const String& name,
+    double valinit,
+    const VectorDouble& tab,
+    const ERole& roleType,
+    Id roleIndex,
+    Id nversion,
+    bool useSel,
+    bool flagRandom,
+    Id seed,
+    Id nechInit)
+  {
+    auto sizeTab = static_cast<Id>(tab.size());
+
+    // Check the number of version(s)
+    if (nversion <= 0) nversion = 1;
+
+    // Check the number of samples
+    auto nech = getNSample(useSel);
+    if (nech <= 0)
+    {
+      // It does not make sense to consider any selection in an empty 'Db'
+      useSel = false;
+      if (!tab.empty())
+        nech = sizeTab / nversion;
+      else
+        nech = nechInit;
+      if (nech <= 0)
+      {
+        messerr("Db::addOneColumn: You wish to add a Column to an empty Db");
+        messerr(
+          "You must provide either a non-empty 'tab' or a positive "
+          "'nechInit'");
+        return ColID();
+      }
+      _setNSamples(nech);
+    }
+
+    // Naming
+    String varName = name;
+    if (varName.empty())
+    {
+      varName = "tempVar";
+      if (roleType != ELoc::UNDEFINED)
+        varName = getLocatorName(toELoc(roleType), roleIndex);
+    }
+
+    // Check the Role (if defined)
+    auto roleid = RoleID(roleType, roleIndex);
+
+    // Filling
+    if (!tab.empty())
+    {
+      if (sizeTab != nech * nversion)
+      {
+        messerr(
+          "Db::addOneColumn: 'tab' is provided but its dimension (%d) does not "
+          "match number of "
+          "samples (%d) x number of versions (%d)",
+          sizeTab, nech, nversion);
+        return ColID();
+      }
+      VectorDouble tabCopy = _expandUseSel(tab, 0, nversion, useSel);
+      _data.addColumn(varName, std::move(tabCopy), roleid, nversion);
+    }
+    else if (flagRandom)
+    {
+      law_set_random_seed(seed);
+      VectorDouble tabrnd = VH::simulateGaussian(nech);
+      _data.addColumn(varName, std::move(tabrnd), roleid, nversion);
+    }
+    else
+    {
+      _data.addColumnEmpty<VectorDouble>(
+        varName, nech, nversion, roleid, valinit);
+    }
+
+    // Construct the returned ColID
+    auto colid = ColID(_data.getNColumns() - 1);
+    colid._setUID(_data.getUniqueIndexCounter() - 1);
+    return colid;
+  }
+
+  ColIDs Db::addMultiColumns(
+    const VectorString& names,
+    double valinit,
+    const VectorDouble& tab,
+    const ERole& roleType,
+    Id nversion,
+    bool useSel,
+    bool flagRandom,
+    Id seed,
+    Id nechInit,
+    Id nvarInit)
+  {
+    ColIDs colids;
+    auto sizeTab = static_cast<Id>(tab.size());
+    auto nech = getNSample(useSel);
+    VectorString varNames = names;
+    Id nvar = static_cast<Id>(varNames.size());
+
+    // Check the number of version(s)
+    if (nversion <= 0) nversion = 1;
+
+    if (nech <= 0)
+    {
+      // Case of an empty Db
+
+      if (sizeTab <= 0)
+      {
+        // Case where "tab" is not provided
+
+        if (nechInit <= 0)
+        {
+          messerr(
+            "Db::addMultiColumns: You wish to add Columns to an empty Db");
+          messerr(
+            "You must provide either a non-empty 'tab' or a positive "
+            "'nechInit'");
+          return colids;
+        }
+        nech = nechInit;
+      }
+      else
+      {
+        // Case where "tab" is provided
+
+        if (nechInit > 0)
+        {
+          // Case where "nechInit" is provided
+
+          if (!isMultiple(sizeTab, nechInit * nversion))
+          {
+            messerr(
+              "Db::addMultiColumns: You wish to add Columns to an empty Db");
+            messerr(
+              "You provided a 'tab' but its dimension (%d) "
+              "is not compatible with 'nechInit'' (%d) x number of "
+              "versions (%d)",
+              sizeTab, nechInit, nversion);
+            return colids;
+          }
+          nech = nechInit;
+        }
+        else
+        {
+          // Case where "nechInit" is not provided
+
+          if (nvar <= 0)
+          {
+            // Case where "names" is not provided
+
+            nech = sizeTab;
+            nvar = 1;
+            varNames = {"TempVar"};
+          }
+          else
+          {
+            // Case where "names" is provided
+
+            if (!isMultiple(sizeTab, nvar * nversion))
+            {
+              messerr(
+                "Db::addMultiColumns: You wish to add Columns to an empty Db");
+              messerr(
+                "You provided a 'tab' but its dimension (%d) "
+                "is not compatible with the number of variables (%d) x number "
+                "of versions (%d)",
+                sizeTab, nvar, nversion);
+              return colids;
+            }
+            nech = sizeTab / (nvar * nversion);
+          }
+        }
+      }
+
+      // Final assignments on the Number of samples
+      useSel = false;
+      if (nech <= 0)
+      {
+        messerr("Db::addMultiColumn: The number of samples must be positive");
+        return colids;
+      }
+      _setNSamples(nech);
+    }
+    else
+    {
+      // Case of a non-empty Db; we known 'nech' at this stage
+
+      if (sizeTab > 0)
+      {
+        // Case where "tab" is provided
+
+        if (nvar > 0)
+        {
+          // Case where "names" is provided: check the consistency
+          if (!isMultiple(sizeTab, nech * nversion))
+          {
+            messerr(
+              "Db::addMultiColumn: 'tab' is provided but its dimension (%d) "
+              "is not compatible with the number of samples (%d) x number of "
+              "versions (%d)",
+              sizeTab, nech, nversion);
+            return colids;
+          }
+        }
+      }
+    }
+
+    // Expand the variable names to the variable count (if necessary)
+    if (nvar <= 0)
+    {
+      varNames = {"TempVar"};
+      nvar = 1;
+    }
+    nvar = sizeTab / (nech * nversion);
+    if (nvar <= 0) nvar = nvarInit;
+    if (nvar != static_cast<Id>(varNames.size()))
+    {
+      varNames = generateMultipleNames(varNames[0], nvar);
+    }
+
+    // Filling
+    auto firstColumnIndex = _data.getNColumns();
+    auto firstUID = _data.getUniqueIndexCounter();
+    if (!tab.empty())
+    {
+      if (sizeTab != nech * nvar * nversion)
+      {
+        messerr(
+          "Db::addMultiColumn: 'tab' is provided but its dimension (%d) does "
+          "not match number of variables (%d) x number of samples (%d) x "
+          "number of versions (%d)",
+          sizeTab, nech, nvar, nversion);
+        return colids;
+      }
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        auto roleid = RoleID(roleType, ivar);
+        VectorDouble tabCopy = _expandUseSel(tab, ivar, nversion, useSel);
+        _data.addColumn(varNames[ivar], std::move(tabCopy), roleid, nversion);
+      }
+    }
+    else if (flagRandom)
+    {
+      law_set_random_seed(seed);
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        auto roleid = RoleID(roleType, ivar);
+        VectorDouble tabrnd = VH::simulateGaussian(nech);
+        _data.addColumn(varNames[ivar], std::move(tabrnd), roleid, nversion);
+      }
+    }
+    else
+    {
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        auto roleid = RoleID(roleType, ivar);
+        _data.addColumnEmpty<VectorDouble>(
+          varNames[ivar], nech, nversion, roleid, valinit);
+      }
+    }
+
+    // Construct the returned ColIDs
+
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      auto colid = ColID(firstColumnIndex + ivar);
+      colid._setUID(firstUID + ivar);
+      colids.push_back(colid);
+    }
+    return colids;
+  }
+
+  // Short cut for calling addMultiColumns with empty contents
+  // It is just meant to specify the number of samples and variables
+  ColIDs Db::addEmptyColumns(
+    const VectorString& names,
+    double valinit,
+    Id nechInit,
+    Id nvarInit,
+    Id nversion)
+  {
+    return addMultiColumns(
+      names, valinit, VectorDouble(), ERole::UNDEFINED, nversion, false, false,
+      0, nechInit, nvarInit);
+  }
+
   /**
    * Create a set of new variables in an already existing Db and initialize
    * their contents to a constant value
@@ -1183,160 +1534,6 @@ namespace gstlrn
   }
 
   /**
-   * Create a set of new variables in an already existing Db and initialize
-   * their contents as a random value (from Normal distribution)
-   * @param nadd     Number of variables to be added
-   * @param nversion Number of versions for the new variables (default is 1)
-   * @param radix    Generic radix given to the newly created variables
-   * @param locatorType Generic locator assigned to new variables
-   * @param locatorIndex   Locator index (starting from 0)
-   * @param seed     Seed value
-   * @param nechInit Number of samples (used only if the Db is initially empty)
-   *
-   * @return Rank of the first UID
-   */
-  Id Db::addColumnsRandom(
-    Id nadd,
-    Id nversion,
-    const String& radix,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    Id seed,
-    Id nechInit)
-  {
-    Id ncol = getNColumn();
-    if (nadd * nversion <= 0) return (-1);
-
-    /* Case of an empty Db, define the number of samples using 'nechInit' */
-
-    auto nech = getNSamples();
-    if (nech <= 0) nech = nechInit;
-    _setNSamples(nech);
-
-    /* Dimension the array */
-    Id iuid0 = addColumnsByConstant(
-      nadd, nversion, 0., radix, locatorType, locatorIndex);
-
-    // Initialize the variables with a random value
-    law_set_random_seed(seed);
-    _columnInit(nadd, nversion, ncol, false);
-
-    return iuid0;
-  }
-
-  void Db::addColumnsByVVD(
-    const VectorVectorDouble& tab,
-    const String& radix,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    Id nversion,
-    bool useSel)
-  {
-    VectorDouble tabv;
-    Id ncol = static_cast<Id>(tab.size());
-    Id nvar = ncol / nversion;
-    for (const auto& e: tab)
-      for (const auto& f: e) tabv.push_back(f);
-    addColumns(
-      tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar, nversion);
-  }
-
-  /**
-   * Add one or several columns to an already existing Db. This is performed
-   * by providing an array of values 'tab'. Its dimension must be equal to the
-   * number of samples (or active samples if 'useSel' is true, times the number
-   * of variables 'nvar'.
-   * @param tab    Array to be loaded
-   * @param radix  Generic name for the newly created variables
-   * @param locatorType Generic locator assigned to new variables
-   * @param locatorIndex   Locator index (starting from 0)
-   * @param useSel true if the Selection must be taken into account
-   * @param valinit initial value (for unselected samples)
-   * @param nvar   Number of variables loaded
-   * @param nversion Number of versions for the new variables (default is 1)
-   *
-   * @return Rank of the first UID
-   *
-   * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
-   * @remark of samples provided in 'tab' must match the number of active samples.
-   * @remark The dimensioning elements are (sorted by decreasing degree of confidence);
-   * @remark - the number of (active) samples in the Db (if it is not empty)
-   * @remark - the number of samples provided in 'tab' (if it is not empty)
-   * @remark - the number of versions ('nversion') provided in the argument
-   * @remark - the number of variables ('nvar') provided in the argument
-   */
-  Id Db::addColumns(
-    const VectorDouble& tab,
-    const String& radix,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    bool useSel,
-    double valinit,
-    Id nvar,
-    Id nversion)
-  {
-    // If the input array 'tab' is empty, nothing is done
-    if (tab.empty()) return 0;
-
-    Id size = static_cast<Id>(tab.size());
-    auto nech = getNSample(useSel);
-    auto ncol = nvar * nversion; // Total number of columns (from arguments)
-    if (ncol <= 0)
-    {
-      messerr(
-        "Db::addColumns : Arguments 'nvar' (%d) and 'nversion' (%d) are "
-        "incorrect",
-        nvar, nversion);
-      return 1;
-    }
-
-    // Particular case where the Db is empty.
-    // Set its dimension to the number of samples of the input array 'tab'
-    if (nech <= 0) nech = size / ncol;
-
-    // Now 'ncol' (total number of columns) can be derived safely
-    // from the size of the input array 'tab' and the number of samples 'nech'
-    ncol = size / nech;
-    if (size != ncol * nech)
-    {
-      messerr(
-        "Db::addColumns : Incompatibility between 'tab'(%d) and 'ntot'(%d) * "
-        "'nech'(%d)",
-        size, ncol, nech);
-      return 1;
-    }
-
-    // 'nvar' is derived from the total number of columns 'ncol'
-    nvar = ncol / nversion;
-    if (nvar * nversion != ncol)
-    {
-      messerr(
-        "Db::addColumns : Incompatibility between 'nvar'(%d) * "
-        "'nversion'(%d) "
-        "and 'ncol'(%d)",
-        nvar, nversion, ncol);
-      return 1;
-    }
-
-    // Setting the dimensions
-    _setNSamples(nech);
-
-    // Adding the new Columns
-    Id iuid = addColumnsByConstant(
-      nvar, nversion, valinit, radix, locatorType, locatorIndex);
-    if (iuid < 0) return 1;
-
-    const double* local = tab.data();
-    for (Id i = 0; i < ncol; i++)
-    {
-      auto colid = fromUID(iuid + i);
-      _setColumnOldStyle(colid, &local[i * nech], useSel);
-    }
-
-    return iuid;
-  }
-
-  /**
    * @brief Set the values of a (numerical) column in the Db.
    * Note that if the comlumn does not exist, it is created beforehand.
    *
@@ -1358,7 +1555,8 @@ namespace gstlrn
     }
 
     if (!hasColumn(colid))
-      (void)addColumns(tab, colid.getName(), ELoc::UNDEFINED, -1, useSel);
+      (void)
+        addOneColumn(colid.getName(), 0., tab, ERole::UNDEFINED, 0, 1, useSel);
     else
     {
       if (!hasValidVersion(colid)) return;
@@ -1474,15 +1672,15 @@ namespace gstlrn
     Id locatorIndex,
     bool cleanSameLocator)
   {
-    VectorInt iuids_in = _ids(nameIn, true);
-    if (iuids_in.empty()) return;
-    Id iuid_out = addColumnsByConstant(1, 1, 0., nameOut);
+    auto colid_in = getColID(nameIn);
+    if (colid_in.empty()) return;
+    auto colid_out = addOneColumn(nameOut);
+    if (colid_out.empty()) return;
 
-    duplicateColumnByUID(iuids_in[0], iuid_out, versionIn);
+    if (cleanSameLocator) clearLocators(locatorType);
+    duplicateColumnByUID(colid_in.getUID(), colid_out.getUID(), versionIn);
 
-    if (locatorType.isDifferent(ELoc::UNDEFINED))
-      setLocator(
-        fromUID(iuid_out), locatorType, locatorIndex, cleanSameLocator);
+    setLocator(colid_out, locatorType, locatorIndex);
   }
 
   void Db::deleteColumn(const ColID& colid)
@@ -1514,17 +1712,17 @@ namespace gstlrn
 
   /**
    * Add the contents of the 'tab' as a Selection
-   * @param tab Input array
    * @param name Name given to the newly created Selection variable
+   * @param tab Input array (optional)
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
-   * @return Rank of the newly created Column within the Data Base
+   * @return Descriptor of the newly created Column within the Data Base
    * @remark The Selection is set to True if tab is not zero and to False otherwise.
    * @remark If the dimension of 'tab' does not match the number of samples in the Db
    * @remark the action is cancelled (a message is issued)
    */
-  Id Db::addSelection(
-    const VectorDouble& tab,
+  ColID Db::addSelection(
     const String& name,
+    const VectorDouble& tab,
     const String& combine)
   {
     auto nech = getNSample();
@@ -1538,44 +1736,44 @@ namespace gstlrn
           "Dimension of 'tab' (%d) does not match the number of samples (%d)",
           static_cast<Id>(tab.size()), nech);
         messerr("Action is cancelled");
-        return -1;
+        return ColID();
       }
 
+      // Convert the input array into a selection (0 or 1)
       for (Id iech = 0; iech < nech; iech++)
       {
         sel[iech] = (!isZero(tab[iech])) ? 1. : 0.;
       }
     }
 
-    // Convert the input array into a selection (0 or 1)
-
+    // Combine with previously existing selection (if any)
     _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-    return iuid;
+
+    return addOneColumn(name, 0., sel, ERole::SEL);
   }
 
   /**
    * @brief Create a selection by testing a target variable against 'lower' and 'upper'
    *
+   * @param name  Name given to the newly created selection
    * @param varname Name of the target variable
    * @param lower Lower bound (included) or TEST for no lower bound
    * @param upper Upper bound (included) or TEST for no upper bound
-   * @param name  Name given to the newly created selection
    * @param combine How to combine with an already existing selection (see _combineSelection() for details)
    * @return Id
    */
-  Id Db::addSelectionByVariable(
+  ColID Db::addSelectionByVariable(
+    const String& name,
     const String& varname,
     double lower,
     double upper,
-    const String& name,
     const String& combine)
   {
     VectorDouble var = getColumn(varname, false);
     if (var.empty())
     {
       messerr("The variable '%s' does not exist", varname.c_str());
-      return 1;
+      return ColID();
     }
 
     auto nech = getNSample(false);
@@ -1596,49 +1794,24 @@ namespace gstlrn
       sel[iech] = answer;
     }
 
-    // Store the newly createed selection
+    // Combine with previously existing selection (if any)
     _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-    return iuid;
-  }
 
-  /**
-   * Add a Selection by considering the input 'ranks' vector which give the ranks
-   * of the active samples (starting from 0)
-   * @param ranks   Vector of ranks of active samples
-   * @param name    Name given to the newly created Selection variable
-   * @param combine How to combine with an already existing selection (see combineSelection() for details)
-   * @return
-   */
-  Id Db::addSelectionByRanks(
-    const VectorInt& ranks,
-    const String& name,
-    const String& combine)
-  {
-    auto nech = getNSample();
-    VectorDouble sel(nech, 0.);
-
-    for (Id i = 0; i < static_cast<Id>(ranks.size()); i++) sel[ranks[i]] = 1.;
-
-    // Convert the input array into a selection (0 or 1)
-
-    _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
-    return iuid;
+    return addOneColumn(name, 0., sel, ERole::SEL);
   }
 
   /**
    * Create a selection around the only defined values of the target variable
+   * @param name    Name of the newly created selection
    * @param testvar Name of the target variable
    * @param limits  Limits defining the Definition Domain to be tested (optional)
-   * @param name    Name of the newly created selection
    * @param combine How to combine with an already existing selection (see combineSelection() for details)
    * @return The rank of the newly created selection variable within the Db
    */
-  Id Db::addSelectionByLimit(
+  ColID Db::addSelectionByLimit(
+    const String& name,
     const String& testvar,
     const Limits& limits,
-    const String& name,
     const String& combine)
   {
     auto nech = getNSample();
@@ -1658,10 +1831,53 @@ namespace gstlrn
       }
       sel[iech] = answer;
     }
-    _combineSelection(sel, combine);
-    Id iuid = addColumns(sel, name, ELoc::SEL);
 
-    return iuid;
+    // Combine with previously existing selection (if any)
+    _combineSelection(sel, combine);
+
+    return addOneColumn(name, 0., sel, ERole::SEL);
+  }
+
+  /**
+   * Add a Selection by considering the input 'ranks' vector which give the ranks
+   * of the active samples (starting from 0)
+   * @param name    Name given to the newly created Selection variable
+   * @param ranks   Vector of ranks of active samples
+   * @param combine How to combine with an already existing selection (see combineSelection() for details)
+   * @return
+   */
+  ColID Db::addSelectionByRanks(
+    const String& name,
+    const VectorInt& ranks,
+    const String& combine)
+  {
+    auto nech = getNSample();
+    VectorDouble sel(nech, 0.);
+
+    for (Id i = 0; i < static_cast<Id>(ranks.size()); i++) sel[ranks[i]] = 1.;
+
+    // Combine with previously existing selection (if any)
+    _combineSelection(sel, combine);
+
+    return addOneColumn(name, 0., sel, ERole::SEL);
+  }
+
+  /**
+   * Create a Selection based on a proportion of active samples
+   * @param name   Name of the newly created selection
+   * @param prop   Proportion of active samples (between 0 and 1)
+   * @param seed   Seed for the random number generator
+   * @param combine How to combine with an already existing selection (see combineSelection() for details)
+   * @return
+   */
+  ColID Db::addSelectionRandom(
+    const String& name,
+    double prop,
+    Id seed,
+    const String& combine)
+  {
+    VectorInt ranks = VH::sampleRanks(getNSample(false), prop, -1, seed, 1);
+    return addSelectionByRanks(name, ranks, combine);
   }
 
   /**
@@ -1672,7 +1888,7 @@ namespace gstlrn
    * @param namconv  Naming Convention
    * @return
    */
-  Id Db::addSelectionFromDbByConvexHull(
+  Id Db::buildSelectionFromConvexHull(
     Db* db,
     double dilate,
     bool verbose,
@@ -1685,24 +1901,6 @@ namespace gstlrn
     }
 
     return db_selhull(db, this, dilate, verbose, namconv);
-  }
-
-  /**
-   * Create a Selection based on a proportion of active samples
-   * @param prop   Proportion of active samples (between 0 and 1)
-   * @param seed   Seed for the random number generator
-   * @param name   Name of the newly created selection
-   * @param combine How to combine with an already existing selection (see combineSelection() for details)
-   * @return
-   */
-  Id Db::addSelectionRandom(
-    double prop,
-    Id seed,
-    const String& name,
-    const String& combine)
-  {
-    VectorInt ranks = VH::sampleRanks(getNSample(false), prop, -1, seed, 1);
-    return addSelectionByRanks(ranks, name, combine);
   }
 
   /**
@@ -2323,7 +2521,7 @@ namespace gstlrn
       // p_out.setLocatorByIndex(n_out + i_in, p_in.getLocatorByIndex(i_in));
 
       // Correction for the Temporary Locator
-      auto icol = getColIdx(RoleID(toERole(locatorType_in), i_in));
+      auto icol = getColumnIndex(RoleID(toERole(locatorType_in), i_in));
       auto role = toERole(locatorType_out);
       _data.setRoleID(icol, RoleID(role, n_out + i_in));
     }
@@ -2794,7 +2992,7 @@ namespace gstlrn
     VectorDouble tab(nech);
 
     if (useSel) sel = getSelections();
-    if (hasLocator(ELoc::W)) icol = getColIdx(ERole::W);
+    if (hasLocator(ELoc::W)) icol = getColumnIndex(ERole::W);
 
     Id ecr = 0;
     for (Id iech = 0; iech < nech; iech++)
@@ -2869,6 +3067,11 @@ namespace gstlrn
     return ColID(roleid, isimu);
   }
 
+  ColID Db::getColID(const ColID& colid) const
+  {
+    return _data.getColID(colid);
+  }
+
   bool Db::isActive(Id iech) const
   {
     return (getSelection(iech) != 0 && isActiveDomain(iech));
@@ -2906,7 +3109,7 @@ namespace gstlrn
    */
   Id Db::getLastUID() const
   {
-    return getColIdx(fromUID(_getNUIDMax() - 1));
+    return getColumnIndex(fromUID(_getNUIDMax() - 1));
   }
 
   String Db::getLastName(Id number) const
@@ -2936,6 +3139,11 @@ namespace gstlrn
   {
     ColID colid_copy = colid;
     return _data.getName(std::move(colid_copy), withVersion);
+  }
+
+  ColIDs Db::getColIDs(const MultID& multid) const
+  {
+    return _data.getColumnIndices(multid);
   }
 
   /**
@@ -3222,7 +3430,7 @@ namespace gstlrn
     if (cols.empty())
     {
       VectorInt iuids = _ids(dsf.getNames(), false);
-      if (!iuids.empty()) cols = getColIdxs(fromUIDs(iuids));
+      if (!iuids.empty()) cols = getColumnIndices(fromUIDs(iuids));
     }
 
     /* Print the Extension */
@@ -3274,7 +3482,7 @@ namespace gstlrn
     VectorDouble tab;
 
     if (!hasLocator(ELoc::SEL)) return tab;
-    auto icol = getColIdx(ERole::SEL);
+    auto icol = getColumnIndex(ERole::SEL);
     if (!isColIdxValid(icol)) return tab;
 
     tab.resize(nech);
@@ -3574,7 +3782,7 @@ namespace gstlrn
 
     // Create the column index for the selection (only if 'useSel')
     Id icol = -1;
-    if (useSel) icol = getColIdx(ERole::SEL);
+    if (useSel) icol = getColumnIndex(ERole::SEL);
 
     // Update the search for variable, if no variable is defined
     if (getNLoc(ELoc::Z) <= 0) ivar = -1;
@@ -3586,7 +3794,7 @@ namespace gstlrn
     bool useV = false;
     if (useVerr && ivar >= 0)
     {
-      if (getColIdx(RoleID(ERole::V, ivar)) >= 0) useV = true;
+      if (getColumnIndex(RoleID(ERole::V, ivar)) >= 0) useV = true;
     }
 
     // Constitute the resulting vector of selected sample ranks
@@ -3863,7 +4071,7 @@ namespace gstlrn
       {
         // sublist is empty: the variable must be created
 
-        (void)addColumnsByConstant(1, 1, TEST, colnames[i]);
+        (void)addOneColumn(colnames[i], TEST);
         exp_names.push_back(colnames[i]);
       }
       else
@@ -3994,13 +4202,13 @@ namespace gstlrn
    * @param colid Column identifier
    * @return Id Returned Column index
    */
-  Id Db::getColIdx(const ColID& colid) const
+  Id Db::getColumnIndex(const ColID& colid) const
   {
     ColID colid_copy = colid;
     return _data.getICol(std::move(colid_copy));
   }
 
-  VectorInt Db::getColIdxs(const MultID& multid) const
+  VectorInt Db::getColumnIndices(const MultID& multid) const
   {
     auto colids = _data.getColumnIndices(multid);
     VectorInt icols;
@@ -4026,10 +4234,10 @@ namespace gstlrn
     if (names.empty()) return VectorInt();
 
     VectorInt iuids;
-    auto colIDs = _data.getColIDs(names);
-    for (size_t i = 0; i < colIDs.size(); i++)
+    auto colids = _data.getColIDs(names);
+    for (size_t i = 0; i < colids.size(); i++)
     {
-      auto icol = colIDs[i].getICol();
+      auto icol = colids[i].getICol();
       if (icol < 0) continue;
       auto iuid = getUID(icol);
       if (iuid < 0) continue;
@@ -4105,7 +4313,7 @@ namespace gstlrn
     VectorDouble vec(nech);
     for (Id iech = 0; iech < nech; iech++) vec[iech] = iech + 1;
 
-    (void)addColumns(vec, radix);
+    (void)addOneColumn(radix, 0., vec);
   }
 
   /**
@@ -4135,7 +4343,7 @@ namespace gstlrn
       return;
     }
     VectorDouble ranks = VH::sequenceVD(1., static_cast<double>(nech));
-    addColumns(ranks, "rank");
+    (void)addOneColumn("rank", 0., ranks);
   }
 
   void Db::_defineDefaultNames(Id shift, const VectorString& names)
@@ -4214,18 +4422,19 @@ namespace gstlrn
     Id noper = static_cast<Id>(opers.size());
 
     // Add the variables for PointWise statistics
-    Id iuidn = addColumnsByConstant(noper);
-    if (iuidn < 0) return;
+    auto colids = addEmptyColumns(VectorString(), 0., 0, noper);
+    if (colids.empty()) return;
 
     VectorString nameloc = getNames(fromUIDs(iuids));
-    dbStatisticsVariables(this, nameloc, opers, iuidn, proba, vmin, vmax);
+    dbStatisticsVariables(
+      this, nameloc, opers, colids[0].getUID(), proba, vmin, vmax);
 
-    namconv.setOutput(VectorString(), 0, this, iuidn);
+    namconv.setOutput(VectorString(), 0, this, colids[0].getUID());
     for (Id i = 0; i < noper; i++)
     {
       const EStatOption& oper = opers[i];
       namconv.setOutput(
-        VectorString(), 0, this, iuidn + i, String{oper.getKey()});
+        VectorString(), 0, this, colids[i].getUID(), String{oper.getKey()});
     }
   }
 
@@ -4764,7 +4973,7 @@ namespace gstlrn
     VectorDouble values(nech);
     for (Id icol = 0, ncol = static_cast<Id>(names.size()); icol < ncol; icol++)
     {
-      Id jcol = db->getColIdx(names[icol]);
+      Id jcol = db->getColumnIndex(names[icol]);
       for (Id iech = 0; iech < nech; iech++)
         values[iech] = db->getValue(jcol, ranks[iech]);
       setColumn(icol + shift, values);
@@ -4865,11 +5074,11 @@ namespace gstlrn
           if (flagMask)
           {
             VectorDouble coor = VH::compress(coors[idim], ranksel);
-            addColumns(coor, namloc[idim], ELoc::X, idim);
+            (void)addOneColumn(namloc[idim], 0., coor, ERole::X, idim);
           }
           else
           {
-            addColumns(coors[idim], namloc[idim], ELoc::X, idim);
+            (void)addOneColumn(namloc[idim], 0., coors[idim], ERole::X, idim);
           }
         }
       }
@@ -5354,38 +5563,52 @@ namespace gstlrn
 
     // Create the Db
     Db* db = Db::create();
+    VectorDouble buffer;
 
     // Add the sample rank attribute
     if (flagAddSampleRank) db->_addRank(ndat);
 
     // Generate the vector of coordinates
-    VectorVectorDouble coor(ndim);
+    VectorDouble coors;
+    coors.reserve(ndim * ndat);
     for (Id idim = 0; idim < ndim; idim++)
     {
       double mini =
         (static_cast<Id>(coormin.size()) == ndim) ? coormin[idim] : 0.;
       double maxi =
         (static_cast<Id>(coormax.size()) == ndim) ? coormax[idim] : 1.;
-      coor[idim] = VH::simulateUniform(ndat, mini, maxi);
+      buffer = VH::simulateUniform(ndat, mini, maxi);
+      coors.insert(coors.end(), buffer.begin(), buffer.end());
     }
-    db->addColumnsByVVD(coor, "x", ELoc::X, 0, 1);
+    // In next statement, 'nechInit' must be provided as there is no possibility
+    // to know the number of samples from the size of 'coors'
+    db->addMultiColumns(
+      {"x"}, 0., coors, ERole::X, 1, false, false, 1352, ndat);
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (varmax > 0.)
     {
-      VectorVectorDouble varm(nvar);
+      VectorDouble varms;
+      varms.reserve(nvar * ndat);
       for (Id ivar = 0; ivar < nvar; ivar++)
-        varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
-      db->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
+      {
+        buffer = VH::simulateUniform(ndat, 0., varmax);
+        varms.insert(varms.end(), buffer.begin(), buffer.end());
+      }
+      db->addMultiColumns({"v"}, 0., varms, ERole::V);
     }
 
     // Generate the External Drift functions (optional)
     if (nfex > 0)
     {
-      VectorVectorDouble fex(nfex);
+      VectorDouble fexs;
+      fexs.reserve(nfex * ndat);
       for (Id ifex = 0; ifex < nfex; ifex++)
-        fex[ifex] = VH::simulateGaussian(ndat);
-      db->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
+      {
+        buffer = VH::simulateGaussian(ndat);
+        fexs.insert(fexs.end(), buffer.begin(), buffer.end());
+      }
+      db->addMultiColumns({"f"}, 0., fexs, ERole::F);
     }
 
     // Generate the selection (optional)
@@ -5395,23 +5618,25 @@ namespace gstlrn
       VectorDouble rnd = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
-      db->addColumns(sel, "sel", ELoc::SEL);
+      (void)db->addSelection("sel", sel);
     }
 
     // Generate the variables
     bool flag_hetero = (static_cast<Id>(heteroRatio.size()) == nvar);
-    VectorVectorDouble vars(nvar);
+    VectorDouble vars;
+    vars.reserve(nvar * ndat);
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      vars[ivar] = VH::simulateGaussian(ndat);
+      buffer = VH::simulateGaussian(ndat);
       if (flag_hetero)
       {
         VectorDouble rnd = VH::simulateUniform(ndat);
         for (Id idat = 0; idat < ndat; idat++)
-          if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
+          if (rnd[idat] <= heteroRatio[ivar]) buffer[idat] = TEST;
       }
+      vars.insert(vars.end(), buffer.begin(), buffer.end());
     }
-    db->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
+    db->addMultiColumns({"z"}, 0., vars, ERole::Z);
 
     // Generate the code (optional)
     if (ncode > 0)
@@ -5419,7 +5644,7 @@ namespace gstlrn
       VectorDouble codes = VH::simulateUniform(ndat);
       for (Id idat = 0; idat < ndat; idat++)
         codes[idat] = floor(ncode * codes[idat]);
-      db->addColumns(codes, "code", ELoc::C);
+      (void)db->addOneColumn("code", 0., codes, ERole::C);
     }
 
     return db;
@@ -5442,46 +5667,37 @@ namespace gstlrn
     if (flagAddSampleRank) db->_addRank(ndat);
 
     // Generate the vector of coordinates
-    VectorVectorDouble coor(ndim);
-    for (Id idim = 0; idim < ndim; idim++) coor[idim] = VectorDouble(ndat, 0.);
-    db->addColumnsByVVD(coor, "x", ELoc::X, 0, 1);
+    VectorDouble coors(ndat * ndim, 0.);
+    // In next statement, 'nechInit' must be provided as there is no possibility
+    // to know the number of samples from the size of 'coors'
+    db->addMultiColumns(
+      {"x"}, 0., coors, ERole::X, 1, false, false, 1352, ndat);
 
     // Generate the Vectors of Variance of measurement error (optional)
     if (flagVerr)
     {
-      VectorVectorDouble varm(nvar);
-      for (Id ivar = 0; ivar < nvar; ivar++)
-        varm[ivar] = VectorDouble(ndat, 0.);
-      db->addColumnsByVVD(varm, "v", ELoc::V, 0, 1);
+      VectorDouble varms(nvar * ndat, 0.);
+      db->addMultiColumns({"v"}, 0., varms, ERole::V);
     }
 
     // Generate the External Drift functions (optional)
     if (nfex > 0)
     {
-      VectorVectorDouble fex(nfex);
-      for (Id ifex = 0; ifex < nfex; ifex++) fex[ifex] = VectorDouble(ndat, 0.);
-      db->addColumnsByVVD(fex, "f", ELoc::F, 0, 1);
+      VectorDouble fexs(nfex * ndat, 0.);
+      db->addMultiColumns({"f"}, 0., fexs, ERole::F);
     }
 
     // Generate the selection (optional)
-    if (flagSel)
-    {
-      VectorDouble sel(ndat);
-      sel.fill(1.);
-      db->addColumns(sel, "sel", ELoc::SEL);
-    }
+    if (flagSel) db->addOneColumn("sel", 1.0, VectorDouble(), ERole::SEL);
 
     // Generate the variables
-    VectorVectorDouble vars(nvar);
-    for (Id ivar = 0; ivar < nvar; ivar++) vars[ivar] = VectorDouble(ndat, 0.);
-    db->addColumnsByVVD(vars, "z", ELoc::Z, 0, 1);
+    VectorDouble vars(nvar * ndat, 0.);
+    db->addMultiColumns({"z"}, 0., vars, ERole::Z);
 
     // Generate the code (optional)
     if (ncode > 0)
     {
-      VectorDouble codes(ndat);
-      codes.fill(0.);
-      db->addColumns(codes, "code", ELoc::C, 0, 1);
+      (void)db->addOneColumn("code", 0., VectorDouble(), ERole::C);
     }
 
     return db;
@@ -5519,8 +5735,8 @@ namespace gstlrn
 
   void Db::copyByUID(Id iuidIn, Id iuidOut, Id versionIn, Id versionOut)
   {
-    auto icolIn = getColIdx(fromUID(iuidIn));
-    auto icolOut = getColIdx(fromUID(iuidOut));
+    auto icolIn = getColumnIndex(fromUID(iuidIn));
+    auto icolOut = getColumnIndex(fromUID(iuidOut));
     copyByCol(icolIn, icolOut, versionIn, versionOut);
   }
 
@@ -5542,8 +5758,8 @@ namespace gstlrn
     Id versionIn,
     Id versionOut)
   {
-    auto icolIn = getColIdx(nameIn);
-    auto icolOut = getColIdx(nameOut);
+    auto icolIn = getColumnIndex(nameIn);
+    auto icolOut = getColumnIndex(nameOut);
     copyByCol(icolIn, icolOut, versionIn, versionOut);
   }
 
@@ -5625,14 +5841,14 @@ namespace gstlrn
       if (isNA(catValue)) continue;
 
       // Create a selection based on the current category
-      Id iuid = addSelectionByVariable(
-        category, catValue - eps, catValue + eps, "catSel");
+      auto colid_sel = addSelectionByVariable(
+        "catSel", category, catValue - eps, catValue + eps);
 
       // Get the statisics for the current category
       Table tabloc = getStatsAsTable({name}, opers);
 
       // Delete the selection
-      deleteColumn(fromUID(iuid));
+      deleteColumn(colid_sel);
 
       // Copy the Column Names
       if (irow == 0)

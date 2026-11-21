@@ -56,8 +56,8 @@ namespace gstlrn
 
     /* Store information from the input grid */
 
-    Id iatt1 = dbin->getUID(RoleID(ERole::Z, 0));
-    if (iatt1 <= 0) return 1;
+    auto colid_in = dbin->getColID(ERole::Z);
+    if (colid_in.empty()) return 1;
 
     /* Loop on the refinement factors */
 
@@ -76,7 +76,8 @@ namespace gstlrn
       db2 = DbGrid::create(
         nx2, dx2, x02, dbin->getGrid().getRotAngles(), ELoadBy::SAMPLE,
         VectorDouble(), VectorString(), VectorString(), 1);
-      Id iatt2 = db2->addColumnsByConstant(1, 1, TEST);
+      auto colid_iatt2 = db2->addOneColumn(String(), TEST);
+      if (colid_iatt2.empty()) return 1;
 
       /* Establish the Kriging system */
 
@@ -84,11 +85,11 @@ namespace gstlrn
 
       /* Copy the initial data */
 
-      _merge_data(db1, iatt1, db2, iatt2);
+      _merge_data(db1, colid_in.getUID(), db2, colid_iatt2.getUID());
 
       /* Perform the simulation */
 
-      _simulate_nodes(db2, iatt2);
+      _simulate_nodes(db2, colid_iatt2.getUID());
 
       /* Create the new input file (for next step) */
 
@@ -103,11 +104,12 @@ namespace gstlrn
       db1 = DbGrid::create(
         nx1, dx1, x01, dbin->getGrid().getRotAngles(), ELoadBy::SAMPLE,
         VectorDouble(), VectorString(), VectorString(), 1);
-      iatt1 = db1->addColumnsByConstant(1, 1, TEST);
+      auto colid_iatt1 = db1->addOneColumn(String(), TEST);
+      if (colid_iatt1.empty()) return 1;
 
       /* Truncate the output grid for next step */
 
-      _truncate_result(db2, iatt2, db1, iatt1);
+      _truncate_result(db2, colid_iatt2.getUID(), db1, colid_iatt1.getUID());
 
       /* Delete the output file */
 

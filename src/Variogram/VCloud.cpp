@@ -28,7 +28,7 @@ namespace gstlrn
     : AVario()
     , _dbcloud(dbcloud)
     , _varioparam(varioparam)
-    , _IPTR(-1)
+    , _colid_ptr()
     , _samples()
     , _flagSelection(false)
     , _IDS()
@@ -43,7 +43,7 @@ namespace gstlrn
     : AVario(r)
     , _dbcloud(r._dbcloud)
     , _varioparam(r._varioparam)
-    , _IPTR(r._IPTR)
+    , _colid_ptr(r._colid_ptr)
     , _samples(r._samples)
     , _flagSelection(r._flagSelection)
     , _IDS(r._IDS)
@@ -61,7 +61,7 @@ namespace gstlrn
       AVario::operator=(r);
       _dbcloud = r._dbcloud;
       _varioparam = r._varioparam;
-      _IPTR = r._IPTR;
+      _colid_ptr = r._colid_ptr;
       _samples = r._samples;
       _flagSelection = r._flagSelection;
       _IDS = r._IDS;
@@ -155,7 +155,7 @@ namespace gstlrn
     if (igrid < 0) return;
 
     // Update the output grid
-    _dbcloud->updValue(_dbcloud->fromUID(_IPTR), igrid, EOperator::ADD, 1.);
+    _dbcloud->updValue(_colid_ptr, igrid, EOperator::ADD, 1.);
 
     if (!_flagSelection) return;
 
@@ -224,15 +224,15 @@ namespace gstlrn
       return 1;
     }
     Id ndir = _varioparam->getNDir();
-    Id iptr = _dbcloud->addColumnsByConstant(ndir, 1, 0.);
-    if (iptr < 0) return (1);
+    auto colids_dir = _dbcloud->addEmptyColumns(VectorString(), 0., 0, ndir);
+    if (colids_dir.empty()) return (1);
 
     // Loop on the directions
     Id nech = db->getNSample();
     if (_flagSelection) _IDS.resize(nech, 0.);
     for (Id idir = 0; idir < ndir; idir++)
     {
-      _IPTR = iptr + idir;
+      _colid_ptr = colids_dir[idir];
 
       if (_flagSelection) _IDS.fill(0.);
 
@@ -267,7 +267,7 @@ namespace gstlrn
 
     // Naming of the newly created variables
     auto names = db->getNames(ERole::Z);
-    namconv.setOutput(names, 0, _dbcloud, iptr, String(), ndir, false);
+    namconv.setMultiColumns(_dbcloud, colids_dir, String(), names, 1, false);
 
     return (0);
   }
@@ -281,8 +281,8 @@ namespace gstlrn
   {
     for (Id iech = 0, nech = _dbcloud->getNSample(); iech < nech; iech++)
     {
-      if (_dbcloud->getValue(_dbcloud->fromUID(_IPTR), iech) != 0.) continue;
-      _dbcloud->setValue(_dbcloud->fromUID(_IPTR), iech, TEST);
+      if (_dbcloud->getValue(_colid_ptr, iech) != 0.) continue;
+      _dbcloud->setValue(_colid_ptr, iech, TEST);
     }
   }
 

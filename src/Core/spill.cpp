@@ -266,10 +266,10 @@ namespace gstlrn
    **
    ** \param[in]  image SPIMG structure
    **
-   ** \param[out] iatt  Rank of the output attribute
+   ** \param[out] colid_iatt  Column ID for the output attribute
    **
    *****************************************************************************/
-  static void st_extract_center(SPIMG* image, Id iatt)
+  static void st_extract_center(SPIMG* image, const ColID& colid_iatt)
   {
     VectorInt ind(2);
     for (Id iy = 0; iy < SY; iy++)
@@ -277,8 +277,7 @@ namespace gstlrn
       {
         ind[0] = ix;
         ind[1] = iy;
-        DB->setValue(
-          DB->fromUID(iatt), DB->indiceToRank(ind), BITMAP(image, ix, iy));
+        DB->setValue(colid_iatt, DB->indiceToRank(ind), BITMAP(image, ix, iy));
       }
   }
 
@@ -683,8 +682,9 @@ namespace gstlrn
 
     /* Add the attribute */
 
-    Id iptr_spill = dbgrid->addColumnsByConstant(1, 1, 0., "Spill", ELoc::Z);
-    if (iptr_spill < 0) goto label_end;
+    auto colid_spill =
+      dbgrid->addOneColumn("Spill", 0., VectorDouble(), ERole::Z);
+    if (colid_spill.empty()) goto label_end;
 
     /* Core allocation */
 
@@ -799,7 +799,7 @@ namespace gstlrn
 
     /* Returning the output grid */
 
-    st_extract_center(SPIMG_OUT, iptr_spill);
+    st_extract_center(SPIMG_OUT, colid_spill);
 
   label_end:
     SPIMG_IN = st_image_free(SPIMG_IN);
