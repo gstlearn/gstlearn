@@ -67,6 +67,28 @@ namespace gstlrn
     if (w2) _workdat2.resize(_getNDat());
   }
 
+  double
+    ASPDEOp::loglikelihood(const VectorDouble& Z, Id nmc, Id seed, bool verbose)
+      const
+  {
+    Id size = static_cast<Id>(Z.size());
+    double logdet = computeTotalLogDet(nmc, seed);
+    double quad = computeQuadratic(Z);
+    double loglike = TEST;
+    if (!FFFF(logdet) && !FFFF(quad))
+      loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+
+    if (verbose)
+    {
+      message("Likelihood calculation:\n");
+      message("Nb. active samples = %d\n", size);
+      message("Log-Determinant    = %lf\n", logdet);
+      message("Quadratic term     = %lf\n", quad);
+      message("Log-likelihood     = %lf\n", loglike);
+    }
+    return loglike;
+  }
+
   /*****************************************************************************/
   /*!
   **  Evaluate the product (by the SPDEOp) :

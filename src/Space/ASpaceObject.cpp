@@ -13,6 +13,7 @@
 #include "Basic/AException.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/SpaceCyl.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
 
@@ -140,6 +141,15 @@ namespace gstlrn
       case ESpaceType::E_RN:
       {
         defaultSpace = SpaceRN::create(static_cast<Id>(ndim));
+        break;
+      }
+      case ESpaceType::E_CYL:
+      {
+        ndim = 3;
+        if (param <= 0.) param = 1.;
+        defaultSpace = SpaceCyl::create(
+          static_cast<Id>(ndim), VectorDouble{0., 0., 0.},
+          VectorDouble{1., 0., 0.}, param);
         break;
       }
       default:
