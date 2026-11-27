@@ -1383,6 +1383,13 @@ namespace gstlrn
     return true;
   }
 
+  Grid Grid::createFromNF(const String& NFFilename, bool verbose)
+  {
+    Grid grid;
+    if (grid._fileOpenAndDeserialize(NFFilename, verbose)) return grid;
+    return {};
+  }
+
   bool Grid::_deserializeAscii(std::istream& is)
   {
     Id ndim = 0;
