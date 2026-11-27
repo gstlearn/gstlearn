@@ -209,7 +209,7 @@ namespace gstlrn
     target.insert(target.end(), colids.begin(), colids.end());
   }
 
-  Id ACalcDbToDb::_addVariableDb(
+  ColIDs ACalcDbToDb::_addVariableDb(
     Id whichDb,
     Id status,
     const ELoc& locatorType,
@@ -220,14 +220,14 @@ namespace gstlrn
   {
     DECLARE_UNUSED(locatorIndex);
     Db* db = _whichDb(whichDb);
-    if (db == nullptr) return -1;
+    if (db == nullptr) return ColIDs();
 
     auto colids = db->addMultiColumns(
       VectorString(), valinit, VectorDouble(), toERole(locatorType), nversion,
       false, false, 0, 0, number);
-    if (colids.empty()) return -1;
+    if (colids.empty()) return ColIDs();
     _storeInVariableList(whichDb, status, colids);
-    return colids[0].getUID();
+    return colids;
   }
 
   /**

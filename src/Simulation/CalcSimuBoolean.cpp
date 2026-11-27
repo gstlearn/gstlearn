@@ -433,22 +433,25 @@ namespace gstlrn
     _iptrCover = -1;
     if (getDbin() != nullptr)
     {
-      _iptrCover = _addVariableDb(1, 2, ELoc::SIMU, 0, 1, 1, 0.);
-      if (_iptrCover < 0) return false;
+      auto colids = _addVariableDb(1, 2, ELoc::SIMU, 0, 1, 1, 0.);
+      if (colids.empty()) return false;
+      _iptrCover = colids[0].getUID();
     }
     _iptrSimu = -1;
     if (_flagSimu)
     {
-      _iptrSimu = _addVariableDb(
+      auto colids = _addVariableDb(
         2, 1, ELoc::SIMU, 0, 1, getNbSimu(), _boolparam.getBackground());
-      if (_iptrSimu < 0) return false;
+      if (colids.empty()) return false;
+      _iptrSimu = colids[0].getUID();
     }
     _iptrRank = -1;
     if (_flagRank)
     {
-      _iptrRank = _addVariableDb(
+      auto colids = _addVariableDb(
         2, 1, ELoc::SIMU, 0, 1, getNbSimu(), _boolparam.getBackground());
-      if (_iptrRank < 0) return false;
+      if (colids.empty()) return false;
+      _iptrRank = colids[0].getUID();
     }
     return true;
   }

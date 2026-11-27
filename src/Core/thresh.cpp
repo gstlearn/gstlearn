@@ -375,9 +375,9 @@ namespace gstlrn
     // Naming convention
 
     nc.setLocatorOutType(ELoc::L);
-    nc.setOutput(VectorString(), ngrf, db, colidsl[0].getUID(), "Lower", ngrf);
+    nc.setMultiColumns(db, colidsl, "Lower", VectorString(), ngrf, ngrf);
     nc.setLocatorOutType(ELoc::U);
-    nc.setOutput(VectorString(), ngrf, db, colidsu[0].getUID(), "Upper", ngrf);
+    nc.setMultiColumns(db, colidsu, "Upper", VectorString(), ngrf, ngrf);
     error = 0;
 
   label_end:

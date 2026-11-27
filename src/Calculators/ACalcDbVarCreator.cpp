@@ -50,24 +50,6 @@ namespace gstlrn
     target.insert(target.end(), colids.begin(), colids.end());
   }
 
-  Id ACalcDbVarCreator::_addVariableDb(
-    Id status,
-    const ELoc& locatorType,
-    Id locatorIndex,
-    Id number,
-    Id nversion,
-    double valinit)
-  {
-    DECLARE_UNUSED(locatorIndex);
-    if (_db == nullptr) return -1;
-    auto colids = _db->addMultiColumns(
-      VectorString(), valinit, VectorDouble(), toERole(locatorType), nversion,
-      false, false, 0, 0, number);
-    if (colids.empty()) return -1;
-    _storeInVariableList(status, colids);
-    return colids[0].getUID();
-  }
-
   void ACalcDbVarCreator::_renameVariable(
     Id nvar,
     Id iptr,

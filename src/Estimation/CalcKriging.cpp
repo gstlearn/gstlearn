@@ -87,27 +87,31 @@ namespace gstlrn
 
     if (_flagEst)
     {
-      _iptrEst =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
-      if (_iptrEst < 0) return false;
+      if (colids.empty()) return false;
+      _iptrEst = colids[0].getUID();
     }
     if (_flagStd)
     {
-      _iptrStd =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
-      if (_iptrStd < 0) return false;
+      if (colids.empty()) return false;
+      _iptrStd = colids[0].getUID();
     }
     if (_flagVarZ)
     {
-      _iptrVarZ =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
-      if (_iptrVarZ < 0) return false;
+      if (colids.empty()) return false;
+      _iptrVarZ = colids[0].getUID();
     }
     if (_flagNeighOnly)
     {
-      _iptrNeigh =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, 1, TEST);
-      if (_iptrNeigh < 0) return false;
+      if (colids.empty()) return false;
+      _iptrNeigh = colids[0].getUID();
     }
 
     // Centering the Data (for DGM only)

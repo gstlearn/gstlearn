@@ -254,7 +254,9 @@ namespace gstlrn
 
   Id ACalcInterpolator::_centerDataToGrid(DbGrid* dbgrid)
   {
-    Id iuid_out = _addVariableDb(1, 2, ELoc::UNDEFINED, 0, _getNDim(), 1, TEST);
+    auto colids_out =
+      _addVariableDb(1, 2, ELoc::UNDEFINED, 0, _getNDim(), 1, TEST);
+    Id iuid_out = colids_out[0].getUID();
     for (Id idim = 0; idim < _getNDim(); idim++)
     {
       Id iuid_in = getDbin()->getUID(RoleID(ERole::X, idim));

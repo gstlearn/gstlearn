@@ -674,8 +674,9 @@ namespace gstlrn
   {
     if (!ACalcDbToDb::_preprocess()) return false;
 
-    _iattOut =
+    auto colids_out =
       _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVar(), _getNVersions(), 0.);
+    _iattOut = colids_out[0].getUID();
     return (_iattOut >= 0);
   }
 

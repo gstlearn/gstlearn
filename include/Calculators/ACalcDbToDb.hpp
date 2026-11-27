@@ -68,7 +68,7 @@ namespace gstlrn
     bool _setNdim(Id ndim, bool flagForce = false);
     bool _setNvar(Id nvar, bool flagForce = false);
 
-    Id _addVariableDb(
+    ColIDs _addVariableDb(
       Id whichDb,
       Id status,
       const ELoc& locatorType,

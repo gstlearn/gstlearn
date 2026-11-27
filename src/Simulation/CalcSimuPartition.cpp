@@ -282,7 +282,8 @@ namespace gstlrn
   {
     if (!ACalcSimulation::_preprocess()) return false;
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu(), 1);
+    auto colids = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu(), 1);
+    if (!colids.empty()) _iattOut = colids[0].getUID();
     return (_iattOut >= 0);
   }
 

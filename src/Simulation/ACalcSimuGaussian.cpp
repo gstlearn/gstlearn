@@ -75,13 +75,15 @@ namespace gstlrn
     {
       if (_isConditional() && !_flagOnGridOnly)
       {
-        Id iptr_in =
+        auto colids_in =
           _addVariableDb(1, 2, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
-        if (iptr_in < 0) return false;
+        if (colids_in.empty()) return false;
       }
 
-      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
-      if (_iattOut < 0) return false;
+      auto colids_out =
+        _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
+      if (colids_out.empty()) return false;
+      _iattOut = colids_out[0].getUID();
     }
 
     // Perform the global statements valid whatever the simulation method
