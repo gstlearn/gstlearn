@@ -289,7 +289,7 @@ def create3DGrid(
     limitY = Limits2D[1]
 
     # Build the 2-D grid restricted to the area of interest
-    dbsegy2D = gl.DbGrid.createSubGrid(dblabel, Limits2D, False)
+    dbsegy2D = gl.DbGrid.createSubGrid(dblabel, Limits2D, False, False)
 
     # Characteristics of the initial SEGY (based on the SEGY grid 'dbsegy')
     nx = dbsegy2D.getNXs()
@@ -391,7 +391,7 @@ def restrict2DGrid(dblabel, topName, botName):
     # Extract the limits for horizontal extension
     Limits2D = dblabel.getLimitsFromVariableExtend(topName, botName)
 
-    return gl.DbGrid.createSubGrid(dblabel, Limits2D, False)
+    return gl.DbGrid.createSubGrid(dblabel, Limits2D, False, False)
 
 
 def SaveSegy(source, destination, prob):

@@ -1785,12 +1785,14 @@ namespace gstlrn
    * Create the sub-grid, extracted from 'gridIn' and reduced to the vector of limits
    * @param gridIn Input grid
    * @param limits A vector of Min and Max per space dimension (Dimension: [ndim][2])
-   * @param flagAddCoordinates True if the grid coordinates must be included in the output file
+   * @param flagAddSampleRank True if the sample rank must be included in the output grid
+   * @param flagAddCoordinates True if the grid coordinates must be included in the output grid
    * @return
    */
   DbGrid* DbGrid::createSubGrid(
     const DbGrid* gridIn,
     VectorVectorInt limits,
+    bool flagAddSampleRank,
     bool flagAddCoordinates)
   {
     DbGrid* gridOut = nullptr;
@@ -1824,7 +1826,7 @@ namespace gstlrn
     // Create the new grid
     gridOut = DbGrid::create(
       NXs, DXs, X0s, angles, ELoadBy::fromKey("SAMPLE"), VectorDouble(),
-      VectorString(), VectorString(), 1, flagAddCoordinates);
+      VectorString(), VectorString(), flagAddSampleRank, flagAddCoordinates);
 
     // Add the variables of interest
     VectorInt iuidOut(nvar);
