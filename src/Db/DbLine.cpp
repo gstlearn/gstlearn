@@ -595,7 +595,7 @@ namespace gstlrn
     {
       VectorDouble tab = _getHeaderCoordinate(idim);
       String name = concatenateString("x", idim + 1);
-      db->addColumns(tab, name, ELoc::X, idim);
+      db->addOneColumn(name, 0., tab, ERole::X, idim);
     }
 
     // Add the line length as variable
@@ -603,7 +603,7 @@ namespace gstlrn
     VectorDouble tab(nbline);
     for (Id iline = 0; iline < nbline; iline++)
       tab[iline] = getNSamplePerLine(iline);
-    db->addColumns(tab, "Count");
+    db->addOneColumn("Count", 0., tab);
 
     return db;
   }

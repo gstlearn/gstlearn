@@ -132,7 +132,7 @@ plot(x = 1:nit, y = log(ppmt$getSerieScore(), base = 10), type = "l", col = "red
      xlab = "Iterations", ylab = "Logarithm of index", main = "Wasserstein distance")
 
 # adding the results to the data base
-iuid = data$addColumns(Xmat$getValues(), radix = "U")
+colids = data$addMultiColumns("U", 0., Xmat$getValues())
 dbStatisticsMono(data, c("x*","Y*","U-*"),
                        opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
 ```

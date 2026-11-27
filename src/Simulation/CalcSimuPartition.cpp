@@ -100,9 +100,10 @@ namespace gstlrn
     /* Expand the data values over the grid nodes */
 
     Id iattp = dbpoint->getNColumn() - 1;
+    auto colid_iattp = dbpoint->getColID(iattp);
     if (expandPointToGrid(
-          dbpoint, dbgrid, iattp, 0, -1, 0, -1, -1, -1, -1, 0, VectorDouble(),
-          simgrid))
+          dbpoint, dbgrid, colid_iattp, ColID(), ColID(), ColID(), ColID(),
+          ColID(), 0, 0, VectorDouble(), simgrid))
       return 1;
 
     /* Save the grid in dbgrid */
@@ -281,7 +282,8 @@ namespace gstlrn
   {
     if (!ACalcSimulation::_preprocess()) return false;
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu(), 1);
+    auto colids = _addVariableDb(2, 1, ELoc::SIMU, 0, getNbSimu(), 1);
+    if (!colids.empty()) _iattOut = colids[0].getUID();
     return (_iattOut >= 0);
   }
 

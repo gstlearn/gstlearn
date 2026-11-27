@@ -143,12 +143,14 @@ namespace gstlrn
     if (!ACalcDbToDb::_preprocess()) return false;
 
     // Number of variables
-    _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+    auto colids_out = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+    _iattOut = colids_out[0].getUID();
     if (_iattOut < 0) return false;
 
     if (_flagShrink)
     {
-      _iattAux = _addVariableDb(2, 2, ELoc::UNDEFINED, 0, 1, 1, 0.);
+      auto colids_aux = _addVariableDb(2, 2, ELoc::UNDEFINED, 0, 1, 1, 0.);
+      _iattAux = colids_aux[0].getUID();
       if (_iattAux < 0) return false;
     }
     return true;

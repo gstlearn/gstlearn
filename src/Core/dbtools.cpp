@@ -666,8 +666,8 @@ namespace gstlrn
 
     /* Create the variables */
 
-    Id iptr = db->addColumnsByConstant(ncut, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids = db->addEmptyColumns(VectorString(), TEST, 0, ncut);
+    if (colids.empty()) return 1;
 
     /* Loop on the samples */
 
@@ -688,7 +688,7 @@ namespace gstlrn
         double ton_cut0 = tonnage[icut];
         double ton_cut1 = (icut > 0) ? tonnage[icut - 1] : 1.;
         Id ir = ind_cut0 / ton_cut0 - ind_cut1 / ton_cut1;
-        db->setValue(db->fromUID(iptr + icut), iech, ir);
+        db->setValue(colids[icut], iech, ir);
       }
     }
 
@@ -746,42 +746,44 @@ namespace gstlrn
    ** \param[in]  dbgrid  Db structure (grid organized)
    **
    *****************************************************************************/
-  Id db_gradient_components(DbGrid* dbgrid)
+  ColIDs db_gradient_components(DbGrid* dbgrid)
 
   {
-    Id iptrz, iptr, nx, ny, nz, nmax, error, ndim, j1, j2, number;
-    double dinc, v1, v2, delta;
-    VectorInt indg;
+    Id j1, j2;
+    double v1, v2, delta;
+    ColIDs colids;
 
     /* Preliminary check */
 
-    error = number = 1;
-    iptr = -1;
-    ndim = dbgrid->getNDim();
+    Id number = 1;
+    Id ndim = dbgrid->getNDim();
     if (!dbgrid->isGrid())
     {
       messerr("The Db should be organized as a Grid");
-      goto label_end;
+      return colids;
     }
-    if (!dbgrid->isNVarComparedTo(1)) goto label_end;
+    if (!dbgrid->isNVarComparedTo(1)) return colids;
     if (ndim > 3)
     {
       messerr("This function is limited to Space Dimension <= 3");
-      goto label_end;
+      return colids;
     }
 
     /* Initializations */
 
-    nx = dbgrid->getNX(0);
-    ny = dbgrid->getNX(1);
-    nz = dbgrid->getNX(2);
-    indg.resize(ndim, 0);
+    Id nx = dbgrid->getNX(0);
+    Id ny = dbgrid->getNX(1);
+    Id nz = dbgrid->getNX(2);
+    VectorInt indg(ndim, 0);
 
     /* Create the new variable */
 
-    iptrz = dbgrid->getColIdx(RoleID(ERole::Z, 0));
-    if (iptrz < 0) goto label_end;
-    iptr = dbgrid->addColumnsByConstant(ndim, 1, TEST, String(), ELoc::G);
+    Id iptrz = dbgrid->getColumnIndex(RoleID(ERole::Z, 0));
+    if (iptrz < 0) return colids;
+    colids = dbgrid->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::G, 1, false, false, 0, 0,
+      ndim);
+    auto iptr = colids[0].getUID();
 
     /* Calculate the Gradient components */
 
@@ -791,8 +793,8 @@ namespace gstlrn
         {
           for (Id idim = 0; idim < ndim; idim++)
           {
-            nmax = dbgrid->getNX(idim);
-            dinc = dbgrid->getDX(idim);
+            Id nmax = dbgrid->getNX(idim);
+            double dinc = dbgrid->getDX(idim);
 
             v1 = v2 = 0.;
             if (idim == 0)
@@ -833,17 +835,7 @@ namespace gstlrn
           }
         }
 
-    /* Set the error return code */
-
-    error = 0;
-
-  label_end:
-    if (error)
-    {
-      dbgrid->deleteColumnsByUIDRange(iptr, ndim);
-      iptr = -1;
-    }
-    return (iptr);
+    return colids;
   }
 
   /****************************************************************************/
@@ -969,7 +961,7 @@ namespace gstlrn
     VectorDouble& line)
   {
     Id error, npline, idim, ecr;
-    Id iptr_time, iptr_accu, iptr_grad, nbline, knd, nquant, nbyech, ndim;
+    Id iptr_grad, nbline, knd, nquant, nbyech, ndim;
     double surf, date;
     static Id quant = 1000;
     VectorDouble coor;
@@ -979,6 +971,8 @@ namespace gstlrn
 
     error = 1;
     nbline = nquant = 0;
+    ColID colid_time(-1);
+    ColID colid_accu(-1);
     iptr_grad = -1;
     if (dbpoint == nullptr) dbpoint = dbgrid;
     nbyech = static_cast<Id>(get_keypone("Streamline_Skip", 1.));
@@ -997,10 +991,10 @@ namespace gstlrn
 
     coor.resize(ndim);
     coor0.resize(ndim);
-    iptr_time = dbgrid->addColumnsByConstant(1, 1, TEST);
-    if (iptr_time < 0) goto label_end;
-    iptr_accu = dbgrid->addColumnsByConstant(1, 1, 0.);
-    if (iptr_accu < 0) goto label_end;
+    colid_time = dbgrid->addOneColumn("time", TEST);
+    if (colid_time.empty()) goto label_end;
+    colid_accu = dbgrid->addOneColumn("accu", TEST);
+    if (colid_accu.empty()) goto label_end;
 
     /* Calculate the gradient */
 
@@ -1014,11 +1008,12 @@ namespace gstlrn
           dbgrid->getNLoc(ELoc::G));
         goto label_end;
       }
-      iptr_grad = dbgrid->getColIdx(RoleID(ERole::G, 0));
+      iptr_grad = dbgrid->getColumnIndex(RoleID(ERole::G, 0));
     }
     else
     {
-      iptr_grad = db_gradient_components(dbgrid);
+      auto colid_grad = db_gradient_components(dbgrid);
+      iptr_grad = colid_grad[0].getUID();
     }
     if (iptr_grad < 0) goto label_end;
 
@@ -1072,9 +1067,9 @@ namespace gstlrn
 
         /* Update variables in the grid Db */
 
-        date = MIN(dbgrid->getValue(dbgrid->fromUID(iptr_time), knd), i + 1.);
-        dbgrid->setValue(dbgrid->fromUID(iptr_time), knd, date);
-        dbgrid->updValue(dbgrid->fromUID(iptr_accu), knd, EOperator::ADD, 1.);
+        date = MIN(dbgrid->getValue(colid_time, knd), i + 1.);
+        dbgrid->setValue(colid_time, knd, date);
+        dbgrid->updValue(colid_accu, knd, EOperator::ADD, 1.);
       }
 
       /* Add the endpoint */
@@ -1718,17 +1713,15 @@ namespace gstlrn
 
     // Loading the resulting results in the output 'dbout'
 
-    Id iptr0 = -1;
     VectorDouble propout(dbout->getNSample(true));
-    for (Id i = 0; i < ncat; i++)
+    ColIDs colids(ncat);
+    for (Id icat = 0; icat < ncat; icat++)
     {
-      AprojOut.mesh2point(props[i], propout);
-      Id iptr = dbout->addColumns(propout, String(), ELoc::UNDEFINED, 0, true);
-      if (i == 0) iptr0 = iptr;
-      namconv.setOutput(
-        VectorString(), 0, dbout, iptr, concatenateStrings("-", toStr(i + 1)));
+      AprojOut.mesh2point(props[icat], propout);
+      colids[icat] = dbout->addOneColumn(
+        String(), 0., propout, ERole::UNDEFINED, 0, 1, true);
     }
-    namconv.setLocators(dbout, iptr0, 1, ncat);
+    namconv.setMultiColumns(dbout, colids);
 
     return 0;
   }

@@ -1028,18 +1028,22 @@ namespace gstlrn
 
     if (_niter > 1)
     {
-      _iptrStatFluid =
+      auto colids_StatFluid =
         _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _nfluids, 1, 0.);
-      if (_iptrStatFluid < 0) return false;
-      _iptrStatCork = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
-      if (_iptrStatCork < 0) return false;
+      if (colids_StatFluid.empty()) return false;
+      _iptrStatFluid = colids_StatFluid[0].getUID();
+      auto colids_StatCork = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+      if (colids_StatCork.empty()) return false;
+      _iptrStatCork = colids_StatCork[0].getUID();
     }
 
     /* Add the attributes for storing the Fluid and Data informations */
 
-    _iptrFluid = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
-    if (_iptrFluid < 0) return false;
-    _iptrDate = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, TEST);
+    auto colids_Fluid = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+    if (colids_Fluid.empty()) return false;
+    _iptrFluid = colids_Fluid[0].getUID();
+    auto colids_Date = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, TEST);
+    if (!colids_Date.empty()) _iptrDate = colids_Date[0].getUID();
     return (_iptrDate >= 0);
   }
 

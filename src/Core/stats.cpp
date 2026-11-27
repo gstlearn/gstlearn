@@ -676,25 +676,26 @@ namespace gstlrn
   Id db_upscale(DbGrid* dbgrid1, DbGrid* dbgrid2, Id orient, Id verbose)
   {
     double result1, result2, result, probtot;
-    Id error, ndim, ind0[3], nxyz[3], iech, iptr, ntot, ncol;
-    Id flag_save, iech_save;
+    Id ind0[3], nxyz[3], iech, ntot, ncol;
+    Id flag_save;
     VectorDouble numtab0;
     VectorDouble numtab1;
     VectorDouble numtab2;
     VectorDouble valtab0;
     VectorDouble valtab1;
     VectorDouble valtab2;
+    ColIDs colids_iptr;
 
     /* Initializations */
 
-    error = 1;
-    iech_save = static_cast<Id>(get_keypone("Upscale.Converge.Block", 0));
+    Id error = 1;
+    Id iech_save = static_cast<Id>(get_keypone("Upscale.Converge.Block", 0));
     Id ndim2 = dbgrid2->getNDim();
     VectorInt ixyz(ndim2);
 
     /* Preliminary checks */
 
-    ndim = dbgrid1->getNDim();
+    Id ndim = dbgrid1->getNDim();
     if (ndim < 1 || ndim > 3)
     {
       messerr("This function is limited to 2-D or 3-D input grids");
@@ -719,9 +720,11 @@ namespace gstlrn
     /* Create the new variable in the output file */
 
     ncol = 3;
-    iptr = dbgrid2->addColumnsByConstant(ncol, 1, TEST);
-    if (iptr < 0) goto label_end;
-    dbgrid2->setLocatorsByUIDRange(ncol, iptr, ELoc::Z, 0);
+    colids_iptr = dbgrid2->addMultiColumns(
+      VectorString(), TEST, VectorDouble(), ERole::UNDEFINED, 1, false, false,
+      0, 0, ncol);
+    if (colids_iptr.empty()) goto label_end;
+    dbgrid2->setLocatorsByUIDRange(ncol, colids_iptr[0].getUID(), ELoc::Z, 0);
 
     /* Core allocation */
 
@@ -1264,8 +1267,7 @@ namespace gstlrn
     Id verbose)
   {
     double diff_coeff, pmid, probtot;
-    Id error, ndim, ind0[3], nxyz[3], iech, nech, iptr, opt_center;
-    Id ntot, iech_save, flag_save, opt_morpho, flag_traj, n_nbgh;
+    Id ndim, ind0[3], nxyz[3], iech, nech, ntot, flag_save, n_nbgh;
     String name;
     VectorInt nbgh;
     VectorInt tabini;
@@ -1277,14 +1279,17 @@ namespace gstlrn
     VectorDouble cvsave;
     VectorDouble trsave;
     VectorDouble valwrk;
+    ColID colid_iptr;
 
     /* Initializations */
 
-    error = 1;
-    iech_save = static_cast<Id>(get_keypone("Diffusion.Converge.Block", 0));
-    opt_morpho = static_cast<Id>(get_keypone("Diffusion.Converge.Morpho", 1));
-    opt_center = static_cast<Id>(get_keypone("Diffusion.Converge.Center", 1));
-    flag_traj = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
+    Id error = 1;
+    Id iech_save = static_cast<Id>(get_keypone("Diffusion.Converge.Block", 0));
+    Id opt_morpho =
+      static_cast<Id>(get_keypone("Diffusion.Converge.Morpho", 1));
+    Id opt_center =
+      static_cast<Id>(get_keypone("Diffusion.Converge.Center", 1));
+    Id flag_traj = static_cast<Id>(get_keypone("Diffusion.Flag.Trajectory", 0));
     pmid = get_keypone("Diffusion.Converge.PMid", 70.);
     if (seed != 0) law_set_random_seed(seed);
 
@@ -1339,8 +1344,8 @@ namespace gstlrn
 
     /* Create the new variable in the output file */
 
-    iptr = dbgrid2->addColumnsByConstant(1, 1, TEST);
-    if (iptr < 0) goto label_end;
+    colid_iptr = dbgrid2->addOneColumn("diffusion", TEST);
+    if (colid_iptr.empty()) goto label_end;
 
     /* Loop on the cells of the Output Grid */
 
@@ -1395,7 +1400,7 @@ namespace gstlrn
 
       /* Store the result */
 
-      dbgrid2->setValue(dbgrid2->fromUID(iptr), iech, diff_coeff);
+      dbgrid2->setValue(colid_iptr, iech, diff_coeff);
     }
 
     /* Set the error return code */

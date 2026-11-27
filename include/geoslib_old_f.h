@@ -227,7 +227,7 @@ namespace gstlrn
     double* coor);
   GSTLEARN_EXPORT Id point_to_point(Db* db, const double* coor);
   GSTLEARN_EXPORT Id point_inside_grid(Db* db, Id iech, const DbGrid* dbgrid);
-  GSTLEARN_EXPORT Id db_gradient_components(DbGrid* dbgrid);
+  GSTLEARN_EXPORT ColIDs db_gradient_components(DbGrid* dbgrid);
   GSTLEARN_EXPORT Id db_streamline(
     DbGrid* dbgrid,
     Db* dbpoint,
@@ -501,8 +501,8 @@ namespace gstlrn
     const ELoc& locatorType,
     Id nbsimu,
     Id nvar,
-    Id* iptr_ce_arg,
-    Id* iptr_cstd_arg);
+    ColIDs& colids_ce,
+    ColIDs& colids_cstd);
 
   /*****************************************/
   /* Prototyping the functions in simreg.c */
@@ -567,7 +567,7 @@ namespace gstlrn
     Id niter,
     Id seed,
     Id nbsimu,
-    Id icol_pinch,
+    const ColID& colid_pinch,
     Id flag_drift,
     Id flag_ce,
     Id flag_cstd,

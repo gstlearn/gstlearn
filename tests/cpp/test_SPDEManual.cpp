@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
   /////////////////////////
   // Simulation (Chebyshev)
   VectorDouble gridSimu = Qsimu.simulateOne();
-  grid->addColumns(gridSimu, "SimuNC", ELoc::Z);
+  grid->addOneColumn("SimuNC", 0., gridSimu, ERole::Z);
 
   ///////////////////////////
   // Creating Data
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   ProjMatrix B(dat, &mesh);
   VectorDouble datval(ndata);
   B.mesh2point(gridSimu, datval);
-  dat->addColumns(datval, "SimuNC", ELoc::Z);
+  dat->addOneColumn("SimuNC", 0., datval, ERole::Z);
 
   //////////
   // Kriging
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   VectorDouble vc(napices);
 
   vc = A.evalInverse(rhs);
-  grid->addColumns(vc, "Kriging");
+  grid->addOneColumn("Kriging", 0., vc);
 
   // Statistics
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);

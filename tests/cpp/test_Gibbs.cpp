@@ -49,33 +49,29 @@ static Id st_save(
   const VectorDouble& consmax,
   const VectorDouble& z)
 {
-  Id iptr;
   auto nech = dbgrid->getNSample();
+  ColID colid;
 
   /* Add the terms to 'dbgrid' */
 
   if (!consmin.empty())
   {
-    iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::L);
-    if (iptr < 0) return 1;
-    for (Id i = 0; i < nech; i++)
-      dbgrid->setValue(dbgrid->fromUID(iptr), i, consmin[i]);
+    colid = dbgrid->addOneColumn(String(), 0., VectorDouble(), ERole::L);
+    if (colid.empty()) return 1;
+    for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, consmin[i]);
   }
   if (!consmax.empty())
   {
-    iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::U);
-    if (iptr < 0) return 1;
-    for (Id i = 0; i < nech; i++)
-      dbgrid->setValue(dbgrid->fromUID(iptr), i, consmax[i]);
+    colid = dbgrid->addOneColumn(String(), 0., VectorDouble(), ERole::U);
+    if (colid.empty()) return 1;
+    for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, consmax[i]);
   }
-  iptr = dbgrid->addColumnsByConstant(1, 1, 0., "Color");
-  if (iptr < 0) return 1;
-  for (Id i = 0; i < nech; i++)
-    dbgrid->setValue(dbgrid->fromUID(iptr), i, colors[i]);
-  iptr = dbgrid->addColumnsByConstant(1, 1, 0., String(), ELoc::Z);
-  if (iptr < 0) return 1;
-  for (Id i = 0; i < nech; i++)
-    dbgrid->setValue(dbgrid->fromUID(iptr), i, z[i]);
+  colid = dbgrid->addOneColumn("Color");
+  if (colid.empty()) return 1;
+  for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, colors[i]);
+  colid = dbgrid->addOneColumn(String(), 0., VectorDouble(), ERole::Z);
+  if (colid.empty()) return 1;
+  for (Id i = 0; i < nech; i++) dbgrid->setValue(colid, i, z[i]);
 
   /* Save the resulting 'dbgrid' in a neutral file */
 

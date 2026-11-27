@@ -56,11 +56,11 @@ int main(int argc, char* argv[])
 
   // Define the data set
   Db* data = Db::create();
-  data->addColumns({0., 1., 1., 2., 3.}, "x1", ELoc::X, 0);
-  data->addColumns({0., 3., 0., 0., 0.}, "x2", ELoc::X, 1);
-  data->addColumns({0., 0., 1., 2., 3.}, "z1", ELoc::Z, 0);
-  data->addColumns({1., -1., 0., 1., 2.}, "g1", ELoc::G, 0);
-  data->addColumns({1., -1., 0., 2., 1.}, "g2", ELoc::G, 1);
+  data->addOneColumn("x1", 0., {0., 1., 1., 2., 3.}, ERole::X, 0);
+  data->addOneColumn("x2", 0., {0., 3., 0., 0., 0.}, ERole::X, 1);
+  data->addOneColumn("z1", 0., {0., 0., 1., 2., 3.}, ERole::Z, 0);
+  data->addOneColumn("g1", 0., {1., -1., 0., 1., 2.}, ERole::G, 0);
+  data->addOneColumn("g2", 0., {1., -1., 0., 2., 1.}, ERole::G, 1);
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY);
   data->display(dbfmt);
   delete dbfmt;

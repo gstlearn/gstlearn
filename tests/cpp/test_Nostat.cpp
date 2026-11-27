@@ -68,15 +68,15 @@ int main(int argc, char* argv[])
     if (flagByAngle)
     {
       VectorDouble angle = spirale.getFunctionValues(workingDbc);
-      workingDbc->addColumns(angle, "Angle");
+      workingDbc->addOneColumn("Angle", 0., angle);
       cova->makeAngleNoStatDb("Angle", 0, workingDbc);
     }
     else
     {
       VectorVectorDouble hh = spirale.getFunctionVectors(workingDbc, cova);
-      workingDbc->addColumns(hh[0], "H1-1", ELoc::NOSTAT, 0);
-      workingDbc->addColumns(hh[1], "H1-2", ELoc::NOSTAT, 1);
-      workingDbc->addColumns(hh[2], "H2-2", ELoc::NOSTAT, 2);
+      workingDbc->addOneColumn("H1-1", 0., hh[0], ERole::NOSTAT, 0);
+      workingDbc->addOneColumn("H1-2", 0., hh[1], ERole::NOSTAT, 1);
+      workingDbc->addOneColumn("H2-2", 0., hh[2], ERole::NOSTAT, 2);
       cova->makeTensorNoStatDb("H1-1", 0, 0, workingDbc);
       cova->makeTensorNoStatDb("H1-2", 0, 1, workingDbc);
       cova->makeTensorNoStatDb("H2-2", 1, 1, workingDbc);

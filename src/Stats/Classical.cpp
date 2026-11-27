@@ -983,8 +983,8 @@ namespace gstlrn
 
     /* Create the new variables in the output file */
 
-    Id iptr = dbout->addColumnsByConstant(nfacies, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids = dbout->addEmptyColumns(VectorString(), TEST, 0, nfacies);
+    if (colids.empty()) return 1;
 
     /* Loop on the elements of the output grid */
 
@@ -1004,7 +1004,7 @@ namespace gstlrn
             indg[aux1] = i1;
             _updateProportions(dbin, indg, nfacies, prop);
           }
-          _scaleAndAffect(dbout, iptr, iech, nfacies, prop);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nfacies, prop);
         }
       }
       else
@@ -1024,7 +1024,7 @@ namespace gstlrn
               indg[aux2] = i2;
               _updateProportions(dbin, indg, nfacies, prop);
             }
-          _scaleAndAffect(dbout, iptr, iech, nfacies, prop);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nfacies, prop);
         }
       }
     }
@@ -1083,8 +1083,9 @@ namespace gstlrn
 
     /* Create the new variables in the output file */
 
-    Id iptr = dbout->addColumnsByConstant(nfacies * nfacies, 1, TEST);
-    if (iptr < 0) return 1;
+    auto colids =
+      dbout->addEmptyColumns(VectorString(), TEST, 0, nfacies * nfacies);
+    if (colids.empty()) return 1;
 
     /* Loop on the elements of the output grid */
 
@@ -1105,7 +1106,7 @@ namespace gstlrn
             indg[aux1] = i1;
             _updateTransition(dbin, pos, indg, nfacies, orient, trans);
           }
-          _scaleAndAffect(dbout, iptr, iech, nitem, trans);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nitem, trans);
         }
       }
       else
@@ -1125,7 +1126,7 @@ namespace gstlrn
               indg[aux2] = i2;
               _updateTransition(dbin, pos, indg, nfacies, orient, trans);
             }
-          _scaleAndAffect(dbout, iptr, iech, nitem, trans);
+          _scaleAndAffect(dbout, colids[0].getUID(), iech, nitem, trans);
         }
       }
     }
@@ -1867,8 +1868,8 @@ namespace gstlrn
     Id radius,
     Id iptr0)
   {
-    Id iptm = -1;
-    Id iptn = -1;
+    ColID colid_iptm(-1);
+    ColID colid_iptn(-1);
     Id nxyz = dbgrid->getNSample();
     Id ndim = dbgrid->getNDim();
     VectorInt iuids = db->getUIDs(names);
@@ -1884,9 +1885,9 @@ namespace gstlrn
 
     if (oper == EStatOption::MEAN || oper == EStatOption::VAR
         || oper == EStatOption::STDV)
-      iptn = dbgrid->addColumnsByConstant(1, 1, 0.);
+      colid_iptn = dbgrid->addOneColumn();
     if (oper == EStatOption::VAR || oper == EStatOption::STDV)
-      iptm = dbgrid->addColumnsByConstant(1, 1, 0.);
+      colid_iptm = dbgrid->addOneColumn();
 
     /* Core allocation */
 
@@ -1935,13 +1936,13 @@ namespace gstlrn
           }
           else if (oper == EStatOption::MEAN)
           {
-            dbgrid->updValue(dbgrid->fromUID(iptn), iad, EOperator::ADD, 1.);
+            dbgrid->updValue(colid_iptn, iad, EOperator::ADD, 1.);
             dbgrid->updValue(dbgrid->fromUID(iptr), iad, EOperator::ADD, value);
           }
           else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
           {
-            dbgrid->updValue(dbgrid->fromUID(iptn), iad, EOperator::ADD, 1.);
-            dbgrid->updValue(dbgrid->fromUID(iptm), iad, EOperator::ADD, value);
+            dbgrid->updValue(colid_iptn, iad, EOperator::ADD, 1.);
+            dbgrid->updValue(colid_iptm, iad, EOperator::ADD, value);
             dbgrid->updValue(
               dbgrid->fromUID(iptr), iad, EOperator::ADD, value * value);
           }
@@ -1987,7 +1988,7 @@ namespace gstlrn
       {
         for (Id i = 0; i < nxyz; i++)
         {
-          double ratio = dbgrid->getValue(dbgrid->fromUID(iptn), i);
+          double ratio = dbgrid->getValue(colid_iptn, i);
           if (ratio <= 0.)
             dbgrid->setValue(dbgrid->fromUID(iptr), i, TEST);
           else
@@ -1999,12 +2000,12 @@ namespace gstlrn
       {
         for (Id i = 0; i < nxyz; i++)
         {
-          double ratio = dbgrid->getValue(dbgrid->fromUID(iptn), i);
+          double ratio = dbgrid->getValue(colid_iptn, i);
           if (ratio <= 0.)
             dbgrid->setValue(dbgrid->fromUID(iptr), i, TEST);
           else
           {
-            double mean = dbgrid->getValue(dbgrid->fromUID(iptm), i) / ratio;
+            double mean = dbgrid->getValue(colid_iptm, i) / ratio;
             double value =
               dbgrid->getValue(dbgrid->fromUID(iptr), i) / ratio - mean * mean;
             if (value < 0) value = 0.;
@@ -2047,10 +2048,11 @@ namespace gstlrn
 
     if ((oper == EStatOption::MEAN || oper == EStatOption::VAR
          || oper == EStatOption::STDV)
-        && iptn > 0)
-      dbgrid->deleteColumn(dbgrid->fromUID(iptn));
-    if ((oper == EStatOption::VAR || oper == EStatOption::STDV) && iptm > 0)
-      dbgrid->deleteColumn(dbgrid->fromUID(iptm));
+        && !colid_iptn.empty())
+      dbgrid->deleteColumn(colid_iptn);
+    if ((oper == EStatOption::VAR || oper == EStatOption::STDV)
+        && !colid_iptm.empty())
+      dbgrid->deleteColumn(colid_iptm);
 
     return 0;
   }

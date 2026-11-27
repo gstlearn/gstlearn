@@ -838,9 +838,6 @@ namespace gstlrn
     // Set the SPDE class ready
     if (spde.makeReady(verbose)) return 1;
 
-    // Local variables
-    Id nvar = model->getNVar();
-
     // Read information from the input Db and center it
     VectorDouble Z = spde.getData(true, verbose);
     if (Z.empty()) return 1;
@@ -851,15 +848,16 @@ namespace gstlrn
     if (flag_est)
     {
       VectorDouble result = spde.kriging(Z);
-      Id iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
-      namconv.setOutput(dbin->getNames(ERole::Z), 0, dbout, iuid, "estim");
+      auto colids =
+        dbout->addMultiColumns({"estim"}, 0., result, ERole::Z, 1, true);
+      namconv.setMultiColumns(dbout, colids, "estim", dbin->getNames(ERole::Z));
     }
     if (flag_std)
     {
       VectorDouble result = spde.stdev(Z);
-      Id iuid =
-        dbout->addColumns(result, "stdev", ELoc::UNDEFINED, 0, true, 0., nvar);
-      namconv.setOutput(dbin->getNames(ERole::Z), 0, dbout, iuid, "stdev");
+      auto colids =
+        dbout->addMultiColumns({"stdev"}, 0., result, ERole::Z, 1, true);
+      namconv.setMultiColumns(dbout, colids, "stdev", dbin->getNames(ERole::Z));
     }
 
     return 0;
@@ -951,7 +949,7 @@ namespace gstlrn
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
 
-    Id iuid = dbout->addColumnsByConstant(nvar, nbsimu);
+    auto colids = dbout->addEmptyColumns(VectorString(), 0., 0, nvar, nbsimu);
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -962,11 +960,11 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        dbout->setColumn(dbout->fromUID(iuid + ivar, isimu), local, true);
+        dbout->setColumn(colids[ivar].setVersion(isimu), local, true);
       }
     }
     auto names = (dbin != nullptr) ? dbin->getNames(ERole::Z) : VectorString();
-    namconv.setOutput(names, 0, dbout, iuid, "", 1);
+    namconv.setMultiColumns(dbout, colids, "", names);
 
     return 0;
   }
@@ -1061,7 +1059,16 @@ namespace gstlrn
 
     // Perform the Simulation and storage.
     // All is done in ONE step to avoid additional storage
-    Id iuid0 = dbout->addColumnsByConstant(nvar * nbsimu);
+    auto colids_gauss = dbout->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::SIMU, nbsimu, false, false, 0,
+      0, nvar);
+    if (colids_gauss.empty()) return 1;
+
+    /* Storage of the simulations in the output file */
+    auto colid_facies = dbout->addOneColumn(
+      "Facies", 0., VectorDouble(), ERole::FACIES, 0, nbsimu);
+    if (colid_facies.empty()) return 1;
+
     VectorDouble local(nechred);
     VectorDouble result;
 
@@ -1075,16 +1082,16 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
         VH::extractInPlace(result, local, ivar * nechred);
-        Id juid = iuid0 + ivar * nbsimu + isimu;
-        dbout->setColumn(dbout->fromUID(juid), local, true);
-        iuids.push_back(juid);
+        dbout->setColumn(colids_gauss[ivar].setVersion(isimu), local, true);
       }
 
       // Convert the resulting simulation into categories
-      dbout->setLocators(dbout->fromUIDs(iuids), ELoc::SIMU);
-      ruleprop.gaussToCategory(dbout, namconv);
-      dbout->deleteColumns(dbout->fromUIDs(iuids));
+      ruleprop.gaussToCategory(dbout, isimu);
     }
+
+    dbout->deleteColumns(colids_gauss);
+
+    namconv.setOneColumn(dbout, colid_facies);
 
     return 0;
   }

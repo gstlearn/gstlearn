@@ -175,6 +175,7 @@ set(SRC
   DataBase/RoleID.cpp
   DataBase/DbCol.cpp
   DataBase/DbData.cpp
+  DataBase/DbOptim.cpp
   DataBase/Category.cpp
   DataBase/VectorCategory.cpp
   DataBase/Dictionary.cpp

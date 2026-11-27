@@ -84,11 +84,7 @@ namespace gstlrn
       Id ngrfmax = 1,
       bool use_discrete = false,
       bool verbose = false);
-    Id gaussToCategory(
-      Db* db,
-      const NamingConvention& namconv =
-        NamingConvention("Facies", true, true, true, ELoc::fromKey("FACIES")))
-      const;
+    Id gaussToCategory(Db* db, Id isimu) const;
     Id categoryToThresh(
       Db* db,
       const NamingConvention& namconv = NamingConvention("Bounds")) const;

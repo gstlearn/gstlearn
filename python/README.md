@@ -77,7 +77,7 @@ ny = 30
 mygrid = gl.DbGrid.create([nx,ny],[1,1])
 # Add a gaussian random field
 var = np.random.randn(nx * ny)
-mygrid.addColumns(var, "var1", gl.ELoc.Z)
+colid = mygrid.addOneColumn("var1", 0., var, gl.ERole.Z)
 # Display the field
 gp.raster(mygrid)
 gp.decoration(title="Gaussian random field")

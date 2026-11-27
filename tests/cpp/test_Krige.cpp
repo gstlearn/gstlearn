@@ -159,7 +159,8 @@ int main(int argc, char* argv[])
   // Generate the output grid
   VectorInt nx = {50, 50};
   DbGrid* grid = DbGrid::create(nx);
-  grid->addColumnsByConstant(2, 1, 1., "Extend", ELoc::BLEX);
+  grid->addMultiColumns(
+    {"Extend"}, 1., VectorDouble(), ERole::BLEX, 1, false, false, 0, 0, 2);
   grid->display();
 
   // Generate the data base
@@ -399,7 +400,7 @@ int main(int argc, char* argv[])
     delete grid_res;
     grid_res = grid->clone();
     tab = VH::simulateUniform(grid->getNSample(), 10., 20.);
-    grid_res->addColumns(tab, "Constraints", ELoc::SUM);
+    grid_res->addOneColumn("Constraints", 0., tab, ERole::SUM);
     krigsum(data, grid_res, model, neighU, true);
     grid_res->display(&dbfmtKriging);
   }

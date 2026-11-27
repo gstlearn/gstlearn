@@ -74,20 +74,11 @@ namespace gstlrn
       Id optionStat = 1,
       bool flagBelow = false,
       bool flagAbove = false) const;
-    Id toCategoryByAttribute(Db* db, Id iatt, const NamingConvention& namconv)
-      const;
-    Id toIndicatorByAttribute(
-      Db* db,
-      Id iatt,
-      Id OptionIndicator = 1,
-      bool flagBelow = false,
-      bool flagAbove = false,
-      const NamingConvention& namconv = NamingConvention("Indicator")) const;
 
   private:
     static Id _computeCategory(
       Db* db,
-      Id iatt,
+      const ColID& colid_iatt,
       const VectorDouble& mini,
       const VectorDouble& maxi,
       const VectorBool& incmini,
@@ -95,7 +86,7 @@ namespace gstlrn
       const NamingConvention& namconv);
     static Id _computeIndicator(
       Db* db,
-      Id iatt,
+      const ColID& colid_iatt,
       Id flag_indic,
       const VectorDouble& mini,
       const VectorDouble& maxi,

@@ -110,17 +110,18 @@ namespace gstlrn
     if (!ACalcInterpolator::_preprocess()) return false;
 
     auto nvar = _getNVar();
+    ColIDs colids_out;
     if (_flagFilter)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 1, 0.);
+      colids_out = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, nvar, 1, 0.);
 
     if (_flagMorpho)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _nvarMorpho, 1, 0.);
+      colids_out = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _nvarMorpho, 1, 0.);
 
     if (_flagSmooth)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+      colids_out = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
 
-    if (_iattOut < 0) return false;
-    return true;
+    if (!colids_out.empty()) _iattOut = colids_out[0].getUID();
+    return (_iattOut >= 0);
   }
 
   bool CalcImage::_postprocess()
@@ -194,12 +195,12 @@ namespace gstlrn
     VectorVectorInt ranks = _getActiveRanks(dblocal);
 
     Db* target = Db::createFromOnePoint(VectorDouble(ndim));
-    auto iuid = target->addColumnsByConstant(nvar);
+    auto colids = target->addEmptyColumns(VectorString(), 0., 0, nvar);
 
     // We perform a Kriging of the center 'dbaux' in Unique Neighborhood
     NeighUnique* neighU = NeighUnique::create();
     KrigingSystem ksys(dblocal, target, modelGeneric, neighU, getKrigopt());
-    if (ksys.updKrigOptEstim(iuid, -1, -1, true)) return false;
+    if (ksys.updKrigOptEstim(colids[0].getUID(), -1, -1, true)) return false;
     if (!ksys.isReady()) return false;
     if (ksys.estimate(0)) return false;
     MatrixDense wgt = ksys.getWeights();
@@ -252,8 +253,9 @@ namespace gstlrn
 
     // Create the relevant DbGrid
     DbGrid* dbgrid = DbGrid::create(nx);
-    Id iuid =
-      dbgrid->addColumnsByConstant(nvar * nvar, 1, 0., "Weights", ELoc::Z);
+    auto colids = dbgrid->addMultiColumns(
+      {"Weights"}, 0., VectorDouble(), ERole::Z, 1, false, false, 0, 0,
+      nvar * nvar);
     VectorInt center = dbgrid->getCenterIndices();
 
     // Loop on the valid weights
@@ -268,8 +270,7 @@ namespace gstlrn
       for (Id ivar = 0; ivar < nvar; ivar++)
         for (Id jvar = 0; jvar < nvar; jvar++, ecr++)
           dbgrid->setValue(
-            dbgrid->fromUID(iuid + ecr), iadd,
-            wgt.getValue(nbneigh * jvar + ineigh, ivar));
+            colids[ecr], iadd, wgt.getValue(nbneigh * jvar + ineigh, ivar));
     }
 
     // Optional printout

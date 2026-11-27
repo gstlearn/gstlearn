@@ -59,7 +59,7 @@ ny = 30
 mygrid = DbGrid_create(c(nx,ny), c(1,1))
 # Add a gaussian random field
 var = rnorm(nx * ny)
-mygrid$addColumns(var, "var1", ELoc_Z())
+colid = mygrid$addOneColumn("var1", 0., var, ERole_Z())
 # Display the field
 plot.init(asp=1) + plot.raster(mygrid) + plot.decoration(title="Gaussian random field")
 ```

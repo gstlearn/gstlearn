@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
     double value = (x1[i] > 12.) ? 1. : 0.;
     sel.push_back(value);
   }
-  grid->addColumns(sel, "sel", ELoc::SEL);
+  grid->addOneColumn("sel", 0., sel, ERole::SEL);
   grid->display();
 
   // Creating a Mesh based on the Masked Grid (in order to start Indirections)

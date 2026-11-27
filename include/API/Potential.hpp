@@ -131,8 +131,8 @@ namespace gstlrn
       double value,
       const ELoc& loctype_pot,
       const ELoc& loctype_grad,
-      VectorInt& uid_pot,
-      VectorInt& uid_grad) const;
+      ColIDs& colids_pot,
+      ColIDs& colids_grad) const;
     void _calculateCovs(
       ModelGeneric* model,
       bool flag_grad,
@@ -197,8 +197,8 @@ namespace gstlrn
       VectorDouble& zdual,
       MatrixDense& rhs,
       Db* db_target,
-      VectorInt& uid_pot,
-      VectorInt& uid_grad);
+      const ColIDs& colids_pot,
+      const ColIDs& colids_grad);
     void _convertDistance(
       Id ic0,
       Id j0,

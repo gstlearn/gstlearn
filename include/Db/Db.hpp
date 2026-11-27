@@ -324,70 +324,66 @@ namespace gstlrn
      * The added Columns can be dedicated to numerical variables or Selections.
      *  @{
      */
-
-    void addColumnsByVVD(
-      const VectorVectorDouble& tab,
-      const String& radix,
-      const ELoc& locatorType,
-      Id locatorIndex = 0,
+    ColID addOneColumn(
+      const String& name = String(),
+      double valinit = 0.,
+      const VectorDouble& tab = VectorDouble(),
+      const ERole& roleType = ERole::fromKey("UNDEFINED"),
+      Id roleIndex = 0,
       Id nversion = 1,
-      bool useSel = false);
-    Id addColumns(
-      const VectorDouble& tab,
-      const String& radix = "New",
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
       bool useSel = false,
-      double valinit = 0.,
-      Id nvar = 1,
-      Id nversion = 1);
-    Id addColumnsByConstant(
-      Id nadd = 1,
-      Id nversion = 1,
-      double valinit = 0.,
-      const String& radix = "New",
-      const ELoc& locatorType = ELoc::fromKey("UNDEFINED"),
-      Id locatorIndex = 0,
-      Id nechInit = 0);
-    Id addColumnsRandom(
-      Id nadd,
-      Id nversion = 1,
-      const String& radix = "New",
-      const ELoc& locatorType = ELoc::fromKey("Z"),
-      Id locatorIndex = 0,
+      bool flagRandom = false,
       Id seed = 1352,
       Id nechInit = 0);
-
-    Id addSelection(
+    ColIDs addMultiColumns(
+      const VectorString& names = VectorString(),
+      double valinit = 0.,
       const VectorDouble& tab = VectorDouble(),
+      const ERole& roleType = ERole::fromKey("UNDEFINED"),
+      Id nversion = 1,
+      bool useSel = false,
+      bool flagRandom = false,
+      Id seed = 1352,
+      Id nechInit = 0,
+      Id nvarInit = 0);
+    ColIDs addEmptyColumns(
+      const VectorString& names = VectorString(),
+      double valinit = 0.,
+      Id nechInit = 0,
+      Id nvarInit = 0,
+      Id nversion = 1);
+
+    ColID addSelection(
       const String& name = "NewSel",
+      const VectorDouble& tab = VectorDouble(),
       const String& combine = "set");
-    Id addSelectionByVariable(
+    ColID addSelectionByVariable(
+      const String& name,
       const String& varname,
       double lower = TEST,
       double upper = TEST,
-      const String& name = "NewSel",
       const String& combine = "set");
-    Id addSelectionByRanks(
-      const VectorInt& ranks,
-      const String& name = "NewSel",
-      const String& combine = "set");
-    Id addSelectionByLimit(
+    ColID addSelectionByLimit(
+      const String& name,
       const String& testvar,
       const Limits& limits = Limits(),
-      const String& name = "NewSel",
       const String& combine = "set");
-    Id addSelectionFromDbByConvexHull(
+    ColID addSelectionByRanks(
+      const String& name,
+      const VectorInt& ranks,
+      const String& combine = "set");
+    ColID addSelectionRandom(
+      const String& name,
+      double prop,
+      Id seed = 138213,
+      const String& combine = "set");
+
+    Id buildSelectionFromConvexHull(
       Db* db,
       double dilate = 0.,
       bool verbose = false,
       const NamingConvention& namconv =
         NamingConvention("Hull", true, true, true, ELoc::fromKey("SEL")));
-    Id addSelectionRandom(
-      double prop,
-      Id seed = 138213,
-      const String& name = "NewSel",
-      const String& combine = "set");
 
     /**@}*/
 
@@ -398,16 +394,15 @@ namespace gstlrn
      *  @{
      */
     bool hasColumn(const ColID& colid) const;
+    bool hasLocator(const ELoc& locatorType) const;
     bool hasValidVersion(const ColID& colid) const;
 
     String getName(const ColID& colid, bool withVersion = false) const;
-    void setName(const ColID& colid, const String& name);
-
-    Id getColIdx(const ColID& colid) const;
-
+    Id getColumnIndex(const ColID& colid) const;
     Id getUID(const ColID& colid) const;
+    Id getNVersions(const ColID& colid) const;
 
-    bool hasLocator(const ELoc& locatorType) const;
+    void setName(const ColID& colid, const String& name);
 
     Id getSelection(Id iech) const;
     double getValue(const ColID& colid, Id iech, bool verbose = true) const;
@@ -430,8 +425,6 @@ namespace gstlrn
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
 
-    Id getNVersions(const ColID& colid) const;
-
     void setColumn(
       const ColID& colid,
       const VectorDouble& tab,
@@ -448,6 +441,8 @@ namespace gstlrn
 
     const double* getColumnPtrUnprotected(const ColID& colid) const;
 
+    ColID getColID(const ColID& colid) const;
+
     /**@}*/
 
     /** @addtogroup DB_Multi_Column Methods for a Managing Several Column.
@@ -458,12 +453,13 @@ namespace gstlrn
      */
 
     VectorString getNames(const MultID& multid) const;
-    void setNames(const MultID& multid, const String& name);
-    VectorInt getColIdxs(const MultID& multid) const;
-
+    VectorInt getColumnIndices(const MultID& multid) const;
     VectorInt getUIDs(const MultID& multid) const;
+    Id getNLoc(const ELoc& locatorType) const;
 
     void deleteColumns(const MultID& multid);
+
+    void setNames(const MultID& multid, const String& name);
 
     VectorDouble getValues(
       const MultID& multid,
@@ -492,7 +488,7 @@ namespace gstlrn
       Id locatorIndex = 0,
       bool cleanSameLocator = false);
 
-    Id getNLoc(const ELoc& locatorType) const;
+    ColIDs getColIDs(const MultID& multid) const;
 
     // TODO: still to be upgraded
     void deleteColumnsByUIDRange(Id i_del, Id n_del);
@@ -924,7 +920,7 @@ namespace gstlrn
       static double dummy = std::numeric_limits<double>::quiet_NaN();
       auto iuid = getUID(name);
       if (iuid < 0) return dummy;
-      auto icol = getColIdx(fromUID(iuid));
+      auto icol = getColumnIndex(fromUID(iuid));
       if (icol < 0) return dummy;
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
@@ -936,7 +932,7 @@ namespace gstlrn
     {
       static const double dummy = std::numeric_limits<double>::quiet_NaN();
       auto iuid = getUID(name);
-      auto icol = getColIdx(fromUID(iuid));
+      auto icol = getColumnIndex(fromUID(iuid));
       if (icol < 0) return dummy;
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
@@ -973,6 +969,11 @@ namespace gstlrn
 
     Id _getNUIDMax() const { return _data.getUniqueIndexCounter(); }
 
+    VectorDouble _expandUseSel(
+      const VectorDouble& tabin,
+      Id ivar,
+      Id nversion,
+      bool useSel) const;
     Id _getNextLocator(const ELoc& locatorType) const;
     Id _getAddress(Id iech, Id icol) const;
     void _columnInit(

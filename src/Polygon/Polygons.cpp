@@ -614,8 +614,8 @@ namespace gstlrn
 
     // Create a new attribute
 
-    Id iptr = db->addColumnsByConstant(1, 1, TEST);
-    if (iptr < 0) return (1);
+    auto colid_iptr = db->addOneColumn(String(), TEST);
+    if (colid_iptr.empty()) return (1);
 
     // Loop on the polyelems
 
@@ -636,13 +636,13 @@ namespace gstlrn
         pldist = polyline.getPLIndex(target);
         double distloc = pldist.dist;
         if (FFFF(distloc)) continue;
-        distmin = db->getValue(db->fromUID(iptr), iech);
+        distmin = db->getValue(colid_iptr, iech);
         if (FFFF(distmin))
           distmin = distloc;
         else
           distmin = MIN(distmin, distloc);
         if (!FFFF(dmax) && distmin > dmax) distmin = dmax;
-        db->setValue(db->fromUID(iptr), iech, distmin);
+        db->setValue(colid_iptr, iech, distmin);
       }
     }
 
@@ -655,7 +655,7 @@ namespace gstlrn
       for (Id iech = 0; iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
-        double distloc = db->getValue(db->fromUID(iptr), iech);
+        double distloc = db->getValue(colid_iptr, iech);
         if (FFFF(distloc)) continue;
         if (polin != 0)
         {
@@ -684,10 +684,10 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
         {
           if (!db->isActive(iech)) continue;
-          double distloc = db->getValue(db->fromUID(iptr), iech);
+          double distloc = db->getValue(colid_iptr, iech);
           if (FFFF(distloc)) continue;
           double value = (distloc - distmin) / (distmax - distmin);
-          db->setValue(db->fromUID(iptr), iech, value);
+          db->setValue(colid_iptr, iech, value);
         }
       }
       else
@@ -695,10 +695,10 @@ namespace gstlrn
         for (Id iech = 0; iech < nech; iech++)
         {
           if (!db->isActive(iech)) continue;
-          double distloc = db->getValue(db->fromUID(iptr), iech);
+          double distloc = db->getValue(colid_iptr, iech);
           if (FFFF(distloc)) continue;
           double value = (distloc - distmax) / (distmin - distmax);
-          db->setValue(db->fromUID(iptr), iech, value);
+          db->setValue(colid_iptr, iech, value);
         }
       }
       distmin = 0.;
@@ -716,16 +716,15 @@ namespace gstlrn
       {
         Id inside = polygon->inside(
           db->getCoordinate(iech, 0), db->getCoordinate(iech, 1));
-        if (polin > 0 && !inside)
-          db->setValue(db->fromUID(iptr), iech, valtest);
-        if (polin < 0 && inside) db->setValue(db->fromUID(iptr), iech, valtest);
+        if (polin > 0 && !inside) db->setValue(colid_iptr, iech, valtest);
+        if (polin < 0 && inside) db->setValue(colid_iptr, iech, valtest);
       }
     }
 
     /* Set the error return code */
 
-    auto names = db->getNames(ERole::Z);
-    namconv.setOutput(names, 0, db, iptr);
+    auto name = db->getName(ERole::Z);
+    namconv.setOneColumn(db, colid_iptr, "", name);
 
     return (0);
   }
@@ -1021,7 +1020,7 @@ namespace gstlrn
   {
     // Adding a new variable
 
-    Id iatt = db->addColumnsByConstant(1, 1);
+    auto colid_iatt = db->addOneColumn();
 
     /* Loop on the samples */
 
@@ -1045,11 +1044,11 @@ namespace gstlrn
           selval = selval || polygon->inside(coor, flag_nested);
         }
       }
-      db->setValue(db->fromUID(iatt), iech, static_cast<double>(selval));
+      db->setValue(colid_iatt, iech, static_cast<double>(selval));
     }
 
     // Setting the output variable
-    namconv.setOutput(VectorString(), 0, db, iatt);
+    namconv.setOneColumn(db, colid_iatt, "");
   }
 
   /*****************************************************************************/
@@ -1082,7 +1081,7 @@ namespace gstlrn
 
     // Create the variable in the output Db
 
-    Id isel = db2->addColumnsByConstant(1, 1, 1.);
+    auto colid_isel = db2->addOneColumn("selection", 1.);
 
     /* Loop on the samples of the second Db */
     // Note that all samples must be checked as a sample, initially masked, can be
@@ -1099,7 +1098,7 @@ namespace gstlrn
       db2->getCoordinatesInPlace(coor, iech);
       if (!polygons->inside(coor, false))
       {
-        db2->setValue(db2->fromUID(isel), iech, 0.);
+        db2->setValue(colid_isel, iech, 0.);
         nout++;
       }
       else
@@ -1119,7 +1118,7 @@ namespace gstlrn
     }
 
     // Set the Naming Convention
-    namconv.setOutput(VectorString(), 0, db2, isel);
+    namconv.setOneColumn(db2, colid_isel, "");
 
     delete polygons;
     return 0;

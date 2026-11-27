@@ -126,13 +126,16 @@ namespace gstlrn
   {
     if (!ACalcDbToDb::_preprocess()) return false;
 
+    ColIDs colids_out;
     if (_flagUpscale)
-      _iattOut = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVarout(), 1, 0.);
+      colids_out =
+        _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNVarout(), 1, 0.);
     else
-      _iattOut = _addVariableDb(1, 1, ELoc::UNDEFINED, 0, _getNVarout(), 1, 0.);
-    if (_iattOut < 0) return false;
-
-    return true;
+      colids_out =
+        _addVariableDb(1, 1, ELoc::UNDEFINED, 0, _getNVarout(), 1, 0.);
+    if (!colids_out.empty()) _iattOut = colids_out[0].getUID();
+    _iattOut = colids_out[0].getUID();
+    return (_iattOut >= 0);
   }
 
   bool CalcSimuPost::_postprocess()
@@ -569,8 +572,6 @@ namespace gstlrn
       else
         local = _samplesInCellDifferentSpaceDimension();
       if (local.empty()) continue;
-
-      // Modif DR
 
       if (_mustBeChecked(0))
       {

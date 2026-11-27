@@ -78,13 +78,15 @@ namespace gstlrn
 
     if (_flagEst)
     {
-      _iattEst = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
-      if (_iattEst < 0) return false;
+      auto colids = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+      if (colids.empty()) return false;
+      _iattEst = colids[0].getUID();
     }
     if (_flagStd)
     {
-      _iattStd = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
-      if (_iattStd < 0) return false;
+      auto colids = _addVariableDb(2, 1, ELoc::UNDEFINED, 0, 1, 1, 0.);
+      if (colids.empty()) return false;
+      _iattStd = colids[0].getUID();
     }
     return true;
   }

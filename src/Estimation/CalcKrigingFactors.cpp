@@ -121,15 +121,17 @@ namespace gstlrn
 
     if (_flagEst)
     {
-      _iptrEst =
+      auto colids =
         _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNFactors(), 1, 0.);
-      if (_iptrEst < 0) return false;
+      if (colids.empty()) return false;
+      _iptrEst = colids[0].getUID();
     }
     if (_flagStd)
     {
-      _iptrStd =
+      auto colids =
         _addVariableDb(2, 1, ELoc::UNDEFINED, 0, _getNFactors(), 1, 0.);
-      if (_iptrStd < 0) return false;
+      if (colids.empty()) return false;
+      _iptrStd = colids[0].getUID();
     }
     return true;
   }

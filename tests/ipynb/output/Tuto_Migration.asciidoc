@@ -50,9 +50,9 @@ Number of active samples     = 1738
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      0.020     0.020
-Number :         50        50
+Origin :       0.000      0.000
+Mesh   :       0.020      0.020
+Number :          50         50
 
 Variables
 ---------
@@ -91,10 +91,6 @@ Column = 3 - Name = Hull - Locator = sel
 ----
 #NO_DIFF#XXX
 ----
-
-
-#NO_DIFF#XXX
-----2----
 
 
 #NO_DIFF#XXX

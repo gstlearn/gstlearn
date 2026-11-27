@@ -90,7 +90,7 @@ neigh$attach(data, grid)
 ranks = VectorInt()
 neigh$select(node, ranks)
 dataSel = data$clone()
-dum = dataSel$addSelectionByRanks(ranks)
+dum = dataSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -129,8 +129,8 @@ blx = dxref*blx
 bly = dxref*bly
 
 # incorporating the columns into the data base :
-dum = grid$addColumns(blx, "X-ext", ELoc_BLEX(), 0)
-dum = grid$addColumns(bly, "Y-ext", ELoc_BLEX(), 1)
+colid = grid$addOneColumn("X-ext", 0., blx, ELoc_BLEX(), 0)
+colid = grid$addOneColumn("Y-ext", 0., bly, ELoc_BLEX(), 1)
 ```
 
 Displaying each block and its cell extension
@@ -169,7 +169,7 @@ ranks = VectorInt()
 neigh$select(node, ranks)
 
 dataSel = data$clone()
-dum = dataSel$addSelectionByRanks(ranks)
+dum = dataSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting (TODO: this currently generates a warning message)
@@ -200,7 +200,7 @@ neigh$attach(data, grid)
 ranks = VectorInt()
 neigh$select(node, ranks)
 dataSel = data$clone()
-dum = dataSel$addSelectionByRanks(ranks)
+dum = dataSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -226,7 +226,7 @@ The file is converted into a point file to make the rest of the procedure more f
 Creating the grid and the point file containing the data
 ```{r}
 grid = DbGrid_create(nx=c(20,100), dx=c(10,1))
-iuid = grid$addColumns(VectorHelper_simulateUniform(grid$getNSample()),"z", ELoc_Z())
+colid = grid$addOneColumn("z", 0., VectorHelper_simulateUniform(grid$getNSample()), ERole_Z())
 point = Db_createReduce(grid)
 
 plot.init() + plot.symbol(grid,size=0.3)
@@ -253,7 +253,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addSelectionByRanks(ranks)
+dum = pointSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 plotting the result
@@ -287,7 +287,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addSelectionByRanks(ranks)
+dum = pointSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -320,7 +320,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addSelectionByRanks(ranks)
+dum = pointSel$addSelectionByRanks("NewSel", ranks)
 ```
 
 Plotting the result
@@ -364,7 +364,7 @@ neigh$attach(point, target)
 ranks = VectorInt()
 neigh$select(0, ranks)
 pointSel = point$clone()
-dum = pointSel$addSelectionByRanks(ranks)   #adding selection on these samples
+dum = pointSel$addSelectionByRanks("NewSel", ranks)   #adding selection on these samples
 ```
 
 Plotting the result

@@ -118,7 +118,7 @@ namespace gstlrn
 
     static VectorString _getNames(const Db* db);
 
-    static Id _createVariables(Db* db);
+    static ColIDs _createVariables(Db* db);
 
     double _getF2Z(Id ivar, Id ifac) const { return _F2Z.getValue(ivar, ifac); }
 
@@ -170,13 +170,13 @@ namespace gstlrn
       bool flag_center = true,
       bool flag_scale = false);
     void _pcaZ2F(
-      Id iptr,
+      ColIDs& colids,
       Db* db,
       const VectorBool& isoFlag,
       const VectorDouble& mean,
       const VectorDouble& sigma);
     void _pcaF2Z(
-      Id iptr,
+      ColIDs& colids,
       Db* db,
       const VectorBool& isoFlag,
       const VectorDouble& mean,

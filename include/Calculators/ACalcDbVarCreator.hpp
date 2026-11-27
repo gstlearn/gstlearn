@@ -45,26 +45,19 @@ namespace gstlrn
     Id _getNDim() const;
     Id _getNVar() const;
 
-    Id _addVariableDb(
-      Id status,
-      const ELoc& locatorType,
-      Id locatorIndex = 0,
-      Id number = 1,
-      Id nversion = 1,
-      double valinit = 0.);
     void _renameVariable(
       Id nvar,
       Id iptr,
       const ELoc& locatorInType,
       const String& qualifier,
       Id count);
-    void _storeInVariableList(Id status, const VectorInt& iuids);
+    void _storeInVariableList(Id status, const ColIDs& colids);
     void _cleanVariableDb(Id status);
 
   private:
     Db* _db;
     NamingConvention _namconv;
-    VectorInt _listVariablePermDb;
-    VectorInt _listVariableTempDb;
+    ColIDs _listVariablePermDb;
+    ColIDs _listVariableTempDb;
   };
 } // namespace gstlrn

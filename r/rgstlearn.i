@@ -986,7 +986,7 @@ function (x, i, j, ..., drop = TRUE)
   {
     # Case of a new variable
 
-    icol_new = db$addColumns(value, new_names)
+    colids_new = db$addMultiColumns(new_names, 0., value)
   }
   else
   {

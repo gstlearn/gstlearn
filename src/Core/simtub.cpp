@@ -233,8 +233,8 @@ namespace gstlrn
    ** \param[in]  nbsimu    Number of simulations
    ** \param[in]  nvar      Number of variables
    **
-   ** \param[out] iptr_ce_arg   Pointer to the Conditional Expectation attributes
-   ** \param[out] iptr_cstd_arg Pointer to the Conditional St. Dev. attributes
+   ** \param[out] colids_ce   Column IDs of the Conditional Expectation attributes
+   ** \param[out] colids_cstd Column IDs of the Conditional St. Dev. attributes
    **
    *****************************************************************************/
   Id db_simulations_to_ce(
@@ -242,28 +242,34 @@ namespace gstlrn
     const ELoc& locatorType,
     Id nbsimu,
     Id nvar,
-    Id* iptr_ce_arg,
-    Id* iptr_cstd_arg)
+    ColIDs& colids_ce,
+    ColIDs& colids_cstd)
   {
-    Id error, iptr_ce, iptr_cstd, iptr_nb, nech;
+    Id error, nech;
     double value, count, mean, var;
+    ColIDs colids_nb;
 
     // Initializations
 
     error = 1;
-    iptr_ce = iptr_cstd = iptr_nb = -1;
     if (db == nullptr) goto label_end;
     nech = db->getNSample();
     if (nbsimu <= 0 || nvar <= 0 || nech <= 0) return (1);
 
     // Allocate the new attributes:
 
-    iptr_ce = db->addColumnsByConstant(nvar, 1, 0., "CE");
-    if (iptr_ce < 0) goto label_end;
-    iptr_cstd = db->addColumnsByConstant(nvar, 1, 0., "CSTD");
-    if (iptr_cstd < 0) goto label_end;
-    iptr_nb = db->addColumnsByConstant(nvar, 1, 0., "NB");
-    if (iptr_nb < 0) goto label_end;
+    colids_ce = db->addMultiColumns(
+      {"CE"}, 0., VectorDouble(), ERole::UNDEFINED, 1, false, false, 0, 0,
+      nvar);
+    if (colids_ce.empty()) goto label_end;
+    colids_cstd = db->addMultiColumns(
+      {"CSTD"}, 0., VectorDouble(), ERole::UNDEFINED, 1, false, false, 0, 0,
+      nvar);
+    if (colids_cstd.empty()) goto label_end;
+    colids_nb = db->addMultiColumns(
+      {"NB"}, 0., VectorDouble(), ERole::UNDEFINED, 1, false, false, 0, 0,
+      nvar);
+    if (colids_nb.empty()) goto label_end;
 
     // Loop on the simulations
 
@@ -282,11 +288,9 @@ namespace gstlrn
           auto colid = Db::buildColIDForSim(locatorType, isimu, ivar, 0, nvar);
           value = db->getValue(colid, iech);
           if (FFFF(value)) continue;
-          db->updValue(
-            db->fromUID(iptr_ce + ivar), iech, EOperator::ADD, value);
-          db->updValue(
-            db->fromUID(iptr_cstd + ivar), iech, EOperator::ADD, value * value);
-          db->updValue(db->fromUID(iptr_nb + ivar), iech, EOperator::ADD, 1.);
+          db->updValue(colids_ce[ivar], iech, EOperator::ADD, value);
+          db->updValue(colids_cstd[ivar], iech, EOperator::ADD, value * value);
+          db->updValue(colids_nb[ivar], iech, EOperator::ADD, 1.);
         }
       }
     }
@@ -299,20 +303,19 @@ namespace gstlrn
 
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        count = db->getValue(db->fromUID(iptr_nb + ivar), iech);
+        count = db->getValue(colids_nb[ivar], iech);
         if (count <= 0)
         {
-          db->setValue(db->fromUID(iptr_ce + ivar), iech, TEST);
-          db->setValue(db->fromUID(iptr_cstd + ivar), iech, TEST);
+          db->setValue(colids_ce[ivar], iech, TEST);
+          db->setValue(colids_cstd[ivar], iech, TEST);
         }
         else
         {
-          mean = db->getValue(db->fromUID(iptr_ce + ivar), iech) / count;
-          db->setValue(db->fromUID(iptr_ce + ivar), iech, mean);
-          var = db->getValue(db->fromUID(iptr_cstd + ivar), iech) / count
-              - mean * mean;
+          mean = db->getValue(colids_ce[ivar], iech) / count;
+          db->setValue(colids_ce[ivar], iech, mean);
+          var = db->getValue(colids_cstd[ivar], iech) / count - mean * mean;
           var = (var > 0.) ? sqrt(var) : 0.;
-          db->setValue(db->fromUID(iptr_cstd + ivar), iech, var);
+          db->setValue(colids_cstd[ivar], iech, var);
         }
       }
     }
@@ -322,18 +325,13 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    db->deleteColumnsByUIDRange(iptr_nb, nvar);
+    db->deleteColumns(colids_nb);
     if (error)
     {
-      db->deleteColumnsByUIDRange(iptr_ce, nvar);
-      db->deleteColumnsByUIDRange(iptr_cstd, nvar);
-      *iptr_ce_arg = -1;
-      *iptr_cstd_arg = -1;
-    }
-    else
-    {
-      *iptr_ce_arg = iptr_ce;
-      *iptr_cstd_arg = iptr_cstd;
+      db->deleteColumns(colids_ce);
+      db->deleteColumns(colids_cstd);
+      colids_ce.clear();
+      colids_cstd.clear();
     }
     return (error);
   }
@@ -389,7 +387,7 @@ namespace gstlrn
     const NamingConvention& namconv)
   {
     DECLARE_UNUSED(flag_sym_neigh);
-    Id iptr;
+    ColIDs colids;
     PropDef propdef;
 
     /* Initializations */
@@ -397,11 +395,11 @@ namespace gstlrn
     Id error = 1;
     Id npgs = 1;
     Id nvar = 0;
-    Id iptr_ce = -1;
-    Id iptr_cstd = -1;
     AGibbs* gibbs = nullptr;
     std::vector<Model*> modvec;
     VectorVectorDouble y;
+    ColIDs colids_ce;
+    ColIDs colids_cstd;
 
     /**********************/
     /* Preliminary checks */
@@ -500,8 +498,10 @@ namespace gstlrn
     /* Add the attributes */
     /**********************/
 
-    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::GAUSFAC);
-    if (iptr < 0) goto label_end;
+    colids = dbin->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::GAUSFAC, nbsimu, false, false,
+      0, 0, nvar);
+    if (colids.empty()) goto label_end;
 
     /*****************/
     /* Gibbs sampler */
@@ -540,32 +540,30 @@ namespace gstlrn
     if (flag_ce || flag_cstd)
     {
       if (db_simulations_to_ce(
-            dbin, ELoc::GAUSFAC, nbsimu, nvar, &iptr_ce, &iptr_cstd))
+            dbin, ELoc::GAUSFAC, nbsimu, nvar, colids_ce, colids_cstd))
         goto label_end;
 
       // We release the attributes dedicated to simulations
       if (!flag_ce)
       {
-        dbin->deleteColumnsByUIDRange(iptr_ce, nvar);
-        iptr_ce = -1;
+        dbin->deleteColumns(colids_ce);
+        colids_ce.clear();
       }
       if (!flag_cstd)
       {
-        dbin->deleteColumnsByUIDRange(iptr_cstd, nvar);
-        iptr_cstd = -1;
+        dbin->deleteColumns(colids_cstd);
+        colids_cstd.clear();
       }
       dbin->deleteColumns(ERole::GAUSFAC);
-      iptr = -1;
+      colids.clear();
     }
 
     /* Set the error return flag */
 
     error = 0;
-    namconv.setOutput(VectorString(), nvar, dbin, iptr, String(), 1);
-    if (iptr_cstd >= 0)
-      namconv.setOutput(VectorString(), nvar, dbin, iptr_cstd, "STD", nvar);
-    if (iptr_ce >= 0)
-      namconv.setOutput(VectorString(), nvar, dbin, iptr_ce, "CE", nvar);
+    namconv.setMultiColumns(dbin, colids);
+    if (!colids_cstd.empty()) namconv.setMultiColumns(dbin, colids_cstd, "STD");
+    if (!colids_ce.empty()) namconv.setMultiColumns(dbin, colids_ce, "CE");
 
   label_end:
     return (error);
@@ -778,12 +776,16 @@ namespace gstlrn
    ** \param[in]  dbout     Output Db structure
    ** \param[in]  seuil     Threshold
    ** \param[in]  scale     Scaling factor for the new simulation
-   ** \param[in]  iptrv     Pointer to the max-stable outcome
-   ** \param[in]  iptrs     Pointer to the current selection
+   ** \param[in]  colid_iptrv     Pointer to the max-stable outcome
+   ** \param[in]  colid_iptrs     Pointer to the current selection
    **
    *****************************************************************************/
-  static Id
-    st_maxstable_mask(Db* dbout, double seuil, double scale, Id iptrv, Id iptrs)
+  static Id st_maxstable_mask(
+    Db* dbout,
+    double seuil,
+    double scale,
+    const ColID& colid_iptrv,
+    const ColID& colid_iptrs)
   {
     Id iech, number;
     double valsim;
@@ -791,9 +793,9 @@ namespace gstlrn
     for (iech = number = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      valsim = dbout->getValue(dbout->fromUID(iptrv), iech);
+      valsim = dbout->getValue(colid_iptrv, iech);
       if (valsim > seuil / scale)
-        dbout->setValue(dbout->fromUID(iptrs), iech, 0.);
+        dbout->setValue(colid_iptrs, iech, 0.);
       else
         number++;
     }
@@ -807,9 +809,9 @@ namespace gstlrn
    ** \param[in]  dbout     Output Db structure
    ** \param[in]  scale     Scaling factor for the new simulation
    ** \param[in]  iter0     Rank of the current iteration
-   ** \param[in]  iptrg     Pointer to the newly simulated outcome
-   ** \param[in]  iptrv     Pointer to the max-stable outcome
-   ** \param[in]  iptrr     Pointer to the max-stable rank outcome
+   ** \param[in]  colid_iptrg     Pointer to the newly simulated outcome
+   ** \param[in]  colid_iptrv     Pointer to the max-stable outcome
+   ** \param[in]  colid_iptrr     Pointer to the max-stable rank outcome
    **
    ** \param[in,out] last   Rank of Iteration where the last grid node is covered
    **
@@ -818,9 +820,9 @@ namespace gstlrn
     Db* dbout,
     double scale,
     Id iter0,
-    Id iptrg,
-    Id iptrv,
-    Id iptrr,
+    const ColID& colid_iptrg,
+    const ColID& colid_iptrv,
+    const ColID& colid_iptrr,
     Id* last)
   {
     Id iech;
@@ -829,12 +831,12 @@ namespace gstlrn
     for (iech = 0; iech < dbout->getNSample(); iech++)
     {
       if (!dbout->isActive(iech)) continue;
-      valold = dbout->getValue(dbout->fromUID(iptrv), iech);
-      valsim = dbout->getValue(dbout->fromUID(iptrg), iech) / scale;
+      valold = dbout->getValue(colid_iptrv, iech);
+      valsim = dbout->getValue(colid_iptrg, iech) / scale;
       if (valsim > valold)
       {
-        dbout->setValue(dbout->fromUID(iptrv), iech, valsim);
-        dbout->setValue(dbout->fromUID(iptrr), iech, iter0);
+        dbout->setValue(colid_iptrv, iech, valsim);
+        dbout->setValue(colid_iptrr, iech, iter0);
         (*last) = iter0;
       }
     }
@@ -870,13 +872,13 @@ namespace gstlrn
     Id verbose)
   {
     double tpois, seuil;
-    Id error, iptrg, iptrv, iptrr, iptrs, niter, nleft, icov, last;
+    Id niter, nleft, icov, last;
     static double seuil_ref = 5.;
+    ColID colid_iptrv, colid_iptrg, colid_iptrs, colid_iptrr;
 
     /* Initializations */
 
-    error = 1;
-    iptrv = iptrg = iptrs = iptrr = -1;
+    Id error = 1;
     law_set_random_seed(seed);
     if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
     seuil = get_keypone("MaxStableThresh", seuil_ref);
@@ -896,14 +898,15 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    iptrv = dbout->addColumnsByConstant(1, 1, 0.);
-    if (iptrv < 0) goto label_end;
-    iptrr = dbout->addColumnsByConstant(1, 1, 0.);
-    if (iptrr < 0) goto label_end;
-    iptrs = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SEL);
-    if (iptrs < 0) goto label_end;
-    iptrg = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
-    if (iptrg < 0) goto label_end;
+    colid_iptrv = dbout->addOneColumn("v");
+    if (colid_iptrv.empty()) goto label_end;
+    colid_iptrr = dbout->addOneColumn("r");
+    if (colid_iptrr.empty()) goto label_end;
+    colid_iptrs =
+      dbout->addOneColumn("selection", 0., VectorDouble(), ERole::SEL);
+    if (colid_iptrs.empty()) goto label_end;
+    colid_iptrg = dbout->addOneColumn("simu", 0., VectorDouble(), ERole::SIMU);
+    if (colid_iptrg.empty()) goto label_end;
 
     /* Implicit loop on the simulations */
 
@@ -922,7 +925,7 @@ namespace gstlrn
 
       /* Mask the nodes that cannot be accessed anymore */
 
-      nleft = st_maxstable_mask(dbout, seuil, tpois, iptrv, iptrs);
+      nleft = st_maxstable_mask(dbout, seuil, tpois, colid_iptrv, colid_iptrs);
       if (nleft <= 0) break;
 
       /* Processing the Turning Bands algorithm */
@@ -934,7 +937,8 @@ namespace gstlrn
 
       /* Combine the newly simulated outcome to the background */
 
-      st_maxstable_combine(dbout, tpois, niter, iptrg, iptrv, iptrr, &last);
+      st_maxstable_combine(
+        dbout, tpois, niter, colid_iptrg, colid_iptrv, colid_iptrr, &last);
 
       if (verbose)
         message(
@@ -958,10 +962,10 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    if (iptrs >= 0) dbout->deleteColumn(dbout->fromUID(iptrs));
-    if (iptrg >= 0) dbout->deleteColumn(dbout->fromUID(iptrg));
-    if (!flag_rank && iptrr >= 0) dbout->deleteColumn(dbout->fromUID(iptrr));
-    if (!flag_simu && iptrv >= 0) dbout->deleteColumn(dbout->fromUID(iptrv));
+    if (!colid_iptrs.empty()) dbout->deleteColumn(colid_iptrs);
+    if (!colid_iptrg.empty()) dbout->deleteColumn(colid_iptrg);
+    if (!flag_rank && !colid_iptrr.empty()) dbout->deleteColumn(colid_iptrr);
+    if (!flag_simu && !colid_iptrv.empty()) dbout->deleteColumn(colid_iptrv);
     return (error);
   }
 
@@ -1031,17 +1035,16 @@ namespace gstlrn
     Id verbose)
   {
     double cumul, simval, proba, seuil;
-    Id icut, error, iptrg, iptrs, nech, iech, count, total;
+    Id icut, iech, count, total;
     VectorDouble sort;
     VectorDouble pton;
     VectorDouble pres;
-    auto colid = ColID(0);
+    ColID colid, colid_iptrg, colid_iptrs;
 
     /* Initializations */
 
-    error = 1;
-    iptrg = iptrs = -1;
-    nech = dbout->getNSample();
+    Id error = 1;
+    Id nech = dbout->getNSample();
     law_set_random_seed(seed);
     if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
 
@@ -1058,10 +1061,12 @@ namespace gstlrn
     sort.resize(nech);
     pton.resize(ncut);
     pres.resize(ncut - 1);
-    iptrs = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SEL);
-    if (iptrs < 0) goto label_end;
-    iptrg = dbout->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
-    if (iptrg < 0) goto label_end;
+    colid_iptrs =
+      dbout->addOneColumn("selection", 0., VectorDouble(), ERole::SEL);
+    if (colid_iptrs.empty()) goto label_end;
+    colid_iptrg =
+      dbout->addOneColumn("simulated", 0., VectorDouble(), ERole::SIMU);
+    if (colid_iptrg.empty()) goto label_end;
 
     /* Preliminary calculations */
 
@@ -1149,7 +1154,7 @@ namespace gstlrn
     error = 0;
 
   label_end:
-    if (iptrs >= 0) dbout->deleteColumn(dbout->fromUID(iptrs));
+    if (!colid_iptrs.empty()) dbout->deleteColumn(colid_iptrs);
     return (error);
   }
 
@@ -1192,15 +1197,17 @@ namespace gstlrn
     Id verbose)
   {
     PropDef propdef;
-    Id nvar, error, iptr, iptr_ce, iptr_cstd;
+    Id nvar;
+    ColIDs colids_ce;
+    ColIDs colids_cstd;
+    ColIDs colids;
 
     /* Initializations */
 
-    error = 1;
+    Id error = 1;
     bool flag_ext_created = false;
     bool flag_nostat_created = false;
     nvar = model->getNVar();
-    iptr = -1;
 
     /* Preliminary checks */
 
@@ -1234,12 +1241,18 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::GAUSFAC);
-    if (iptr < 0) goto label_end;
-    iptr = dbin->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::SIMU);
-    if (iptr < 0) goto label_end;
-    iptr = dbout->addColumnsByConstant(nvar, nbsimu, 0., "", ELoc::SIMU);
-    if (iptr < 0) goto label_end;
+    colids = dbin->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::GAUSFAC, nbsimu, false, false,
+      0, 0, nvar);
+    if (colids.empty()) goto label_end;
+    colids = dbin->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::SIMU, nbsimu, false, false, 0,
+      0, nvar);
+    if (colids.empty()) goto label_end;
+    colids = dbin->addMultiColumns(
+      VectorString(), 0., VectorDouble(), ERole::NOSTAT, nbsimu, false, false,
+      0, 0, nvar);
+    if (colids.empty()) goto label_end;
 
     /*****************/
     /* Gibbs sampler */
@@ -1285,7 +1298,7 @@ namespace gstlrn
     if (flag_ce || flag_cstd)
     {
       if (db_simulations_to_ce(
-            dbout, ELoc::SIMU, nbsimu, nvar, &iptr_ce, &iptr_cstd))
+            dbout, ELoc::SIMU, nbsimu, nvar, colids_ce, colids_cstd))
         goto label_end;
 
       // We release the attributes dedicated to simulations on Dbout
@@ -1293,13 +1306,13 @@ namespace gstlrn
       dbout->deleteColumns(ERole::SIMU);
       if (!flag_ce)
       {
-        dbout->deleteColumnsByUIDRange(iptr_ce, nvar);
-        iptr_ce = -1;
+        dbout->deleteColumns(colids_ce);
+        colids_ce.clear();
       }
       if (!flag_cstd)
       {
-        dbout->deleteColumnsByUIDRange(iptr_cstd, nvar);
-        iptr_cstd = -1;
+        dbout->deleteColumns(colids_cstd);
+        colids_cstd.clear();
       }
     }
 
@@ -1364,12 +1377,12 @@ namespace gstlrn
 
     /* Create the new variable in the Data base */
 
-    Id iptr = db->addColumnsByConstant(1, 1, 0., "", ELoc::SIMU);
+    auto colid = db->addOneColumn("Simu");
 
     SimuSpherical simsphe(1, seed);
-    if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
+    if (simsphe.simulate(db, model, sphepar, colid.getUID(), verbose)) return 1;
 
-    namconv.setOutput(VectorString(), 1, db, iptr, "Simu");
+    namconv.setOneColumn(db, colid, "", "Simu");
     return 0;
   }
 

@@ -75,13 +75,15 @@ namespace gstlrn
     {
       if (_isConditional() && !_flagOnGridOnly)
       {
-        Id iptr_in =
+        auto colids_in =
           _addVariableDb(1, 2, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
-        if (iptr_in < 0) return false;
+        if (colids_in.empty()) return false;
       }
 
-      _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
-      if (_iattOut < 0) return false;
+      auto colids_out =
+        _addVariableDb(2, 1, ELoc::SIMU, 0, nvar, getNbSimu(), TEST);
+      if (colids_out.empty()) return false;
+      _iattOut = colids_out[0].getUID();
     }
 
     // Perform the global statements valid whatever the simulation method
@@ -104,9 +106,12 @@ namespace gstlrn
 
   void ACalcSimuGaussian::_initializeOutputAttribute()
   {
-    if (_iattOut < 0)
-      _iattOut = getDbout()->addColumnsByConstant(
-        _getNVar(), getNbSimu(), 0., "Simu", ELoc::SIMU);
+    if (_iattOut >= 0) return;
+
+    auto colids = getDbout()->addMultiColumns(
+      {"Simu"}, 0., VectorDouble(), ERole::SIMU, getNbSimu(), false, false, 0,
+      0, getNVar());
+    if (!colids.empty()) _iattOut = colids[0].getUID();
   }
 
   bool ACalcSimuGaussian::_run()
@@ -635,7 +640,7 @@ namespace gstlrn
 
     /* Add the attributes for storing the results */
 
-    Id iptr_est = dbout->getColIdx(RoleID(ERole::SIMU, 0));
+    Id iptr_est = dbout->getColumnIndex(RoleID(ERole::SIMU, 0));
     if (iptr_est < 0) return 1;
 
     /* Setting options */

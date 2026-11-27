@@ -19,12 +19,14 @@ namespace gstlrn
   {
   }
 
-  /**
-   * @brief Construct a new ColID from a Name stored as char*
-   *
-   * @param name
-   * @param version
-   */
+  ColID::ColID()
+    : _icol(-1)
+    , _name()
+    , _roleID()
+    , _version(0)
+  {
+  }
+
   ColID::ColID(const std::string_view name, Id version)
     : _icol(-1)
     , _name(name)
@@ -33,12 +35,6 @@ namespace gstlrn
   {
   }
 
-  /**
-   * @brief Construct a new ColID from a Column Index (0 based)
-   *
-   * @param icol Column Index
-   * @param version
-   */
   ColID::ColID(Id icol, Id version)
     : _icol(icol)
     , _name()
@@ -87,10 +83,19 @@ namespace gstlrn
   ColID ColID::create(const ColID& colid, Id version)
   {
     ColID res(colid);
-    if (version != 0) res._setVersion(version);
+    if (version != 0) res.setVersion(version);
     return res;
   }
 #endif
+
+  void ColID::free()
+  {
+    _icol = -1;
+    _name.clear();
+    _roleID = RoleID(ERole::UNDEFINED, 0);
+    _version = 0;
+    _uid = -1;
+  }
 
   String ColID::toString(const AStringFormat* strfmt) const
   {
@@ -103,6 +108,13 @@ namespace gstlrn
     sstr << "Version: " << _version << "\n";
 
     return sstr.str();
+  }
+
+  bool ColID::empty() const
+  {
+    return (
+      _icol < 0 && _name.empty() && _roleID.getRole().isEqual(ERole::UNDEFINED)
+      && _uid < 0);
   }
 
 } // namespace gstlrn

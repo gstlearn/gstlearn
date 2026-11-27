@@ -58,17 +58,17 @@ int main(int argc, char* argv[])
   Id nech = 20;
   Db* db = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 32432);
   VectorDouble vec1 = VH::simulateGaussian(nech);
-  db->addColumns(vec1, "myvar1", ELoc::Z, 0);
+  db->addOneColumn("myvar1", 0., vec1, ERole::Z, 0);
   VectorDouble vec2 = VH::simulateGaussian(nech);
-  db->addColumns(vec2, "myvar2");
+  db->addOneColumn("myvar2", 0., vec2);
 
   DbGrid* dbg = DbGrid::create({12, 10}, {0.1, 0.3}, {0.2, 0.4});
   vec1 = VH::simulateGaussian(dbg->getNSample());
-  dbg->addColumns(vec1, "myvar1", ELoc::Z, 0);
+  dbg->addOneColumn("myvar1", 0., vec1, ERole::Z, 0);
   vec2 = VH::simulateGaussian(dbg->getNSample());
   vec2[2] = TEST;
   vec2[5] = TEST;
-  dbg->addColumns(vec2, "myvar2", ELoc::Z, 1);
+  dbg->addOneColumn("myvar2", 0., vec2, ERole::Z, 1);
 
   // ==
   // Db
@@ -265,15 +265,15 @@ int main(int argc, char* argv[])
     // Define the Non-stationrity
     auto* dbnostat1 = DbGrid::create({10, 10});
     auto tab1 = dbnostat1->getColumns({"rank"});
-    dbnostat1->addColumns(tab1, "sills");
+    dbnostat1->addOneColumn("sills", 0., tab1);
     model1->attachNoStatDb(dbnostat1);
     model1->getCovAniso(0)->makeSillNoStatDb("sills", 0, 0, dbnostat1);
     delete dbnostat1;
 
     auto* dbnostat2 = DbGrid::create({10, 10});
     auto tab2 = dbnostat2->getColumns({"rank"});
-    dbnostat2->addColumns(tab2, "angles");
-    dbnostat2->addColumns(tab2, "ranges");
+    dbnostat2->addOneColumn("angles", 0., tab2);
+    dbnostat2->addOneColumn("ranges", 0., tab2);
     model1->getCovAniso(1)->makeAngleNoStatDb("angles", 0, dbnostat2);
     model1->getCovAniso(1)->makeRangeNoStatDb("ranges", 1, dbnostat2);
     delete dbnostat2;

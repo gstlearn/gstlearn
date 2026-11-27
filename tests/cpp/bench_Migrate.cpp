@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   if (!flag_simu)
   {
     VectorDouble resd = data->getColumn("x-1") + data->getColumn("x-2");
-    data->addColumns(resd, "Simu", ELoc::Z);
+    data->addOneColumn("Simu", 0., resd, ERole::Z);
   }
   else
   {
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
   if (!flag_simu)
   {
     VectorDouble resg = grid->getColumn("x1") + grid->getColumn("x2");
-    grid->addColumns(resg, "Simu", ELoc::Z);
+    grid->addOneColumn("Simu", 0., resg, ERole::Z);
   }
   else
   {
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
   // Compare impact of balltree option on P2Gy
   diff = vecb - vec;
   VH::getMostSignificant(diff, EPSILON6, 10);
-  grid->addColumns(diff, "Diff_P2Gy");
+  grid->addOneColumn("Diff_P2Gy", 0., diff);
 
   // Expand Point -> Point
   timer.reset();
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
   // Compare impact of balltree option on P2Py
   diff = vecb - vec;
   VH::getMostSignificant(diff, EPSILON6, 10);
-  data->addColumns(diff, "Diff_P2Py");
+  data->addOneColumn("Diff_P2Py", 0., diff);
 
   // Produce some neutral file
   (void)data->dumpToNF("data.NF");

@@ -94,7 +94,7 @@ elif filetype == "DbGrid":
         nameY = varnames[1]
         flagDb = False
     else:
-        print("Number of Variable rank should be 0 or 1")
+        print("Number of Variable rank should be 0, 1 or 2")
         exit()
 
     if flagDb:

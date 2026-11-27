@@ -87,27 +87,31 @@ namespace gstlrn
 
     if (_flagEst)
     {
-      _iptrEst =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
-      if (_iptrEst < 0) return false;
+      if (colids.empty()) return false;
+      _iptrEst = colids[0].getUID();
     }
     if (_flagStd)
     {
-      _iptrStd =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
-      if (_iptrStd < 0) return false;
+      if (colids.empty()) return false;
+      _iptrStd = colids[0].getUID();
     }
     if (_flagVarZ)
     {
-      _iptrVarZ =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _getNVar(), 1, TEST);
-      if (_iptrVarZ < 0) return false;
+      if (colids.empty()) return false;
+      _iptrVarZ = colids[0].getUID();
     }
     if (_flagNeighOnly)
     {
-      _iptrNeigh =
+      auto colids =
         _addVariableDb(2, status, ELoc::UNDEFINED, 0, _nbNeigh, 1, TEST);
-      if (_iptrNeigh < 0) return false;
+      if (colids.empty()) return false;
+      _iptrNeigh = colids[0].getUID();
     }
 
     // Centering the Data (for DGM only)
@@ -233,7 +237,7 @@ namespace gstlrn
     Id nvar = _getNVar();
     Id nech = _ktest.nech;
     auto names = getDbin()->getNames(ERole::Z);
-    auto iuid = getDbin()->addColumnsByConstant(nvar * nvar, 1, TEST, "Weight");
+    auto colids = getDbin()->addEmptyColumns({"Weight"}, TEST, 0, nvar * nvar);
 
     // Loop on the variables
     for (Id ivar = 0; ivar < nvar; ++ivar)
@@ -251,11 +255,11 @@ namespace gstlrn
           if (FFFF(value)) continue;
 
           getDbin()->setValue(
-            getDbin()->fromUID(iuid + jvar + nvar * ivar), jech,
+            colids[jvar + nvar * ivar], jech,
             100. * _ktest.wgt.getValue(lec++, ivar));
         }
     }
-    namconv.setOutput(names, nvar, getDbin(), iuid, String(), nvar, false);
+    namconv.setMultiColumns(getDbin(), colids, "", names);
   }
 
   /****************************************************************************/

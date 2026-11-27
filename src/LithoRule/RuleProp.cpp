@@ -312,18 +312,17 @@ namespace gstlrn
   /**
    * Convert a set of Gaussian vectors into the corresponding Facies in a Db
    * @param db      Pointer to the Db structure (in/out)
-   * @param namconv Naming convention
+   * @param isimu   Index of the simulation
    * @return Error return code
-   * @remarks The input variables must be locatorized Z or SIMU
    */
-  Id RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
+  Id RuleProp::gaussToCategory(Db* db, Id isimu) const
   {
     if (_rules[0]->getModeRule() != ERule::STD)
     {
       messerr("This method is only available for ERule::STD type of Rule");
       return 1;
     }
-    return _db_rule(db, this, nullptr, namconv);
+    return _db_rule(db, this, nullptr, isimu);
   }
 
   /**

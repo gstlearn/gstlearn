@@ -419,10 +419,10 @@ namespace gstlrn
       return 1;
     }
 
-    // Translate the 'Facies' into 'categories'   VectorDouble props =
+    // Translate the 'Facies' into 'categories'
     Limits limits(nclass);
-    Id iatt = _db->getUID(RoleID(ERole::Z, 0));
-    if (limits.toIndicatorByAttribute(_db, iatt))
+    String name = _db->getName(RoleID(ERole::Z, 0));
+    if (limits.toIndicator(_db, name))
     {
       messerr("Problem when translating Facies into Categories");
       return 1;
@@ -443,7 +443,7 @@ namespace gstlrn
 
     // Delete the Indicators (created locally)
     _db->deleteColumns(ERole::Z);
-    _db->setLocator(_db->fromUID(iatt), ELoc::Z, 0);
+    _db->setLocator(name, ELoc::Z, 0);
 
     return 0;
   }
@@ -3121,18 +3121,17 @@ namespace gstlrn
    *****************************************************************************/
   Id Vario::_calculateOnGrid(DbGrid* db)
   {
-    Id iadd_new = -1;
-    Id iatt_old = -1;
     double maille = 0.;
+    ColID colid_new(-1);
+    ColID colid_old(-1);
 
     /* In the case of Covariogram, add the weight set to the scale */
 
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
-      iatt_old = db->getUID(ERole::W);
-      iadd_new = db->addColumnsByConstant(1, 1, 0.);
-      if (iadd_new < 0) return 1;
-      db->setLocator(db->fromUID(iadd_new), ELoc::W);
+      colid_old = db->getColID(ERole::W);
+      colid_new = db->addOneColumn(String(), 0., VectorDouble(), ERole::W);
+      if (colid_new.empty()) return 1;
       maille = db->getCellSize();
       for (Id iech = 0; iech < db->getNSample(); iech++)
         db->setValue(ERole::W, iech, maille);
@@ -3160,8 +3159,8 @@ namespace gstlrn
 
     if (getCalcul() == ECalcVario::COVARIOGRAM)
     {
-      if (iadd_new > 0) db->deleteColumn(db->fromUID(iadd_new));
-      if (iatt_old > 0) db->setLocator(db->fromUID(iatt_old), ELoc::W);
+      if (!colid_new.empty()) db->deleteColumn(colid_new);
+      if (!colid_old.empty()) db->setLocator(colid_old, ELoc::W);
     }
     return 0;
   }
