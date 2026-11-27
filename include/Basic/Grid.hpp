@@ -40,6 +40,8 @@ namespace gstlrn
 
     /// ASerializable Interface
     String getNFName() const override { return "Grid"; }
+
+    static Grid createFromNF(const String& NFFilename, bool verbose = true);
 #ifdef HDF5
     bool deserializeH5(H5::Group& grp) override;
     bool serializeH5(H5::Group& grp) const override;

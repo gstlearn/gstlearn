@@ -173,6 +173,7 @@ namespace gstlrn
     static DbGrid* createSubGrid(
       const DbGrid* gridin,
       VectorVectorInt limits,
+      bool flagAddSampleRank = false,
       bool flagAddCoordinates = false);
     static DbGrid* createMultiple(
       DbGrid* dbin,
